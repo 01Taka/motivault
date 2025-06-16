@@ -1,0 +1,102 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isServerTimestamp(field) {
+      return field == request.time;
+    }
+
+    function isCreatingNewDocWithServerTimestamp() {
+      return request.resource.data.keys().hasAll([
+        "createdAt",
+        "createdById",
+        "isActive"
+      ]) &&
+      isServerTimestamp(request.resource.data.createdAt) &&
+      request.resource.data.createdById == request.auth.uid &&
+      request.resource.data.isActive == true;
+    }
+
+    match /users/{userId} {
+
+      allow read: if true;
+
+      allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+      allow update: if isSignedIn();
+
+      allow delete: if false;
+
+      match /dailyReports/{reportId} {
+        
+        allow read: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+        allow update: if isSignedIn() && request.auth.uid == userId;
+
+        allow delete: if false;
+      }
+
+      match /joinedTeams/{teamId} {
+        
+        allow read: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+        allow update: if isSignedIn() && request.auth.uid == userId;
+
+        allow delete: if false;
+      }
+
+      match /stats/main {
+        
+        allow read: if isSignedIn() && request.auth.uid == userId;
+
+        allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+        allow update: if isSignedIn() && request.auth.uid == userId;
+
+        allow delete: if false;
+      }
+    }
+
+    match /teams/{teamId} {
+
+      allow read: if true;
+
+      allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+      allow update: if isSignedIn();
+
+      allow delete: if false;
+
+      match /members/{memberId} {
+
+        allow read: if true;
+
+        allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+        allow update: if isSignedIn();
+
+        allow delete: if false;
+      }
+    }
+
+    match /teamCodes/{codeId} {
+      
+      allow read: if true;
+
+      allow create: if isSignedIn() && isCreatingNewDocWithServerTimestamp();
+
+      allow update: if isSignedIn() && request.auth.uid == userId;
+
+      allow delete: if false;
+    }
+  }
+}
