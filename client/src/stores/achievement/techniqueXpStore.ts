@@ -1,6 +1,6 @@
 // store/techniqueXPStore.ts
 import { create } from 'zustand'
-import { getLevelInfo } from '../../features/achievements/functions/level-utils'
+import { getLevelInfo } from '../../features/achievementsSystem/functions/level-utils'
 import type { TechniqueLevelInfo } from '../../features/achievements/types/achievement-types'
 
 type XpMap = Record<string, number>

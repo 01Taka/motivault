@@ -1,7 +1,7 @@
 // src/hooks/useTechniqueXP.ts
 import { useTechniqueXPStore } from '../../../stores/achievement/techniqueXpStore'
 import { LocalStorageTechniqueXPProvider } from '../functions/providers/LocalStorageTechniqueXPProvider'
-import type { TechniqueXPProvider } from '../types/achievement-types'
+import type { TechniqueXPProvider } from '../types/provider-interfaces'
 
 const useTechniqueXP = (
   provider: TechniqueXPProvider = LocalStorageTechniqueXPProvider

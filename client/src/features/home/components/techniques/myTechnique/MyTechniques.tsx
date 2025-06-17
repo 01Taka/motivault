@@ -1,19 +1,27 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MyTechniqueList from './MyTechniqueList'
 import { techniques } from '../../../constants/technique/techniques'
 import type { TechniqueAchievementBadge } from '../../../../achievements/types/achievement-types'
 import { useTechniqueXPStore } from '../../../../../stores/achievement/techniqueXpStore'
-import useTechniqueXP from '../../../../achievements/hooks/useTechniqueXP'
 import { Button } from '@mui/material'
 import Popup from '../../../../../components/utils/Popup'
 import AchievementDetailView from '../../../../achievements/components/AchievementDetailView'
 import AchievementAnimationsScreen from '../../../../achievements/components/AchievementAnimationsScreen'
+import { AchievementBadgeCard } from '../../../../achievements/components/badge/AchievementBadgeCard'
+import { LocalPolice } from '@mui/icons-material'
+import { useKeyPress } from '../../../../../hooks/test/useKeyPress'
+import { useXpSystem } from '../../../../achievementsSystem/hooks/useXpSystem'
+import { LocalStorageXpProvider } from '../../../../achievementsSystem/functions/providers/LocalStorageXpProvider'
+import AchievementModal from '../../../../achievementsSystem/components/AchievementModal'
 
 const MyTechniquesPage: React.FC = () => {
   const navigate = useNavigate()
-  const { levelInfoMap } = useTechniqueXPStore()
-  const { gainXP } = useTechniqueXP()
+  const { levelInfoMap, updateXp } = useTechniqueXPStore()
+
+  const { updateCache, applyXpAndBadges } = useXpSystem({
+    provider: new LocalStorageXpProvider(),
+  })
 
   const badges: Record<string, TechniqueAchievementBadge[]> = {
     pomodoro: [
@@ -53,16 +61,35 @@ const MyTechniquesPage: React.FC = () => {
     timeBlocking: [],
   }
 
+  const isEnterPressed = useKeyPress('Enter')
+
+  const gainAchievement = () => {
+    const provider = new LocalStorageXpProvider()
+    const id = 'pomodoro'
+
+    const gotXP = 100
+    updateCache(id, gotXP, [])
+    applyXpAndBadges(id, 'POMODORO', provider.getCurrentXp(id))
+
+    updateXp(id, provider.getCurrentXp(id))
+  }
+
+  useEffect(() => {
+    const provider = new LocalStorageXpProvider()
+    updateXp('pomodoro', provider.getCurrentXp('pomodoro'))
+  }, [])
+
   return (
     <>
-      <Button onClick={() => gainXP('pomodoro', 100)}>Gain</Button>
+      <Button onClick={() => gainAchievement()}>Gain</Button>
       <MyTechniqueList
         techniques={techniques}
         levelInfo={levelInfoMap}
         badges={badges}
         onClickMyTechnique={(id) => navigate(`/techniques/${id}`)}
       />
-      <Popup open>
+      <AchievementModal />
+      <Popup>
         {/* <AchievementDetailView
           title={techniques[0]?.officialName ?? ''}
           currentLevel={levelInfoMap['pomodoro']?.currentLevel ?? 0}
@@ -71,11 +98,18 @@ const MyTechniquesPage: React.FC = () => {
           currentRank={levelInfoMap['pomodoro']?.rank ?? 'iron'}
           badges={badges['pomodoro'] ?? []}
         /> */}
-        <AchievementAnimationsScreen
+        {/* <AchievementAnimationsScreen
           title="POMO"
           previousTotalXP={1000}
           currentTotalXP={1500}
           badges={badges['pomodoro'] ?? []}
+        /> */}
+        <AchievementBadgeCard
+          title="Achieve Title"
+          icon={<LocalPolice sx={{ fontSize: '3rem' }} />}
+          rarity={'legendary'}
+          condition="10日連続でアクセスする"
+          isUnlocked={isEnterPressed}
         />
       </Popup>
     </>

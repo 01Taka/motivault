@@ -7,7 +7,7 @@ import HomePage from './components/pages/home/HomePage'
 import SearchTechnique from './features/home/components/techniques/searchTechnique/SearchTechnique'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import PomodoroTimer from './features/techniques/pomodoro/components/PomodoroTimer'
-import useTechniqueXPSetup from './features/achievements/hooks/useTechniqueXPSetup'
+import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 
 function App() {
   useTechniqueXPSetup()

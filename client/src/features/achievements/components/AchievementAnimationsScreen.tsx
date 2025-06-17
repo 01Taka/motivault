@@ -6,7 +6,7 @@ import { useXPAnimation } from '../hooks/useXPAnimation'
 import {
   createXPAnimationSegments,
   getLevelInfo,
-} from '../functions/level-utils'
+} from '../../achievementsSystem/functions/level-utils'
 
 interface AchievementAnimationsScreenProps {
   title: string

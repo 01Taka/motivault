@@ -1,4 +1,4 @@
-import type { TechniqueXPProvider } from '../../types/achievement-types'
+import type { TechniqueXPProvider } from '../../types/provider-interfaces'
 
 const STORAGE_KEY = 'technique_xp'
 

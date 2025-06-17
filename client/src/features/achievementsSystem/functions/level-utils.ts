@@ -2,7 +2,7 @@ import type {
   TechniqueLevelInfo,
   TechniqueRank,
   XPAnimationSegment,
-} from '../types/achievement-types'
+} from '../../achievements/types/achievement-types'
 
 const INITIAL_XP = 40
 

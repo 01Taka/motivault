@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { LocalStorageTechniqueXPProvider } from '../functions/providers/LocalStorageTechniqueXPProvider'
-import type { TechniqueXPProvider } from '../types/achievement-types'
 import { useTechniqueXPStore } from '../../../stores/achievement/techniqueXpStore'
+import { LocalStorageTechniqueXPProvider } from '../functions/providers/LocalStorageTechniqueXPProvider'
+import type { TechniqueXPProvider } from '../types/provider-interfaces'
 
 const useTechniqueXPSetup = (
   provider: TechniqueXPProvider = LocalStorageTechniqueXPProvider

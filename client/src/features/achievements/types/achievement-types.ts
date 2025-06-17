@@ -1,9 +1,9 @@
-export interface TechniqueAchievementBadge {
-  id: string
-  title: string
-  description: string
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
-}
+export type AchievementBadgeRarity =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'epic'
+  | 'legendary'
 
 export type TechniqueRank =
   | 'iron'
@@ -15,6 +15,13 @@ export type TechniqueRank =
   | 'master'
   | 'sage'
 
+export interface TechniqueAchievementBadge {
+  id: string
+  title: string
+  description: string
+  rarity: AchievementBadgeRarity
+}
+
 export interface TechniqueLevelInfo {
   currentLevel: number
   currentLevelXp: number
@@ -23,16 +30,15 @@ export interface TechniqueLevelInfo {
   rank: TechniqueRank
 }
 
-export interface TechniqueXPProvider {
-  incrementXP: (techniqueId: string, value: number) => void
-  getXP: (techniqueId: string) => number
-  getAllXP: () => Record<string, number>
-}
-
 export interface XPAnimationSegment {
   startXP?: number
   endXP?: number
   nextLevelXP: number
   level: number
   rank: TechniqueRank
+}
+
+export interface AchievementBadge {
+  id: string
+  getAt: string // ISO8601 日時文字列
 }
