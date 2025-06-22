@@ -1,13 +1,10 @@
-import { useState, useCallback, useMemo, type ChangeEvent } from 'react'
-import type { SelectChangeEvent } from '@mui/material'
+import { useState, useCallback, useMemo } from 'react'
 import type {
   FormStateChangeAction,
   ArrayFieldChangeAction,
+  FormInputEvent,
+  KeyMirrorObject,
 } from '../../../types/form/formstate-types'
-
-type InputEvent =
-  | ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  | SelectChangeEvent<string>
 
 const useFormState = <
   T extends Record<string, any>,
@@ -86,7 +83,7 @@ const useFormState = <
   // 共通のイベントハンドラ
   const handleInputChange = useCallback(
     (
-      e: InputEvent,
+      e: FormInputEvent,
       updateCallback: (fieldName: string, newValue: any) => void,
       fileKey?: string
     ) => {
@@ -111,7 +108,7 @@ const useFormState = <
     return {
       value: formState[name] ?? '',
       name: String(name),
-      onChange: (e: InputEvent, ..._args: any[]) =>
+      onChange: (e: FormInputEvent, ..._args: any[]) =>
         handleInputChange(e, (fieldName, newValue) =>
           onChangeFormState({ name: fieldName, value: newValue })
         ),
@@ -137,7 +134,7 @@ const useFormState = <
     return {
       value: value ?? '',
       name: String(name),
-      onChange: (e: InputEvent, ..._args: any[]) =>
+      onChange: (e: FormInputEvent, ..._args: any[]) =>
         handleInputChange(
           e,
           (fieldName, newValue) =>
@@ -173,7 +170,6 @@ const useFormState = <
 
 export default useFormState
 
-type KeyMirrorObject<T> = { [K in keyof T]: K }
 const keyMirror = <T extends object>(obj: T): KeyMirrorObject<T> => {
   return Object.keys(obj).reduce((mirrored, key) => {
     mirrored[key as keyof T] = key as keyof T

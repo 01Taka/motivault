@@ -1,4 +1,4 @@
-import type { PomodoroStorage } from '../types/pomodoro-types'
+import type { PomodoroStorage } from '../../../../techniques/pomodoro/types/pomodoro-types'
 
 const STORAGE_KEYS = {
   state: 'pomodoro-timer-state',

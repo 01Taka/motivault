@@ -6,7 +6,7 @@ import TimerControls from './timer/TimerControls'
 import TimerDisplay from './timer/TimerDisplay'
 import { Settings } from '@mui/icons-material'
 import TimerSettings from './timer/TimerSettings'
-import Popup from '../../../../components/utils/Popup'
+import Popup from '../../../components/utils/Popup'
 import { LocalStorageProvider } from '../functions/LocalStorageProvider'
 
 const defaultSettings = {

@@ -3,6 +3,7 @@ import type { Technique } from '../../types/technique-types'
 export const techniques: Technique[] = [
   {
     id: 'pomodoro',
+    path: 'pomodoro',
     title: '25分で全集中！',
     officialName: 'ポモドーロ・テクニック',
     category: '集中力アップ',
@@ -32,6 +33,7 @@ export const techniques: Technique[] = [
   },
   {
     id: 'feynman',
+    path: 'feynman',
     title: '説明できる＝本当の理解！',
     officialName: 'Feynmanテクニック',
     category: '理解力アップ',
@@ -60,6 +62,7 @@ export const techniques: Technique[] = [
   },
   {
     id: 'timeBlocking',
+    path: 'time-blocking',
     title: '一日をブロックに分けて計画簡単！',
     officialName: 'タイムブロッキング',
     category: '習慣化・計画力',

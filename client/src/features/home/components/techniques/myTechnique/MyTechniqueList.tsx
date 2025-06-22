@@ -39,7 +39,7 @@ const MyTechniqueList: React.FC<MyTechniqueListProps> = ({
               rank={rank}
               badges={badges[t.id] ?? []}
               {...t}
-              onClick={() => onClickMyTechnique?.(t.id)}
+              onClick={() => onClickMyTechnique?.(t.path)}
             />
           </Grid2>
         )

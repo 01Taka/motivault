@@ -6,8 +6,9 @@ import AuthPage from './components/pages/auth/AuthPage'
 import HomePage from './components/pages/home/HomePage'
 import SearchTechnique from './features/home/components/techniques/searchTechnique/SearchTechnique'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
-import PomodoroTimer from './features/techniques/pomodoro/components/PomodoroTimer'
+import PomodoroTimer from './techniques/pomodoro/components/PomodoroTimer'
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
+import TimeBlocking from './techniques/timeBlocking/components/TimeBlocking'
 
 function App() {
   useTechniqueXPSetup()
@@ -21,6 +22,7 @@ function App() {
 
       <Route path="/techniques">
         <Route path="pomodoro" element={<PomodoroTimer />} />
+        <Route path="time-blocking" element={<TimeBlocking />} />
       </Route>
 
       <Route path="/auth" element={<AuthPage />}>

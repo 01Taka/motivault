@@ -31,17 +31,17 @@ export interface DataService<
     value: any,
     collectionPath?: string[]
   ): Promise<Read | null>
-  addReadCallback(
-    callback: (data: Read | null, id: string) => void,
-    documentPath: string[],
-    callbackId?: string
-  ): { callbackId: string; unsubscribe: () => void }
-  addReadCollectionCallback(
-    callback: (data: Read[]) => void,
-    collectionPath?: string[],
-    callbackId?: string
-  ): { callbackId: string; unsubscribe: () => void }
-  removeCallback(callbackId: string): void
+  // addReadCallback(
+  //   callback: (data: Read | null, id: string) => void,
+  //   documentPath: string[],
+  //   callbackId?: string
+  // ): Promise<{ callbackId: string; unsubscribe: () => void }>
+  // addReadCollectionCallback(
+  //   callback: (data: Read[]) => void,
+  //   collectionPath?: string[],
+  //   callbackId?: string
+  // ): Promise<{ callbackId: string; unsubscribe: () => void }>
+  // removeCallback(callbackId: string): void
   runTransaction(
     actions: (txService: TransactionalService<Read, Write>) => Promise<void>
   ): Promise<void>

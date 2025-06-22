@@ -9,7 +9,7 @@ import type {
   PomodoroTimerState,
   PomodoroTimerStats,
   PomodoroStorage,
-} from '../types/pomodoro-types'
+} from '../../../../techniques/pomodoro/types/pomodoro-types'
 
 const defaultState: PomodoroTimerState = {
   status: 'idle',

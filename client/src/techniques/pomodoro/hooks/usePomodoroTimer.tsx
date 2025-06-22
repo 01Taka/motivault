@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
-import useRemainingTime from '../../../../hooks/timer/useRemainingTime'
+import useRemainingTime from '../../../hooks/timer/useRemainingTime'
 import type { PomodoroTimerState, TimerType } from '../types/pomodoro-types'
 
 interface TimerSettings {

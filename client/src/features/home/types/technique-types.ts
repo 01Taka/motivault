@@ -5,6 +5,7 @@ export interface TechniqueReference {
 
 export interface Technique {
   id: string
+  path: string
   title: string
   officialName: string
   category: string
