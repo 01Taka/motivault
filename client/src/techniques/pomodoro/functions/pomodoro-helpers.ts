@@ -1,4 +1,4 @@
-import type { PomodoroTimerState } from '../../../../techniques/pomodoro/types/pomodoro-types'
+import type { PomodoroTimerState } from '../types/pomodoro-types'
 
 export const getNow = () => Date.now()
 
