@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "curgnite-test"
-  }
+    "default": "motivault-d6716"
+  },
+  "targets": {},
+  "etags": {}
 }
