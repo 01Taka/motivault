@@ -53,7 +53,7 @@ export const TimeBlockingTaskFormBody: React.FC<Props> = ({
   const handleCloseTagModal = () => setTagModalOpen(false)
 
   return (
-    <Stack spacing={3} mt={6}>
+    <Stack spacing={3} sx={{ height: '60vh', overflowY: 'auto', mt: 6 }}>
       <Typography variant="h6" fontWeight="bold">
         タスクを作成
       </Typography>

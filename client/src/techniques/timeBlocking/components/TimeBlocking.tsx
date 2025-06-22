@@ -45,6 +45,7 @@ const TimeBlocking: React.FC<TimeBlockingProps> = ({}) => {
             createTask(data)
             setOpenCreateModal(false)
           }}
+          onCancel={() => setOpenCreateModal(false)}
           onTagCreate={(tag) => createTag(tag)}
         />
       </Popup>

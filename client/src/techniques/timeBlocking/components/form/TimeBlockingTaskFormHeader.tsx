@@ -1,4 +1,4 @@
-import { IconButton, Box } from '@mui/material'
+import { IconButton, Box, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -21,6 +21,7 @@ export const TimeBlockingTaskFormHeader: React.FC<Props> = ({
     </Box>
     <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
       <IconButton onClick={onSubmit} disabled={disabled} color="primary">
+        <Typography variant="body1">作成 </Typography>
         <CheckIcon />
       </IconButton>
     </Box>

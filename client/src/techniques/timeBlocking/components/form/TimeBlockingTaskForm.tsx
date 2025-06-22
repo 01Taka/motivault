@@ -50,6 +50,7 @@ const TimeBlockingTaskForm: React.FC<TimeBlockingTaskFormProps> = ({
     <Box
       sx={{
         p: 2,
+        height: '70vh',
         width: '80vw',
         position: 'relative',
         bgcolor: 'whitesmoke',
