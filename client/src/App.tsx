@@ -9,6 +9,7 @@ import MyTechniques from './features/home/components/techniques/myTechnique/MyTe
 import PomodoroTimer from './techniques/pomodoro/components/PomodoroTimer'
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 import TimeBlocking from './techniques/timeBlocking/components/TimeBlocking'
+import FeynmanTechnique from './techniques/feynman/FeynmanTechnique'
 
 function App() {
   useTechniqueXPSetup()
@@ -23,6 +24,7 @@ function App() {
       <Route path="/techniques">
         <Route path="pomodoro" element={<PomodoroTimer />} />
         <Route path="time-blocking" element={<TimeBlocking />} />
+        <Route path="feynman" element={<FeynmanTechnique />} />
       </Route>
 
       <Route path="/auth" element={<AuthPage />}>
