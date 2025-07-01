@@ -7,7 +7,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore'
 import { nanoid } from 'nanoid'
-import type { BaseDocumentRead } from '../../../types/firebase/firestore/firestore-document-types'
+import type { BaseDocumentRead } from '../../../types/db/db-service-document-types'
 
 // 個別ドキュメント用のコールバック
 export interface Callback<Read extends BaseDocumentRead> {

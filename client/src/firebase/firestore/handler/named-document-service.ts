@@ -9,7 +9,7 @@ import type {
   BaseDocumentRead,
   BaseDocumentWrite,
   BaseDocument,
-} from '../../../types/firebase/firestore/firestore-document-types'
+} from '../../../types/db/db-service-document-types'
 
 class NamedDocumentService<
   Read extends BaseDocumentRead,

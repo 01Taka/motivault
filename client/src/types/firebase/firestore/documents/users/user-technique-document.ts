@@ -2,7 +2,7 @@ import type { Timestamp } from 'firebase/firestore'
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
-} from '../../firestore-document-types'
+} from '../../../../db/db-service-document-types'
 
 interface UserTechniqueData {
   id: string

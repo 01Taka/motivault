@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { TimeBlockingTaskData } from '../../types/documents/task-documents'
+import type { TimeBlockingTaskData } from '../../services/documents/task-documents'
 
 export const useTimeBlockingForm = () => {
   const [formData, setFormData] = useState<Omit<TimeBlockingTaskData, 'id'>>({

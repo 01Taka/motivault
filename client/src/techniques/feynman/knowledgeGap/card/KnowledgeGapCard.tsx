@@ -7,7 +7,7 @@ import { cardContainerStyle, motionHoverVariant } from './cardStyles'
 interface KnowledgeGapCardProps {
   index: number
   title: string
-  date: string
+  date: number
   content: string
 }
 

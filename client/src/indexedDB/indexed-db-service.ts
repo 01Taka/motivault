@@ -2,15 +2,19 @@ import { openDB, type IDBPDatabase } from 'idb'
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
-} from '../types/firebase/firestore/firestore-document-types'
-import type { DataService, TransactionalService } from './indexed-db-types'
+} from '../types/db/db-service-document-types'
+import type { TransactionalService } from './indexed-db-types'
+import type {
+  IDBService,
+  IndexedDBQueryConstraints,
+} from '../types/db/db-service-interface'
 
 type FlexGenericDB = unknown
 
 export abstract class IndexedDBService<
   Read extends BaseDocumentRead,
   Write extends BaseDocumentWrite,
-> implements DataService<Read, Write>
+> implements IDBService<Read, Write>
 {
   private dbPromise!: Promise<IDBPDatabase<FlexGenericDB>>
   private dbPathComposition: string[]
@@ -112,10 +116,33 @@ export abstract class IndexedDBService<
     return path // store 名として使う
   }
 
+  /**
+   * Firestoreのパスから1つ上のドキュメントIDを取得する
+   * @param path - Firestoreのドキュメントパス（例: "users/userA/notes/note123"）
+   * @returns 親ドキュメントID（例: "userA"） or null
+   */
+  private getParentDocId(path: string): string {
+    const segments = path.split('/')
+    // パスが最低でも collection/doc/collection/doc の形式であることを確認
+    if (segments.length < 4 || segments.length % 2 !== 0) {
+      return ''
+    }
+    return segments[segments.length - 3] ?? ''
+  }
+
   private async getStoreAndId(documentPath: string[]) {
     const store = await this.getStore(documentPath.slice(0, -1))
     const id = documentPath.slice(-1)[0]
     return { store, id }
+  }
+
+  private async getFromDB(documentPath: string[]): Promise<Read | null> {
+    const { store, id } = await this.getStoreAndId(documentPath)
+    const db = await this.dbPromise
+    const data = (await db.get(store, id)) as Read
+    if (!data) return null
+    data.parentId = this.getParentDocId(data.path ?? '')
+    return data
   }
 
   // Hook for subclasses to strip unwanted fields
@@ -131,6 +158,7 @@ export abstract class IndexedDBService<
     return {
       ...data,
       docId: id,
+      path: `${this.currentDBPath}/${id}`,
       createdById: this.getUid(),
       createdAt: now,
       updatedAt: now,
@@ -156,7 +184,7 @@ export abstract class IndexedDBService<
     const record = this.createRecord(filtered, id)
     const db = await this.dbPromise
     await db.put(store, record)
-    return id
+    return `${store}/${id}`
   }
 
   public async createWithId(
@@ -168,27 +196,25 @@ export abstract class IndexedDBService<
     const record = this.createRecord(filtered as Write, id)
     const db = await this.dbPromise
     await db.put(store, record)
-    return id
+    return `${store}/${id}`
   }
 
   public async read(documentPath: string[]): Promise<Read | null> {
-    const { store, id } = await this.getStoreAndId(documentPath)
-    const db = await this.dbPromise
-    return (await db.get(store, id)) ?? null
+    return this.getFromDB(documentPath)
   }
 
   public async update(
     data: Partial<Write>,
     documentPath: string[]
   ): Promise<void> {
-    const { store, id } = await this.getStoreAndId(documentPath)
-    const db = await this.dbPromise
-    const existing = await db.get(store, id)
+    const existing = this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const prevData = await this.read(documentPath)
     const newData = { ...prevData, ...data } as Write
     const filtered = this.filterWriteData(newData)
     const updated = this.updateRecord(existing, filtered)
+    const { store } = await this.getStoreAndId(documentPath)
+    const db = await this.dbPromise
     await db.put(store, updated)
   }
 
@@ -202,39 +228,38 @@ export abstract class IndexedDBService<
     documentPath: string[],
     updateFields: Partial<Write> = {}
   ): Promise<void> {
-    const { store, id } = await this.getStoreAndId(documentPath)
-    const db = await this.dbPromise
-    const existing = await db.get(store, id)
+    const existing = this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const filtered = this.filterWriteData(updateFields)
     const updated = this.updateRecord(existing, filtered)
     updated.isActive = false
     updated.deletedAt = Date.now()
+    const { store } = await this.getStoreAndId(documentPath)
+    const db = await this.dbPromise
     await db.put(store, updated)
   }
 
   public async getAll(
     collectionPath: string[] = [],
-    queryOptions: {
-      index?: keyof Write
-      value?: any
-      limit?: number
-      offset?: number
-    } = {}
+    queryConstraints: IndexedDBQueryConstraints<keyof Write> = {
+      type: 'indexedDB',
+    }
   ): Promise<Read[]> {
     const store = await this.getStore(collectionPath)
     const db = await this.dbPromise
     let items: Read[] = []
-    if (queryOptions.index && queryOptions.value !== undefined) {
+    if (queryConstraints.index && queryConstraints.value !== undefined) {
       const indexStore = db
         .transaction(store)
-        .store.index(queryOptions.index as string)
-      items = await indexStore.getAll(queryOptions.value)
+        .store.index(queryConstraints.index as string)
+      items = await indexStore.getAll(queryConstraints.value)
     } else {
       items = await db.getAll(store)
     }
-    const start = queryOptions.offset ?? 0
-    const end = queryOptions.limit ? start + queryOptions.limit : undefined
+    const start = queryConstraints.offset ?? 0
+    const end = queryConstraints.limit
+      ? start + queryConstraints.limit
+      : undefined
     return items.slice(start, end)
   }
 
@@ -244,6 +269,7 @@ export abstract class IndexedDBService<
     collectionPath: string[] = []
   ): Promise<Read | null> {
     const results = await this.getAll(collectionPath, {
+      type: 'indexedDB',
       index: field as keyof Write,
       value,
     })

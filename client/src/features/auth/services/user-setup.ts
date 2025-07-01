@@ -1,4 +1,4 @@
-import { repositories } from '../../../firebase/firestore/repositories'
+import { getRepositories } from '../../../firebase/firestore/repositories'
 import { toTimestamp } from '../../../functions/dateTime-utils/time-conversion'
 import type { Gender } from '../../../types/firebase/firestore/util-document-types'
 
@@ -10,7 +10,7 @@ export const submitUserSetup = async (
     gender: Gender
   }
 ) => {
-  await repositories.users.createWithId(
+  await getRepositories().users.createWithId(
     {
       ...userInfo,
       birthdate: toTimestamp(userInfo.birthdate),

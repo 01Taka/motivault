@@ -1,5 +1,6 @@
 import { useState, useRef, type KeyboardEvent } from 'react'
-import type { NoteBlock } from '../../types/feynman-technique-types'
+import type { NoteBlock } from '../types/documents/feynman-technique-types'
+import { customAlphabet } from 'nanoid'
 
 export const useNoteEditor = (
   initialBlocks: NoteBlock[] = [{ type: 'text', text: '' }]
@@ -23,6 +24,12 @@ export const useNoteEditor = (
       })
     }, 0)
   }
+
+  // Firestoreと同じ仕様: 英大文字・英小文字・数字, 長さ20
+  const nanoid = customAlphabet(
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+    20
+  )
 
   // ---------- MODIFIERS ----------
   const insertBlock = (index: number, block: NoteBlock) => {
@@ -80,14 +87,19 @@ export const useNoteEditor = (
     if (content.endsWith('\n\n')) {
       const trimmed = content.trim()
       const newBlocks = [...blocks]
-      newBlocks[index] = { type: 'gap', content: trimmed }
+      const id = blocks[index].type === 'gap' ? blocks[index].id : nanoid()
+      newBlocks[index] = { type: 'gap', content: trimmed, id }
       newBlocks.splice(index + 1, 0, { type: 'text', text: '' })
       setBlocks(newBlocks)
       const nextIndex = index + 1
       setActiveIndex(nextIndex)
       focusBlock(nextIndex)
     } else {
-      updateBlock(index, { type: 'gap', content })
+      if (blocks[index].type === 'gap') {
+        updateBlock(index, { ...blocks[index], content })
+      } else {
+        updateBlock(index, { type: 'gap', content, id: nanoid() })
+      }
     }
   }
 
@@ -106,7 +118,7 @@ export const useNoteEditor = (
     insertBlock(index, { type: 'text', text: '' })
 
   const insertGapBlockAt = (index: number) =>
-    insertBlock(index, { type: 'gap', content: '' })
+    insertBlock(index, { type: 'gap', content: '', id: nanoid() })
 
   const setFocus = (index: number) => {
     setActiveIndex(index)
@@ -120,16 +132,6 @@ export const useNoteEditor = (
       .join('\n')
   }
 
-  const getGapMap = (): Record<number, string> => {
-    const gaps: Record<number, string> = {}
-    blocks.forEach((block, i) => {
-      if (block.type === 'gap') {
-        gaps[i] = block.content
-      }
-    })
-    return gaps
-  }
-
   return {
     blocks,
     activeIndex,
@@ -141,6 +143,5 @@ export const useNoteEditor = (
     handleGapChange,
     handleKeyDown,
     getAllText,
-    getGapMap,
   }
 }

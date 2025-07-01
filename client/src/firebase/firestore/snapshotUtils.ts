@@ -1,5 +1,5 @@
 import { DocumentSnapshot, QuerySnapshot } from 'firebase/firestore'
-import type { BaseDocumentRead } from '../../types/firebase/firestore/firestore-document-types'
+import type { BaseDocumentRead } from '../../types/db/db-service-document-types'
 
 /**
  * ドキュメントスナップショットからデータを抽出して整形するユーティリティ関数

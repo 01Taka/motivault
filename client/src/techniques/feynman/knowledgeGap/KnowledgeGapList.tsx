@@ -1,9 +1,9 @@
 import { Box, Typography, Button } from '@mui/material'
-import type { KnowledgeGapData } from '../../types/feynman-technique-types'
 import KnowledgeGapCard from './card/KnowledgeGapCard'
+import type { FeynmanKnowledgeGapRead } from '../types/documents/feynman-knowledge-gap-documents'
 
 interface KnowledgeGapListProps {
-  gaps: KnowledgeGapData[]
+  gaps: FeynmanKnowledgeGapRead[]
   onShowMore: () => void
 }
 
@@ -16,7 +16,13 @@ export const KnowledgeGapList: React.FC<KnowledgeGapListProps> = ({
       タップして疑問を解消！
     </Typography>
     {gaps.map((q, index) => (
-      <KnowledgeGapCard key={index} index={index + 1} {...q} />
+      <KnowledgeGapCard
+        key={index}
+        index={index + 1}
+        title={q.noteTitle}
+        date={q.createdAt}
+        {...q}
+      />
     ))}
     <Button fullWidth variant="outlined" onClick={onShowMore}>
       過去の疑問を表示

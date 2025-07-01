@@ -1,7 +1,7 @@
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
-} from '../../../../types/firebase/firestore/firestore-document-types'
+} from '../../../../types/db/db-service-document-types'
 
 export interface TimeBlockingTaskData {
   title: string

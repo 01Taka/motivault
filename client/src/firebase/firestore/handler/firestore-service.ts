@@ -25,13 +25,18 @@ import type {
   BaseDocumentRead,
   BaseDocumentWrite,
   BaseDocument,
-} from '../../../types/firebase/firestore/firestore-document-types'
+} from '../../../types/db/db-service-document-types'
+import type {
+  FirestoreQueryConstraints,
+  IDBService,
+} from '../../../types/db/db-service-interface'
 
 abstract class FirestoreService<
   Read extends BaseDocumentRead,
   Write extends BaseDocumentWrite,
   Document extends BaseDocument = Write,
-> {
+> implements IDBService<Read, Write>
+{
   private _callbacksHandler?: CallbacksHandler<Read>
   private firestore: Firestore
   private collectionPathComposition: string | string[]
@@ -162,23 +167,21 @@ abstract class FirestoreService<
   // CRUD Methods
   // ======================================================================
 
-  async create(
-    data: Write,
-    collectionPath: string[] = []
-  ): Promise<DocumentReference<Document>> {
+  async create(data: Write, collectionPath: string[] = []): Promise<string> {
     console.log('called create')
     const collectionRef = this.getReference(collectionPath, 'collection')
-    return await CRUDHandler.create<Document>(
+    const docRef = await CRUDHandler.create<Document>(
       collectionRef,
       this.organizeCreateData(data)
     )
+    return docRef.path
   }
 
   async createWithId(
     data: Write,
     documentPath: string[],
     options?: SetOptions
-  ): Promise<DocumentReference<DocumentData, DocumentData>> {
+  ): Promise<string> {
     console.log('called createWithId')
     const docRef = this.getReference(documentPath, 'doc')
     await CRUDHandler.createWithId(
@@ -186,7 +189,7 @@ abstract class FirestoreService<
       this.organizeCreateData(data),
       options
     )
-    return docRef
+    return docRef.path
   }
 
   protected async readAsDocumentSnapshot(
@@ -205,29 +208,22 @@ abstract class FirestoreService<
     return CRUDHandler.read<Read>(collectionRef)
   }
 
-  async update(
-    data: Partial<Write>,
-    documentPath: string[]
-  ): Promise<DocumentReference<DocumentData, DocumentData>> {
+  async update(data: Partial<Write>, documentPath: string[]): Promise<void> {
     console.log('called update')
     const docRef = this.getReference(documentPath, 'doc')
     CRUDHandler.update(docRef, this.organizeUpdateData(data))
-    return docRef
   }
 
-  async hardDelete(
-    documentPath: string[]
-  ): Promise<DocumentReference<DocumentData, DocumentData>> {
+  async hardDelete(documentPath: string[]): Promise<void> {
     console.log('called hard delete')
     const docRef = this.getReference(documentPath, 'doc')
     await CRUDHandler.delete(docRef)
-    return docRef
   }
 
   async softDelete(
     documentPath: string[],
     updateFields: Partial<Write> = {}
-  ): Promise<DocumentReference<DocumentData, DocumentData>> {
+  ): Promise<void> {
     console.log('called soft delete')
     const docRef = this.getReference(documentPath, 'doc')
     const data = {
@@ -236,7 +232,6 @@ abstract class FirestoreService<
       ...updateFields,
     }
     await CRUDHandler.update(docRef, this.organizeUpdateData(data))
-    return docRef
   }
 
   async getAllAsQuerySnapshot(
@@ -255,11 +250,17 @@ abstract class FirestoreService<
 
   async getAll(
     collectionPath: string[] = [],
-    queryConstraints: QueryConstraint[] = []
+    queryConstraints: FirestoreQueryConstraints = {
+      type: 'firestore',
+      constraints: [],
+    }
   ): Promise<Read[]> {
     console.log('called get all')
     const collectionRef = this.getReference(collectionPath, 'collection')
-    return CRUDHandler.getAll<Read>(collectionRef, ...queryConstraints)
+    return CRUDHandler.getAll<Read>(
+      collectionRef,
+      ...queryConstraints.constraints
+    )
   }
 
   async getFirstMatch(

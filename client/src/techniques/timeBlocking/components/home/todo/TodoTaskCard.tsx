@@ -2,8 +2,8 @@
 import { Typography, Checkbox, Stack, Chip, Box, useTheme } from '@mui/material'
 import { differenceInSeconds, format } from 'date-fns'
 import { useState, useEffect } from 'react'
-import type { TimeBlockingTaskRead } from '../../../types/documents/task-documents'
-import type { TimeBlockingTags } from '../../../types/documents/time-blocking-document'
+import type { TimeBlockingTaskRead } from '../../../services/documents/task-documents'
+import type { TimeBlockingTags } from '../../../services/documents/time-blocking-document'
 import { isWithinNext } from '../../../functions/calendar-time-utils'
 import {
   floatY,

@@ -1,13 +1,13 @@
 import { Box } from '@mui/material'
 import { TimeBlockingTaskFormHeader } from './TimeBlockingTaskFormHeader'
 import { TimeBlockingTaskFormBody } from './TimeBlockingTaskFormBody'
-import type { TimeBlockingTaskWrite } from '../../types/documents/task-documents'
+import type { TimeBlockingTaskWrite } from '../../services/documents/task-documents'
 import useFormState from '../../../../hooks/forms/base/useFormState'
 import type { CreateInputProps } from '../../../../types/form/formstate-types'
 import type {
   TimeBlockingTag,
   TimeBlockingTags,
-} from '../../types/documents/time-blocking-document'
+} from '../../services/documents/time-blocking-document'
 import { useState } from 'react'
 
 interface TimeBlockingTaskFormProps {

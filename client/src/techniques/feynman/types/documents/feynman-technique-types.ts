@@ -1,15 +1,10 @@
-export interface KnowledgeGapData {
-  title: string
-  date: string
-  content: string
-}
-
 export interface TextBlock {
   type: 'text'
   text: string
 }
 
 export interface KnowledgeGapBlock {
+  id: string
   type: 'gap'
   content: string
 }

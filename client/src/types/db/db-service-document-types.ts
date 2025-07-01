@@ -1,4 +1,4 @@
-import { type DocumentData, FieldValue } from 'firebase/firestore'
+import { type DocumentData } from 'firebase/firestore'
 
 // すべての動的Firestoreドキュメントに存在するべきフィールド
 export type BaseDocumentWrite = DocumentData
@@ -15,19 +15,3 @@ export interface BaseDocumentRead extends DocumentData {
 }
 
 export type BaseDocument = DocumentData
-
-export interface SoftDeleteAdditionalField {
-  isActive: false
-  deletedAt: FieldValue
-}
-
-export type DocumentWrite<T> = T & BaseDocumentWrite
-export type DocumentRead<T> = T & BaseDocumentRead
-
-export type RemoveFieldValue<T> = T extends FieldValue
-  ? never
-  : T extends (infer U)[]
-    ? RemoveFieldValue<U>[]
-    : T extends object
-      ? { [K in keyof T]: RemoveFieldValue<T[K]> }
-      : T

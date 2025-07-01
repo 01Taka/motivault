@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
-import { idbRepositories } from '../../../indexedDB/idb-repositories'
 import type {
   TimeBlockingTaskRead,
   TimeBlockingTaskWrite,
-} from '../types/documents/task-documents'
+} from './documents/task-documents'
 import type {
   TimeBlockingRead,
   TimeBlockingTag,
-} from '../types/documents/time-blocking-document'
+} from './documents/time-blocking-document'
+import { getIDBRepositories } from '../../../indexedDB/idb-repositories'
+
+const idbRepositories = getIDBRepositories()
 
 const useTimeBlockingTask = () => {
   const [tasks, setTasks] = useState<TimeBlockingTaskRead[]>([])

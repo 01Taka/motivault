@@ -1,5 +1,5 @@
 import { DocumentReference, WriteBatch } from 'firebase/firestore'
-import type { BaseDocumentWrite } from '../../../types/firebase/firestore/firestore-document-types'
+import type { BaseDocumentWrite } from '../../../types/db/db-service-document-types'
 
 function handleFirestoreError(error: unknown, operation: string): never {
   console.error(`Firestore ${operation} error:`, error)

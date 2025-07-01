@@ -1,8 +1,8 @@
 import React from 'react'
 import { TodoTaskCard } from './TodoTaskCard'
 import { Box, Stack } from '@mui/material'
-import type { TimeBlockingTaskRead } from '../../../types/documents/task-documents'
-import type { TimeBlockingTags } from '../../../types/documents/time-blocking-document'
+import type { TimeBlockingTaskRead } from '../../../services/documents/task-documents'
+import type { TimeBlockingTags } from '../../../services/documents/time-blocking-document'
 
 interface TodoListProps {
   tasks: TimeBlockingTaskRead[]

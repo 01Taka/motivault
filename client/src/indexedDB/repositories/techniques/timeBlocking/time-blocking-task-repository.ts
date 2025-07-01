@@ -1,7 +1,7 @@
 import type {
   TimeBlockingTaskRead,
   TimeBlockingTaskWrite,
-} from '../../../../techniques/timeBlocking/types/documents/task-documents'
+} from '../../../../techniques/timeBlocking/services/documents/task-documents'
 import { IndexedDBService } from '../../../indexed-db-service'
 
 export class TimeBlockingTaskIDBRepository extends IndexedDBService<
@@ -11,7 +11,7 @@ export class TimeBlockingTaskIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['techniques', 'tasks'], { techniques: 'timeBroking' })
+    super(['users', 'techniques', 'tasks'], { techniques: 'timeBroking' })
     this.uid = uid
   }
 

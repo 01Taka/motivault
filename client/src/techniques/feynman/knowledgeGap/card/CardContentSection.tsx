@@ -1,8 +1,9 @@
 import { Box, Stack, Typography } from '@mui/material'
+import { format } from 'date-fns'
 
 interface CardContentSectionProps {
   title: string
-  date: string
+  date: number
   content: string
 }
 
@@ -25,7 +26,7 @@ const CardContentSection: React.FC<CardContentSectionProps> = ({
         color="text.secondary"
         sx={{ fontWeight: 500 }}
       >
-        {date}
+        {format(date, 'MM/dd')}
       </Typography>
     </Stack>
 

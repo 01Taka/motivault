@@ -21,7 +21,7 @@ import { parseDocumentSnapshot, parseQuerySnapshot } from '../snapshotUtils'
 import type {
   BaseDocument,
   BaseDocumentRead,
-} from '../../../types/firebase/firestore/firestore-document-types'
+} from '../../../types/db/db-service-document-types'
 
 export class CRUDHandler {
   /**
