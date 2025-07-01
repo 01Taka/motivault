@@ -1,8 +1,9 @@
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import type { IDBRepositories } from '../types/db/db-service-interface'
 import { TimeBlockingIDBRepository } from './repositories/techniques/timeBlocking/time-blocking-repository'
 import { TimeBlockingTaskIDBRepository } from './repositories/techniques/timeBlocking/time-blocking-task-repository'
 import { UserIDBRepository } from './repositories/user-repository'
+import { auth } from '../firebase/firebase'
 
 interface IdxDBRepositories extends IDBRepositories {
   users: UserIDBRepository
@@ -19,7 +20,7 @@ export const createIDBRepositories: RepositoryFactory = (uid: string) => ({
 })
 
 // 内部状態を保持
-let currentUid = getAuth().currentUser?.uid ?? '=offline'
+let currentUid = '=offline'
 let repositories: IdxDBRepositories | null = null
 
 // 読み取り専用のゲッターを用意（初回アクセス時に生成）
@@ -31,7 +32,6 @@ export const getIDBRepositories = (): IdxDBRepositories => {
 }
 
 // UIDの変更時に再初期化
-const auth = getAuth()
 onAuthStateChanged(auth, (user) => {
   const newUid = user?.uid ?? '=offline'
 

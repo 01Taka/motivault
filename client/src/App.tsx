@@ -5,6 +5,7 @@ import NotFound from './components/pages/error/NotFound'
 import HomePage from './components/pages/home/HomePage'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
+import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
 
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
 const LoginPage = lazy(() => import('./components/organisms/Login'))
@@ -28,6 +29,7 @@ const FeynmanTechnique = lazy(
 )
 
 function App() {
+  useSyncCurrentUser()
   useTechniqueXPSetup()
 
   return (

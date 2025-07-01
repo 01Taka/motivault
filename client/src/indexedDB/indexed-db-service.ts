@@ -200,14 +200,14 @@ export abstract class IndexedDBService<
   }
 
   public async read(documentPath: string[]): Promise<Read | null> {
-    return this.getFromDB(documentPath)
+    return await this.getFromDB(documentPath)
   }
 
   public async update(
     data: Partial<Write>,
     documentPath: string[]
   ): Promise<void> {
-    const existing = this.getFromDB(documentPath)
+    const existing = await this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const prevData = await this.read(documentPath)
     const newData = { ...prevData, ...data } as Write
@@ -228,7 +228,7 @@ export abstract class IndexedDBService<
     documentPath: string[],
     updateFields: Partial<Write> = {}
   ): Promise<void> {
-    const existing = this.getFromDB(documentPath)
+    const existing = await this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const filtered = this.filterWriteData(updateFields)
     const updated = this.updateRecord(existing, filtered)

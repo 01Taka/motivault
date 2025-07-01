@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useCurrentUserStore } from '../../../stores/user/currentUserStore'
+import { timeBlockingService } from '../services/timeBlockingService'
 import type {
   TimeBlockingTaskRead,
   TimeBlockingTaskWrite,
@@ -7,93 +9,73 @@ import type {
   TimeBlockingRead,
   TimeBlockingTag,
 } from './documents/time-blocking-document'
-import { getIDBRepositories } from '../../../indexedDB/idb-repositories'
-
-const idbRepositories = getIDBRepositories()
 
 const useTimeBlockingTask = () => {
+  const { uid } = useCurrentUserStore()
   const [tasks, setTasks] = useState<TimeBlockingTaskRead[]>([])
-  const [timeBlockingDoc, setTimeBlockingDoc] =
-    useState<TimeBlockingRead | null>(null)
+  const [doc, setDoc] = useState<TimeBlockingRead | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const generateUniqueId = (existingIds: string[]): string => {
-    let id: string
-    do {
-      id = crypto.randomUUID().slice(0, 8)
-    } while (existingIds.includes(id))
-    return id
-  }
-
-  const initTimeBlockingDocIfNeeded =
-    async (): Promise<TimeBlockingRead | null> => {
-      const doc = await idbRepositories.timeBlocking.read(['timeBlocking'])
-      if (doc === null) {
-        const newDoc = { tags: {} }
-        await idbRepositories.timeBlocking.createWithId(newDoc, [
-          'timeBlocking',
-        ])
-        // 自動で追加情報が保存されるので再取得して返す
-        return await idbRepositories.timeBlocking.read(['timeBlocking'])
-      }
-      return doc
+  const reloadTasks = useCallback(async () => {
+    if (!uid) {
+      console.error('UID is null')
+      return
     }
 
-  const reloadTasks = async () => {
     setLoading(true)
     try {
-      const doc = await initTimeBlockingDocIfNeeded()
-      const allTasks = await idbRepositories.timeBlockingTask.getAll()
-      setTimeBlockingDoc(doc)
-      setTasks(allTasks)
-      return allTasks
+      const doc = await timeBlockingService.initDocIfNeeded(uid)
+      const taskList = await timeBlockingService.fetchTasks(uid)
+      setDoc(doc)
+      setTasks(taskList)
+    } catch (e) {
+      console.error('Failed to reload tasks:', e)
     } finally {
       setLoading(false)
     }
-  }
+  }, [uid])
 
-  const createTask = async (data: TimeBlockingTaskWrite) => {
-    await idbRepositories.timeBlockingTask.create(data)
-    await reloadTasks()
-  }
-
-  const setTaskCompleted = async (taskId: string, state: boolean) => {
-    await idbRepositories.timeBlockingTask.update({ completed: state }, [
-      taskId,
-    ])
-    reloadTasks()
-  }
-
-  const createTag = async (tag: TimeBlockingTag) => {
-    try {
-      const doc = await idbRepositories.timeBlocking.read(['timeBlocking'])
-      const tags = doc?.tags ?? {}
-      const id = generateUniqueId(Object.keys(tags))
-      const updatedTags = { ...tags, [id]: tag }
-
-      await idbRepositories.timeBlocking.update({ tags: updatedTags }, [
-        'timeBlocking',
-      ])
+  const createTask = useCallback(
+    async (data: TimeBlockingTaskWrite) => {
+      if (!uid) return
+      await timeBlockingService.createTask(uid, data)
       await reloadTasks()
-    } catch (error) {
-      console.error('Tag creation failed:', error)
-    }
-  }
+    },
+    [uid, reloadTasks]
+  )
+
+  const setTaskCompleted = useCallback(
+    async (taskId: string, state: boolean) => {
+      if (!uid) return
+      await timeBlockingService.updateTaskCompleted(uid, taskId, state)
+      await reloadTasks()
+    },
+    [uid, reloadTasks]
+  )
+
+  const createTag = useCallback(
+    async (tag: TimeBlockingTag) => {
+      if (!uid) return
+      await timeBlockingService.createTag(uid, tag)
+      await reloadTasks()
+    },
+    [uid, reloadTasks]
+  )
 
   useEffect(() => {
     void reloadTasks()
-  }, [])
+  }, [reloadTasks])
 
-  const tags = timeBlockingDoc?.tags ?? {}
+  const tags = doc?.tags ?? {}
 
   return {
-    timeBlockingData: timeBlockingDoc,
+    timeBlockingData: doc,
     tasks,
     tags,
     loading,
     reloadTasks,
-    setTaskCompleted,
     createTask,
+    setTaskCompleted,
     createTag,
   }
 }
