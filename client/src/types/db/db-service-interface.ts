@@ -11,7 +11,7 @@ export interface IDBService<
   create(data: Write, collectionPath?: string[]): Promise<string>
   createWithId(data: Write, documentPath: string[]): Promise<string>
   read(documentPath: string[]): Promise<Read | null>
-  update(data: Partial<Write>, documentPath: string[]): Promise<void>
+  update(data: Partial<Write>, documentPath: string[]): Promise<string>
   hardDelete(documentPath: string[]): Promise<void>
   softDelete(
     documentPath: string[],

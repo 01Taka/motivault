@@ -62,7 +62,7 @@ abstract class FirestoreService<
     data: T
   ): T extends Write ? Document : Partial<Document>
 
-  private getUid(): string {
+  private getCreatorUid(): string {
     const uid = getAuth().currentUser?.uid
     if (!uid) {
       throw new Error('Firestore Service においてUIDが取得できませんでした。')
@@ -102,7 +102,7 @@ abstract class FirestoreService<
     const formatData = this.filterWriteData(data) as Document & {
       createdById: string
     }
-    formatData.createdById = this.getUid()
+    formatData.createdById = this.getCreatorUid()
     this.checkRequiredProperties(formatData)
     return this.addSystemFields(formatData)
   }
@@ -208,10 +208,11 @@ abstract class FirestoreService<
     return CRUDHandler.read<Read>(collectionRef)
   }
 
-  async update(data: Partial<Write>, documentPath: string[]): Promise<void> {
+  async update(data: Partial<Write>, documentPath: string[]): Promise<string> {
     console.log('called update')
     const docRef = this.getReference(documentPath, 'doc')
     CRUDHandler.update(docRef, this.organizeUpdateData(data))
+    return docRef.id
   }
 
   async hardDelete(documentPath: string[]): Promise<void> {

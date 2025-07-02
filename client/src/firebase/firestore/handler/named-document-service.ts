@@ -1,9 +1,4 @@
-import {
-  DocumentReference,
-  type DocumentData,
-  type Unsubscribe,
-  type SetOptions,
-} from 'firebase/firestore'
+import { type Unsubscribe, type SetOptions } from 'firebase/firestore'
 import FirestoreService from './firestore-service'
 import type {
   BaseDocumentRead,
@@ -35,10 +30,7 @@ class NamedDocumentService<
     return this.baseService.read(this.getPath(basePath))
   }
 
-  async update(
-    data: Partial<Write>,
-    basePath: string[]
-  ): Promise<DocumentReference<DocumentData>> {
+  async update(data: Partial<Write>, basePath: string[]): Promise<void> {
     return this.baseService.update(data, this.getPath(basePath))
   }
 
@@ -46,18 +38,18 @@ class NamedDocumentService<
     data: Write,
     basePath: string[],
     options?: SetOptions
-  ): Promise<DocumentReference<DocumentData>> {
+  ): Promise<string> {
     return this.baseService.createWithId(data, this.getPath(basePath), options)
   }
 
-  async delete(basePath: string[]): Promise<DocumentReference<DocumentData>> {
+  async delete(basePath: string[]): Promise<void> {
     return this.baseService.hardDelete(this.getPath(basePath))
   }
 
   async softDelete(
     basePath: string[],
     updateFields: Partial<Write> = {}
-  ): Promise<DocumentReference<DocumentData>> {
+  ): Promise<void> {
     return this.baseService.softDelete(this.getPath(basePath), updateFields)
   }
 

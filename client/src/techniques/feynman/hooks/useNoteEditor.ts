@@ -1,11 +1,15 @@
 import { useState, useRef, type KeyboardEvent } from 'react'
-import type { NoteBlock } from '../types/documents/feynman-technique-types'
-import { customAlphabet } from 'nanoid'
+import type { NoteBlock } from '../services/documents/feynman-technique-types'
+import { createFirestoreId } from '../../../functions/services/firestore-id-service'
+import { usePersistedState } from '../../../hooks/utils/usePersistedState'
 
 export const useNoteEditor = (
   initialBlocks: NoteBlock[] = [{ type: 'text', text: '' }]
 ) => {
-  const [blocks, setBlocks] = useState<NoteBlock[]>(initialBlocks)
+  const [blocks, setBlocks] = usePersistedState<NoteBlock[]>({
+    key: 'feynmanNoteBlocks',
+    initialValue: initialBlocks,
+  })
   const [activeIndex, setActiveIndex] = useState<number>(0)
   const refs = useRef<(HTMLTextAreaElement | null)[]>([])
 
@@ -24,12 +28,6 @@ export const useNoteEditor = (
       })
     }, 0)
   }
-
-  // Firestoreと同じ仕様: 英大文字・英小文字・数字, 長さ20
-  const nanoid = customAlphabet(
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-    20
-  )
 
   // ---------- MODIFIERS ----------
   const insertBlock = (index: number, block: NoteBlock) => {
@@ -64,6 +62,12 @@ export const useNoteEditor = (
     setBlocks(newBlocks)
   }
 
+  const clearBlocks = () => {
+    setBlocks([{ type: 'text', text: '' }])
+    setActiveIndex(0)
+    focusBlock(0)
+  }
+
   // ---------- EVENTS ----------
   const handleTextChange = (index: number, newText: string) => {
     const lines = newText.split('\n')
@@ -87,7 +91,8 @@ export const useNoteEditor = (
     if (content.endsWith('\n\n')) {
       const trimmed = content.trim()
       const newBlocks = [...blocks]
-      const id = blocks[index].type === 'gap' ? blocks[index].id : nanoid()
+      const id =
+        blocks[index].type === 'gap' ? blocks[index].id : createFirestoreId()
       newBlocks[index] = { type: 'gap', content: trimmed, id }
       newBlocks.splice(index + 1, 0, { type: 'text', text: '' })
       setBlocks(newBlocks)
@@ -98,7 +103,7 @@ export const useNoteEditor = (
       if (blocks[index].type === 'gap') {
         updateBlock(index, { ...blocks[index], content })
       } else {
-        updateBlock(index, { type: 'gap', content, id: nanoid() })
+        updateBlock(index, { type: 'gap', content, id: createFirestoreId() })
       }
     }
   }
@@ -118,7 +123,7 @@ export const useNoteEditor = (
     insertBlock(index, { type: 'text', text: '' })
 
   const insertGapBlockAt = (index: number) =>
-    insertBlock(index, { type: 'gap', content: '', id: nanoid() })
+    insertBlock(index, { type: 'gap', content: '', id: createFirestoreId() })
 
   const setFocus = (index: number) => {
     setActiveIndex(index)
@@ -139,6 +144,7 @@ export const useNoteEditor = (
     setFocus,
     insertNewTextBlockAt,
     insertGapBlockAt,
+    clearBlocks,
     handleTextChange,
     handleGapChange,
     handleKeyDown,

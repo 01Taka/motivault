@@ -25,7 +25,11 @@ const TimeBlocking = lazy(
   () => import('./techniques/timeBlocking/components/TimeBlocking')
 )
 const FeynmanTechnique = lazy(
-  () => import('./techniques/feynman/FeynmanTechnique')
+  () => import('./techniques/feynman/components/FeynmanTechnique')
+)
+
+const NoteEditor = lazy(
+  () => import('./techniques/feynman/components/note/NoteEditor')
 )
 
 function App() {
@@ -49,6 +53,7 @@ function App() {
           <Route path="pomodoro" element={<PomodoroTimer />} />
           <Route path="time-blocking" element={<TimeBlocking />} />
           <Route path="feynman" element={<FeynmanTechnique />} />
+          <Route path="feynman/create" element={<NoteEditor />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

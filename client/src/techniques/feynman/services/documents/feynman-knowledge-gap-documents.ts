@@ -1,16 +1,16 @@
 import type {
   BaseDocument,
-  BaseDocumentRead,
-  BaseDocumentWrite,
+  MakeDocumentRead,
+  MakeDocumentWrite,
 } from '../../../../types/db/db-service-document-types'
 
 // Firestoreに保存。クライアントサイドで作成したカスタムID
 export interface FeynmanKnowledgeGapData extends BaseDocument {
   noteId: string
   noteTitle: string
-  content: string
+  contents: string
 }
 
-export type FeynmanKnowledgeGapRead = BaseDocumentRead & FeynmanKnowledgeGapData
-export type FeynmanKnowledgeGapWrite = BaseDocumentWrite &
-  FeynmanKnowledgeGapData
+export type FeynmanKnowledgeGapRead = MakeDocumentRead<FeynmanKnowledgeGapData>
+export type FeynmanKnowledgeGapWrite =
+  MakeDocumentWrite<FeynmanKnowledgeGapData>

@@ -7,7 +7,7 @@ interface AnimatedArrowProps {
 
 const AnimatedArrow: React.FC<AnimatedArrowProps> = ({ index }) => (
   <motion.div
-    animate={{ x: [0, -4, 0, 4, 0] }}
+    animate={{ x: [0, 4, 0, -4, 0] }}
     transition={{
       repeat: Infinity,
       duration: 2,

@@ -15,3 +15,22 @@ export interface BaseDocumentRead extends DocumentData {
 }
 
 export type BaseDocument = DocumentData
+
+type RemoveUndefined<T> = T extends undefined ? never : T
+
+export type StripUndefined<T> = {
+  [K in keyof T]-?: RemoveUndefined<T[K]>
+}
+
+export type MakeOptionalIfUndefined<T> = {
+  [K in keyof T as undefined extends T[K] ? K : never]?: Exclude<
+    T[K],
+    undefined
+  >
+} & {
+  [K in keyof T as undefined extends T[K] ? never : K]: T[K]
+}
+
+export type MakeDocumentRead<T> = StripUndefined<T> & BaseDocumentRead
+export type MakeDocumentWrite<T> = MakeOptionalIfUndefined<T> &
+  BaseDocumentWrite

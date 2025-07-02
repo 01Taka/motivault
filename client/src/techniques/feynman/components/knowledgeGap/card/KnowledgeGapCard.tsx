@@ -8,14 +8,14 @@ interface KnowledgeGapCardProps {
   index: number
   title: string
   date: number
-  content: string
+  contents: string
 }
 
 const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
   index,
   title,
   date,
-  content,
+  contents,
 }) => {
   return (
     <Button
@@ -38,7 +38,7 @@ const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
         variants={motionHoverVariant}
       >
         <Box sx={cardContainerStyle}>
-          <CardContentSection title={title} date={date} content={content} />
+          <CardContentSection title={title} date={date} content={contents} />
         </Box>
       </motion.div>
     </Button>

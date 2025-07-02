@@ -15,7 +15,7 @@ export class TimeBlockingIDBRepository extends IndexedDBService<
     this.uid = uid
   }
 
-  protected getUid(): string {
+  protected getCreatorUid(): string {
     return this.uid
   }
 

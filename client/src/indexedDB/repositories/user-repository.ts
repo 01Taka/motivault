@@ -12,7 +12,7 @@ export class UserIDBRepository extends IndexedDBService<UserRead, UserWrite> {
     this.uid = uid
   }
 
-  protected getUid(): string {
+  protected getCreatorUid(): string {
     return this.uid
   }
 

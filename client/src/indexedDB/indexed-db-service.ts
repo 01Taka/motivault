@@ -8,6 +8,7 @@ import type {
   IDBService,
   IndexedDBQueryConstraints,
 } from '../types/db/db-service-interface'
+import { createFirestoreId } from '../functions/services/firestore-id-service'
 
 type FlexGenericDB = unknown
 
@@ -150,7 +151,7 @@ export abstract class IndexedDBService<
     data: T
   ): T
 
-  protected abstract getUid(): string
+  protected abstract getCreatorUid(): string
 
   // Common method to assemble record system fields
   private createRecord(data: Write, id: string): any {
@@ -159,7 +160,7 @@ export abstract class IndexedDBService<
       ...data,
       docId: id,
       path: `${this.currentDBPath}/${id}`,
-      createdById: this.getUid(),
+      createdById: this.getCreatorUid(),
       createdAt: now,
       updatedAt: now,
       isActive: true,
@@ -179,7 +180,7 @@ export abstract class IndexedDBService<
     collectionPath: string[] = []
   ): Promise<string> {
     const store = await this.getStore(collectionPath)
-    const id = crypto.randomUUID()
+    const id = createFirestoreId()
     const filtered = this.filterWriteData(data)
     const record = this.createRecord(filtered, id)
     const db = await this.dbPromise
@@ -206,16 +207,17 @@ export abstract class IndexedDBService<
   public async update(
     data: Partial<Write>,
     documentPath: string[]
-  ): Promise<void> {
+  ): Promise<string> {
     const existing = await this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const prevData = await this.read(documentPath)
     const newData = { ...prevData, ...data } as Write
     const filtered = this.filterWriteData(newData)
     const updated = this.updateRecord(existing, filtered)
-    const { store } = await this.getStoreAndId(documentPath)
+    const { id, store } = await this.getStoreAndId(documentPath)
     const db = await this.dbPromise
     await db.put(store, updated)
+    return `${store}/${id}`
   }
 
   public async hardDelete(documentPath: string[]): Promise<void> {
@@ -287,7 +289,7 @@ export abstract class IndexedDBService<
       await actions({
         create: async (data, path = []) => {
           const store = await this.getStore(path)
-          const id = crypto.randomUUID()
+          const id = createFirestoreId()
           const rec = this.createRecord(this.filterWriteData(data), id)
           await txDb(store).put(rec)
           return id
