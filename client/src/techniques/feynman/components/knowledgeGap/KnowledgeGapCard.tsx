@@ -1,14 +1,14 @@
 import { Box, Button } from '@mui/material'
-import { motion } from 'framer-motion'
-import AnimatedArrow from './AnimatedArrow'
-import CardContentSection from './CardContentSection'
-import { cardContainerStyle, motionHoverVariant } from './cardStyles'
+import AnimatedArrow from './card/AnimatedArrow'
+import CardContentSection from './card/CardContentSection'
+import { cardContainerStyle } from './card/cardStyles'
 
 interface KnowledgeGapCardProps {
   index: number
   title: string
   date: number
   contents: string
+  onClick: () => void
 }
 
 const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
@@ -16,31 +16,26 @@ const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
   title,
   date,
   contents,
+  onClick,
 }) => {
   return (
     <Button
       sx={{
         position: 'relative',
-        pl: 4,
-        mb: 3,
+        pl: 5,
+        width: '100%',
         textTransform: 'none',
         color: 'black',
         textAlign: 'start',
         borderRadius: 3,
       }}
+      onClick={onClick}
     >
       <AnimatedArrow index={index} />
 
-      <motion.div
-        initial="initial"
-        whileHover="hover"
-        animate="initial"
-        variants={motionHoverVariant}
-      >
-        <Box sx={cardContainerStyle}>
-          <CardContentSection title={title} date={date} content={contents} />
-        </Box>
-      </motion.div>
+      <Box sx={cardContainerStyle}>
+        <CardContentSection title={title} date={date} content={contents} />
+      </Box>
     </Button>
   )
 }

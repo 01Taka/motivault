@@ -30,7 +30,7 @@ class NamedDocumentService<
     return this.baseService.read(this.getPath(basePath))
   }
 
-  async update(data: Partial<Write>, basePath: string[]): Promise<void> {
+  async update(data: Partial<Write>, basePath: string[]): Promise<string> {
     return this.baseService.update(data, this.getPath(basePath))
   }
 

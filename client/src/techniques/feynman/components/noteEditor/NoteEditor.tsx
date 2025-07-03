@@ -6,6 +6,7 @@ import { useNoteEditor } from '../../hooks/useNoteEditor'
 import useFeynmanNoteService from '../../services/hooks/useFeynmanService'
 import { usePersistedState } from '../../../../hooks/utils/usePersistedState'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface NoteEditorProps {}
 
@@ -18,6 +19,8 @@ const copyToClipboard = async (text: string) => {
 }
 
 const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
+  const navigate = useNavigate()
+
   const [title, setTitle] = usePersistedState<string>({
     key: 'feynmanNoteTitle',
     initialValue: '',
@@ -52,6 +55,7 @@ const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
     if (success) {
       clearBlocks()
       setTitle('')
+      navigate('/techniques/feynman')
     }
   }
 

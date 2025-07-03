@@ -7,11 +7,10 @@ import MyTechniques from './features/home/components/techniques/myTechnique/MyTe
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
 
+// Lazy imports（ページ単位の初回読み込みコスト軽減）
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
 const LoginPage = lazy(() => import('./components/organisms/Login'))
 const UserSetupPage = lazy(() => import('./components/organisms/UserSetup'))
-
-// Lazy imports（遅延読み込み）
 const SearchTechnique = lazy(
   () =>
     import(
@@ -24,13 +23,12 @@ const PomodoroTimer = lazy(
 const TimeBlocking = lazy(
   () => import('./techniques/timeBlocking/components/TimeBlocking')
 )
-const FeynmanTechnique = lazy(
-  () => import('./techniques/feynman/components/FeynmanTechnique')
-)
 
-const NoteEditor = lazy(
-  () => import('./techniques/feynman/components/note/NoteEditor')
-)
+// Feynman系は同技術内なので通常import
+import FeynmanTechnique from './techniques/feynman/components/FeynmanTechnique'
+import KnowledgeGap from './techniques/feynman/components/knowledgeGap/KnowledgeGap'
+import FeynmanNotes from './techniques/feynman/components/notes/FeynmanNotes'
+import NoteEditor from './techniques/feynman/components/noteEditor/NoteEditor'
 
 function App() {
   useSyncCurrentUser()
@@ -39,23 +37,32 @@ function App() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
+        {/* Auth */}
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginPage />} />
           <Route path="setup" element={<UserSetupPage />} />
         </Route>
 
+        {/* Home */}
         <Route path="/" element={<HomePage />}>
           <Route index element={<MyTechniques />} />
           <Route path="search" element={<SearchTechnique />} />
         </Route>
 
+        {/* Techniques */}
         <Route path="/techniques">
           <Route path="pomodoro" element={<PomodoroTimer />} />
           <Route path="time-blocking" element={<TimeBlocking />} />
-          <Route path="feynman" element={<FeynmanTechnique />} />
-          <Route path="feynman/create" element={<NoteEditor />} />
+
+          {/* Feynman Technique Layout */}
+          <Route path="feynman" element={<FeynmanTechnique />}>
+            <Route index element={<KnowledgeGap />} />
+            <Route path="notes" element={<FeynmanNotes />} />
+            <Route path="create" element={<NoteEditor />} />
+          </Route>
         </Route>
 
+        {/* Fallback */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

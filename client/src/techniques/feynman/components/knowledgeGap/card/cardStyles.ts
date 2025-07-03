@@ -4,6 +4,7 @@ import type { SxProps } from '@mui/material'
 export const cardContainerStyle: SxProps<Theme> = {
   p: 2.5,
   display: 'flex',
+  width: '100%',
   alignItems: 'flex-start',
   gap: 2,
   borderRadius: 3,
@@ -28,13 +29,5 @@ export const cardContainerStyle: SxProps<Theme> = {
       borderColor: 'rgba(255, 112, 67, 0.3)',
       transform: 'scale(1)',
     },
-  },
-}
-
-export const motionHoverVariant = {
-  initial: { scale: 1, boxShadow: 'none' },
-  hover: {
-    scale: 1.015,
-    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)',
   },
 }
