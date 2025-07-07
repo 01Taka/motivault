@@ -5,60 +5,82 @@ import type {
   FeynmanNoteTextLineBlock,
   FeynmanNoteWrite,
 } from '../documents/feynman-note-documents'
-import type { NoteBlock } from '../documents/feynman-technique-types'
+import type {
+  KnowledgeGapBlockData,
+  NoteBlock,
+} from '../documents/feynman-technique-types'
 import {
   createFeynmanNote,
-  createOrUpdateFeynmanKnowledgeGap,
+  createNewGapBlocks,
   rewriteFeynmanNote,
+  updateGapBlocks,
 } from '../functions/feynman-note-service'
 
+// ---------- UTILS ----------
 const convertToTextLineBlocks = (
   blocks: NoteBlock[]
-): FeynmanNoteTextLineBlock[] => {
-  return blocks.map((block, index) => ({ index, ...block }))
-}
+): FeynmanNoteTextLineBlock[] =>
+  blocks.map((block, index) => ({ index, ...block }))
 
-const convertToKnowledgeGapData = (
-  blocks: NoteBlock[],
-  noteData: {
-    docId: string
-    title: string
-  }
-): (FeynmanKnowledgeGapWrite & { blockId: string })[] => {
-  return blocks
-    .filter((block) => block.type === 'gap')
-    .map((block) => ({
-      blockId: block.id,
-      noteId: noteData.docId,
-      noteTitle: noteData.title,
-      contents: block.content,
-    }))
-}
+const convertToKnowledgeGapWriteData = (
+  blocks: KnowledgeGapBlockData[],
+  noteMeta: { docId: string; title: string }
+): (FeynmanKnowledgeGapWrite & { blockId: string })[] =>
+  blocks.map((block) => ({
+    blockId: block.id,
+    noteId: noteMeta.docId,
+    noteTitle: noteMeta.title,
+    contents: block.content,
+    state: 'unresolved',
+    answer: '',
+  }))
 
+// ---------- HOOK ----------
 const useFeynmanNoteService = () => {
   const { uid } = useCurrentUserStore()
 
   const createOrUpdateKnowledgeGaps = async (
-    uid: string,
     noteId: string,
     title: string,
-    blocks: NoteBlock[]
+    newGapBlocks: KnowledgeGapBlockData[],
+    updatedGapBlocks: KnowledgeGapBlockData[]
   ): Promise<void> => {
-    const knowledgeGaps = convertToKnowledgeGapData(blocks, {
-      docId: noteId,
-      title,
-    })
+    if (!uid) throw new Error('User not logged in')
 
-    const knowledgeGapMap = Object.fromEntries(
-      knowledgeGaps.map((gap) => [gap.blockId, gap])
+    const meta = { docId: noteId, title }
+    const newGapData = convertToKnowledgeGapWriteData(newGapBlocks, meta)
+    const newGapMap = Object.fromEntries(
+      newGapData.map((gap) => [gap.blockId, gap])
     )
 
-    await createOrUpdateFeynmanKnowledgeGap(uid, knowledgeGapMap)
+    const updatedGapMap = Object.fromEntries(
+      updatedGapBlocks.map((block) => [block.id, { contents: block.content }])
+    )
+
+    try {
+      if (Object.keys(newGapMap).length > 0) {
+        await createNewGapBlocks(uid, newGapMap)
+      }
+    } catch (error) {
+      console.error('Error creating new gap blocks:', error)
+      throw new Error('新しいギャップの保存に失敗しました。')
+    }
+
+    try {
+      if (Object.keys(updatedGapMap).length > 0) {
+        await updateGapBlocks(uid, updatedGapMap)
+      }
+    } catch (error) {
+      console.error('Error updating existing gap blocks:', error)
+      throw new Error('既存のギャップの更新に失敗しました。')
+    }
   }
 
   const saveNote = async (
     title: string,
-    blocks: NoteBlock[]
+    blocks: NoteBlock[],
+    newGapBlocks: KnowledgeGapBlockData[],
+    updatedGapBlocks: KnowledgeGapBlockData[]
   ): Promise<{ success: boolean; message?: string }> => {
     if (!uid) return { success: false, message: 'User not logged in' }
 
@@ -66,40 +88,67 @@ const useFeynmanNoteService = () => {
     const data: FeynmanNoteWrite = { title, contents }
 
     try {
-      const noteId = await createFeynmanNote(uid, data)
-      if (noteId) {
-        createOrUpdateKnowledgeGaps(uid, noteId, data.title, blocks)
+      const result = await createFeynmanNote(uid, data)
+
+      if (!result) {
+        return { success: false, message: 'ノートの作成に失敗しました。' }
       }
 
+      await createOrUpdateKnowledgeGaps(
+        result.id,
+        title,
+        newGapBlocks,
+        updatedGapBlocks
+      )
       return { success: true }
     } catch (error) {
       console.error('Failed to save note:', error)
-      return { success: false, message: 'Failed to save note' }
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'ノートの保存中にエラーが発生しました。',
+      }
     }
   }
 
   const rewriteNote = async (
     prevNote: FeynmanNoteRead,
     blocks: NoteBlock[],
+    newGapBlocks: KnowledgeGapBlockData[],
+    updatedGapBlocks: KnowledgeGapBlockData[],
     updatedTitle?: string
   ): Promise<{ success: boolean; message?: string }> => {
     if (!uid) return { success: false, message: 'User not logged in' }
 
+    const newTitle = updatedTitle || prevNote.title
     const contents = convertToTextLineBlocks(blocks)
-    const data: FeynmanNoteWrite = {
-      title: updatedTitle || prevNote.title,
-      contents,
-    }
+    const data: FeynmanNoteWrite = { title: newTitle, contents }
 
     try {
-      const noteId = await rewriteFeynmanNote(uid, prevNote.docId, data)
-      if (noteId) {
-        createOrUpdateKnowledgeGaps(uid, noteId, data.title, blocks)
+      const result = await rewriteFeynmanNote(uid, prevNote.docId, data)
+
+      if (!result) {
+        return { success: false, message: 'ノートの更新に失敗しました。' }
       }
+
+      await createOrUpdateKnowledgeGaps(
+        result.id,
+        newTitle,
+        newGapBlocks,
+        updatedGapBlocks
+      )
       return { success: true }
     } catch (error) {
       console.error('Failed to rewrite note:', error)
-      return { success: false, message: 'Failed to rewrite note' }
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'ノートの更新中にエラーが発生しました。',
+      }
     }
   }
 
@@ -107,7 +156,7 @@ const useFeynmanNoteService = () => {
     saveNote,
     rewriteNote,
     convertToTextLineBlocks,
-    convertToKnowledgeGapData,
+    convertToKnowledgeGapWriteData,
   }
 }
 

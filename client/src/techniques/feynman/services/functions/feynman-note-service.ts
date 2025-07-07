@@ -1,8 +1,10 @@
+import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
 import type { FeynmanKnowledgeGapWrite } from '../documents/feynman-knowledge-gap-documents'
 import type {
   FeynmanNoteRead,
   FeynmanNoteWrite,
 } from '../documents/feynman-note-documents'
+import type { KnowledgeGapState } from '../documents/feynman-technique-types'
 import { FeynmanKnowledgeGapIDBRepository } from '../repositories/feynman-knowledge-gap-repository'
 import { FeynmanNoteHistoryIDBRepository } from '../repositories/feynman-note-history-repository'
 import { FeynmanNoteIDBRepository } from '../repositories/feynman-note-repository'
@@ -60,7 +62,7 @@ export const getAllFeynmanNote = async (
 export const createFeynmanNote = async (
   uid: string,
   data: FeynmanNoteWrite
-): Promise<string | null> => {
+): Promise<DBWriteTarget | null> => {
   try {
     const { noteRepo } = getRepo(uid)
     return await noteRepo.create({ ...data, rewriteCount: 0 }, [uid])
@@ -74,7 +76,7 @@ export const rewriteFeynmanNote = async (
   uid: string,
   noteId: string,
   data: FeynmanNoteWrite
-): Promise<string | null> => {
+): Promise<DBWriteTarget | null> => {
   try {
     const { noteRepo, noteHistoryRepo } = getRepo(uid)
 
@@ -98,13 +100,17 @@ export const createFeynmanKnowledgeGap = async (
   uid: string,
   noteId: string,
   noteTitle: string,
-  contents: string
+  contents: string,
+  answer: string,
+  state: KnowledgeGapState
 ) => {
   const { knowledgeGapRepo } = getRepo(uid)
   const data: FeynmanKnowledgeGapWrite = {
     noteId,
     noteTitle,
     contents,
+    answer,
+    state,
   }
   return await knowledgeGapRepo.createWithId(data, [uid])
 }
@@ -122,10 +128,10 @@ export const getFeynmanKnowledgeGap = async (
   return await knowledgeGapRepo.read([uid, knowledgeGapId])
 }
 
-export const createOrUpdateFeynmanKnowledgeGap = async (
+export const createNewGapBlocks = async (
   uid: string,
   data: Record<string, FeynmanKnowledgeGapWrite>
-): Promise<void> => {
+) => {
   const { knowledgeGapRepo } = getRepo(uid)
 
   const promises = Object.entries(data).map(([id, value]) => {
@@ -133,4 +139,26 @@ export const createOrUpdateFeynmanKnowledgeGap = async (
   })
 
   await Promise.all(promises)
+}
+
+export const updateGapBlocks = async (
+  uid: string,
+  data: Record<string, Partial<FeynmanKnowledgeGapWrite>>
+) => {
+  const { knowledgeGapRepo } = getRepo(uid)
+
+  const promises = Object.entries(data).map(([id, value]) => {
+    return knowledgeGapRepo.update(value, [uid, id])
+  })
+
+  await Promise.all(promises)
+}
+
+export const updateFeynmanKnowledgeGap = async (
+  uid: string,
+  id: string,
+  data: Partial<FeynmanKnowledgeGapWrite>
+) => {
+  const { knowledgeGapRepo } = getRepo(uid)
+  await knowledgeGapRepo.update(data, [uid, id])
 }

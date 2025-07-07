@@ -1,19 +1,19 @@
 import { Stack } from '@mui/material'
-import KnowledgeGapCard from './KnowledgeGapCard'
-import type { FeynmanKnowledgeGapRead } from '../../services/documents/feynman-knowledge-gap-documents'
+import type { FeynmanKnowledgeGapRead } from '../../../services/documents/feynman-knowledge-gap-documents'
+import RecommendedGapCard from '../card/RecommendedGapCard'
 
-interface KnowledgeGapListProps {
+interface RecommendedGapListProps {
   gaps: FeynmanKnowledgeGapRead[]
   onClickGap: (gap: FeynmanKnowledgeGapRead) => void
 }
 
-export const KnowledgeGapList: React.FC<KnowledgeGapListProps> = ({
+const RecommendedGapList: React.FC<RecommendedGapListProps> = ({
   gaps,
   onClickGap,
 }) => (
   <Stack spacing={2}>
     {gaps.map((q, index) => (
-      <KnowledgeGapCard
+      <RecommendedGapCard
         key={index}
         index={index + 1}
         title={q.noteTitle}
@@ -24,3 +24,5 @@ export const KnowledgeGapList: React.FC<KnowledgeGapListProps> = ({
     ))}
   </Stack>
 )
+
+export default RecommendedGapList

@@ -1,12 +1,15 @@
-export interface TextBlock {
+export interface TextBlockData {
   type: 'text'
   text: string
 }
 
-export interface KnowledgeGapBlock {
+export interface KnowledgeGapBlockData {
   id: string
   type: 'gap'
   content: string
+  state: KnowledgeGapState
 }
 
-export type NoteBlock = TextBlock | KnowledgeGapBlock
+export type NoteBlock = TextBlockData | KnowledgeGapBlockData
+
+export type KnowledgeGapState = 'unresolved' | 'resolved'

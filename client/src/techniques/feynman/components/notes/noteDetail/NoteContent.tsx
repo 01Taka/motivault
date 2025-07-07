@@ -1,13 +1,13 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
 import type { FeynmanNoteTextLineBlock } from '../../../services/documents/feynman-note-documents'
-import type { KnowledgeGapBlock } from '../../../services/documents/feynman-technique-types'
+import type { KnowledgeGapBlockData } from '../../../services/documents/feynman-technique-types'
 import { Check, QuestionMark } from '@mui/icons-material'
 
 interface NoteContentProps {
   contentBlocks: FeynmanNoteTextLineBlock[]
   resolvedGapIds: string[]
-  onGapClick: (gap: KnowledgeGapBlock) => void
-  onResolvedGapClick: (gap: KnowledgeGapBlock) => void
+  onGapClick: (gap: KnowledgeGapBlockData) => void
+  onResolvedGapClick: (gap: KnowledgeGapBlockData) => void
 }
 
 const NoteContent: React.FC<NoteContentProps> = ({

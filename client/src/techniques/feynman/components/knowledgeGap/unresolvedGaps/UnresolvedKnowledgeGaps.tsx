@@ -1,19 +1,27 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
-import React from 'react'
-import { AllResolvedPresenter } from '../AllResolvedPresenter'
-import { KnowledgeGapList } from '../KnowledgeGapList'
+import { Box, Stack, Typography } from '@mui/material'
+import React, { useState } from 'react'
+import { AllResolvedPresenter } from './AllResolvedPresenter'
+import RecommendedGapList from './RecommendedGapList'
 import type { FeynmanKnowledgeGapRead } from '../../../services/documents/feynman-knowledge-gap-documents'
 import { explanationMessages } from '../../../constants/explanation-messages-constants'
+import KnowledgeGapCardList from '../card/KnowledgeGapCardList'
+import TogglePastGapsButton from './TogglePastGapsButton'
 
 interface UnresolvedKnowledgeGapsProps {
-  gaps: FeynmanKnowledgeGapRead[]
   recentGaps: FeynmanKnowledgeGapRead[]
+  pastGaps: FeynmanKnowledgeGapRead[]
+  resolveMoreNumber: number
+  onClickGap: (gap: FeynmanKnowledgeGapRead) => void
 }
 
 const UnresolvedKnowledgeGaps: React.FC<UnresolvedKnowledgeGapsProps> = ({
-  gaps,
   recentGaps,
+  pastGaps,
+  resolveMoreNumber,
+  onClickGap,
 }) => {
+  const [showingAllGaps, setShowingAllGaps] = useState(false)
+
   const messageList = Object.values(explanationMessages)
   const randomMessage =
     messageList[Math.floor(Math.random() * messageList.length)]
@@ -36,40 +44,31 @@ const UnresolvedKnowledgeGaps: React.FC<UnresolvedKnowledgeGapsProps> = ({
       {/* メイン表示部分 */}
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {recentGaps.length > 0 ? (
-          <KnowledgeGapList gaps={recentGaps} onClickGap={() => {}} />
+          <RecommendedGapList gaps={recentGaps} onClickGap={onClickGap} />
         ) : (
           <AllResolvedPresenter
             message={randomMessage}
-            resolveMoreNumber={Math.min(gaps.length, 3)}
+            resolveMoreNumber={resolveMoreNumber}
             onCreateExplanationClick={() => {}}
             onResolveMoreClick={() => {}}
           />
         )}
       </Box>
 
+      {showingAllGaps && (
+        <KnowledgeGapCardList
+          gaps={pastGaps}
+          colorType="unresolved"
+          onClickGap={onClickGap}
+        />
+      )}
+
       {/* 過去の疑問ボタン */}
       <Box sx={{ mt: 'auto', pt: 3 }}>
-        <Button
-          fullWidth
-          variant="outlined"
-          onClick={() => {}}
-          sx={{
-            borderRadius: 3,
-            borderColor: 'grey.300',
-            color: 'text.primary',
-            fontWeight: 500,
-            textTransform: 'none',
-            px: 2,
-            py: 1.5,
-            transition: '0.2s',
-            '&:hover': {
-              backgroundColor: 'grey.100',
-              borderColor: 'grey.400',
-            },
-          }}
-        >
-          ⬇️ 過去の疑問を表示
-        </Button>
+        <TogglePastGapsButton
+          isOpen={showingAllGaps}
+          onToggle={() => setShowingAllGaps((prev) => !prev)}
+        />
       </Box>
     </Stack>
   )

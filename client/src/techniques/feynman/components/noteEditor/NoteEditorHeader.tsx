@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Check, CopyAll, LiveHelp } from '@mui/icons-material'
-import { Box, Stack, TextField } from '@mui/material'
+import { Stack, TextField } from '@mui/material'
 import { orange } from '@mui/material/colors'
 import AnimatedIconButton from './AnimatedIconButton'
 
@@ -25,13 +25,12 @@ const NoteEditorHeader: React.FC<NoteEditorHeaderProps> = ({
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
-    <Box
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems={'start'}
       sx={{
-        display: 'flex',
         width: '100%',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 2,
       }}
     >
       <TextField
@@ -79,7 +78,7 @@ const NoteEditorHeader: React.FC<NoteEditorHeaderProps> = ({
           />
         </Stack>
       )}
-    </Box>
+    </Stack>
   )
 }
 

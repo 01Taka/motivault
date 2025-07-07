@@ -27,6 +27,7 @@ import type {
   BaseDocument,
 } from '../../../types/db/db-service-document-types'
 import type {
+  DBWriteTarget,
   FirestoreQueryConstraints,
   IDBService,
 } from '../../../types/db/db-service-interface'
@@ -167,21 +168,24 @@ abstract class FirestoreService<
   // CRUD Methods
   // ======================================================================
 
-  async create(data: Write, collectionPath: string[] = []): Promise<string> {
+  async create(
+    data: Write,
+    collectionPath: string[] = []
+  ): Promise<DBWriteTarget> {
     console.log('called create')
     const collectionRef = this.getReference(collectionPath, 'collection')
     const docRef = await CRUDHandler.create<Document>(
       collectionRef,
       this.organizeCreateData(data)
     )
-    return docRef.path
+    return { id: docRef.id, path: docRef.path }
   }
 
   async createWithId(
     data: Write,
     documentPath: string[],
     options?: SetOptions
-  ): Promise<string> {
+  ): Promise<DBWriteTarget> {
     console.log('called createWithId')
     const docRef = this.getReference(documentPath, 'doc')
     await CRUDHandler.createWithId(
@@ -189,7 +193,7 @@ abstract class FirestoreService<
       this.organizeCreateData(data),
       options
     )
-    return docRef.path
+    return { id: docRef.id, path: docRef.path }
   }
 
   protected async readAsDocumentSnapshot(
@@ -208,11 +212,14 @@ abstract class FirestoreService<
     return CRUDHandler.read<Read>(collectionRef)
   }
 
-  async update(data: Partial<Write>, documentPath: string[]): Promise<string> {
+  async update(
+    data: Partial<Write>,
+    documentPath: string[]
+  ): Promise<DBWriteTarget> {
     console.log('called update')
     const docRef = this.getReference(documentPath, 'doc')
     CRUDHandler.update(docRef, this.organizeUpdateData(data))
-    return docRef.id
+    return { id: docRef.id, path: docRef.path }
   }
 
   async hardDelete(documentPath: string[]): Promise<void> {

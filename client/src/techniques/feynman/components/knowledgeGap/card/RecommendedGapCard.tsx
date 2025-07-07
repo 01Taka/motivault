@@ -1,9 +1,9 @@
 import { Box, Button } from '@mui/material'
-import AnimatedArrow from './card/AnimatedArrow'
-import CardContentSection from './card/CardContentSection'
-import { cardContainerStyle } from './card/cardStyles'
+import AnimatedArrow from './AnimatedArrow'
+import CardContentSection from './CardContentSection'
+import { cardContainerStyle } from './cardStyles'
 
-interface KnowledgeGapCardProps {
+interface RecommendedGapCardProps {
   index: number
   title: string
   date: number
@@ -11,7 +11,7 @@ interface KnowledgeGapCardProps {
   onClick: () => void
 }
 
-const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
+const RecommendedGapCard: React.FC<RecommendedGapCardProps> = ({
   index,
   title,
   date,
@@ -40,4 +40,4 @@ const KnowledgeGapCard: React.FC<KnowledgeGapCardProps> = ({
   )
 }
 
-export default KnowledgeGapCard
+export default RecommendedGapCard

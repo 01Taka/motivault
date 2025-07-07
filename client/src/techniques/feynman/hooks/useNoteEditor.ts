@@ -1,5 +1,8 @@
 import { useState, useRef, type KeyboardEvent } from 'react'
-import type { NoteBlock } from '../services/documents/feynman-technique-types'
+import type {
+  KnowledgeGapBlockData,
+  NoteBlock,
+} from '../services/documents/feynman-technique-types'
 import { createFirestoreId } from '../../../functions/services/firestore-id-service'
 import { usePersistedState } from '../../../hooks/utils/usePersistedState'
 
@@ -10,7 +13,7 @@ export const useNoteEditor = (
     key: 'feynmanNoteBlocks',
     initialValue: initialBlocks,
   })
-  const [activeIndex, setActiveIndex] = useState<number>(0)
+  const [activeIndex, setActiveIndex] = useState(0)
   const refs = useRef<(HTMLTextAreaElement | null)[]>([])
 
   // ---------- UTILS ----------
@@ -29,43 +32,52 @@ export const useNoteEditor = (
     }, 0)
   }
 
-  // ---------- MODIFIERS ----------
-  const insertBlock = (index: number, block: NoteBlock) => {
-    const newBlocks = [...blocks]
-    newBlocks.splice(index, 0, block)
+  const updateAndFocus = (newBlocks: NoteBlock[], index: number) => {
     setBlocks(newBlocks)
     setActiveIndex(index)
     focusBlock(index)
   }
 
-  const removeBlock = (index: number) => {
-    const isOnlyBlock = blocks.length === 1
-    const newBlocks = [...blocks]
-
-    if (isOnlyBlock) {
-      setBlocks([{ type: 'text', text: '' }])
-      setActiveIndex(0)
-      focusBlock(0)
-      return
-    }
-
-    newBlocks.splice(index, 1)
-    setBlocks(newBlocks)
-    const newIndex = Math.max(0, index - 1)
-    setActiveIndex(newIndex)
-    focusBlock(newIndex)
+  const updateBlock = (index: number, block: NoteBlock) => {
+    const updated = [...blocks]
+    updated[index] = block
+    setBlocks(updated)
   }
 
-  const updateBlock = (index: number, block: NoteBlock) => {
-    const newBlocks = [...blocks]
-    newBlocks[index] = block
-    setBlocks(newBlocks)
+  const upsertGapBlock = (index: number, content: string) => {
+    const id =
+      blocks[index].type === 'gap' ? blocks[index].id : createFirestoreId()
+    const newBlock: NoteBlock = {
+      type: 'gap',
+      content,
+      id,
+      state: 'unresolved',
+    }
+    updateBlock(index, newBlock)
+  }
+
+  // ---------- MODIFIERS ----------
+  const insertBlock = (index: number, block: NoteBlock) => {
+    const updated = [...blocks]
+    updated.splice(index, 0, block)
+    updateAndFocus(updated, index)
+  }
+
+  const removeBlock = (index: number) => {
+    const isOnlyBlock = blocks.length === 1
+    const fallback: NoteBlock[] = [{ type: 'text', text: '' }]
+
+    const updated = isOnlyBlock
+      ? fallback
+      : [...blocks].filter((_, i) => i !== index)
+    const newIndex = isOnlyBlock ? 0 : Math.max(0, index - 1)
+
+    updateAndFocus(updated, newIndex)
   }
 
   const clearBlocks = () => {
-    setBlocks([{ type: 'text', text: '' }])
-    setActiveIndex(0)
-    focusBlock(0)
+    const empty: NoteBlock[] = [{ type: 'text', text: '' }]
+    updateAndFocus(empty, 0)
   }
 
   // ---------- EVENTS ----------
@@ -75,13 +87,13 @@ export const useNoteEditor = (
     if (lines.length > 1) {
       const newBlocks = [...blocks]
       newBlocks[index] = { type: 'text', text: lines[0] }
+
       for (let i = 1; i < lines.length; i++) {
         newBlocks.splice(index + i, 0, { type: 'text', text: lines[i] })
       }
-      setBlocks(newBlocks)
+
       const newIndex = index + lines.length - 1
-      setActiveIndex(newIndex)
-      focusBlock(newIndex)
+      updateAndFocus(newBlocks, newIndex)
     } else {
       updateBlock(index, { type: 'text', text: newText })
     }
@@ -90,21 +102,21 @@ export const useNoteEditor = (
   const handleGapChange = (index: number, content: string) => {
     if (content.endsWith('\n\n')) {
       const trimmed = content.trim()
-      const newBlocks = [...blocks]
       const id =
         blocks[index].type === 'gap' ? blocks[index].id : createFirestoreId()
-      newBlocks[index] = { type: 'gap', content: trimmed, id }
-      newBlocks.splice(index + 1, 0, { type: 'text', text: '' })
-      setBlocks(newBlocks)
-      const nextIndex = index + 1
-      setActiveIndex(nextIndex)
-      focusBlock(nextIndex)
-    } else {
-      if (blocks[index].type === 'gap') {
-        updateBlock(index, { ...blocks[index], content })
-      } else {
-        updateBlock(index, { type: 'gap', content, id: createFirestoreId() })
+
+      const newBlocks = [...blocks]
+      newBlocks[index] = {
+        type: 'gap',
+        content: trimmed,
+        id,
+        state: 'unresolved',
       }
+      newBlocks.splice(index + 1, 0, { type: 'text', text: '' })
+
+      updateAndFocus(newBlocks, index + 1)
+    } else {
+      upsertGapBlock(index, content)
     }
   }
 
@@ -123,18 +135,48 @@ export const useNoteEditor = (
     insertBlock(index, { type: 'text', text: '' })
 
   const insertGapBlockAt = (index: number) =>
-    insertBlock(index, { type: 'gap', content: '', id: createFirestoreId() })
+    insertBlock(index, {
+      type: 'gap',
+      content: '',
+      id: createFirestoreId(),
+      state: 'unresolved',
+    })
 
   const setFocus = (index: number) => {
     setActiveIndex(index)
     focusBlock(index)
   }
 
-  const getAllText = (removeKnowledgeGap: boolean = false): string => {
-    return blocks
+  const getAllText = (removeKnowledgeGap = false): string =>
+    blocks
       .filter((b) => !removeKnowledgeGap || b.type === 'text')
       .map((b) => (b.type === 'text' ? b.text : b.content))
       .join('\n')
+
+  const getNewGapsComparedTo = (
+    oldGaps: NoteBlock[]
+  ): KnowledgeGapBlockData[] => {
+    const oldGapIds = new Set(
+      oldGaps.filter((g) => g.type === 'gap').map((g) => g.id)
+    )
+    return blocks.filter(
+      (b) => b.type === 'gap' && !oldGapIds.has(b.id)
+    ) as KnowledgeGapBlockData[]
+  }
+
+  const getModifiedGapsComparedTo = (
+    oldGaps: NoteBlock[]
+  ): KnowledgeGapBlockData[] => {
+    const oldGapMap = new Map(
+      oldGaps.filter((g) => g.type === 'gap').map((g) => [g.id, g.content])
+    )
+
+    return blocks.filter(
+      (b): b is KnowledgeGapBlockData =>
+        b.type === 'gap' &&
+        oldGapMap.has(b.id) &&
+        b.content !== oldGapMap.get(b.id)
+    )
   }
 
   return {
@@ -149,5 +191,7 @@ export const useNoteEditor = (
     handleGapChange,
     handleKeyDown,
     getAllText,
+    getNewGapsComparedTo,
+    getModifiedGapsComparedTo,
   }
 }

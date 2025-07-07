@@ -7,10 +7,10 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import type { FeynmanNoteRead } from '../../../services/documents/feynman-note-documents'
 import KnowledgeGapSummary from './KnowledgeGapSummary'
 import NoteHeader from './NoteHeader'
 import RewriteInfo from './RewriteInfo'
-import type { FeynmanNoteRead } from '../../services/documents/feynman-note-documents'
 
 interface FeynmanNoteCardProps {
   note: FeynmanNoteRead

@@ -25,10 +25,22 @@ export function usePersistedState<T>({
   )
 
   // 値を変更して保存も行う
-  const updateValue = (val: T) => {
-    setValue(val)
-    saveToDB(val)
+  const updateValue = (valOrUpdater: T | ((prev: T) => T)) => {
+    setValue((prev) => {
+      const next =
+        typeof valOrUpdater === 'function'
+          ? (valOrUpdater as (prev: T) => T)(prev)
+          : valOrUpdater
+      saveToDB(next)
+      return next
+    })
   }
+
+  const deleteKey = useCallback(async () => {
+    saveToDB.cancel()
+    await db.input.delete(key)
+    setValue(initialValue)
+  }, [saveToDB])
 
   // 初期化時にDBから読み込み
   useEffect(() => {
@@ -41,5 +53,5 @@ export function usePersistedState<T>({
     load()
   }, [key])
 
-  return [value, updateValue] as const
+  return [value, updateValue, deleteKey] as const
 }

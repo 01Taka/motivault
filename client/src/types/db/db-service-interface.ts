@@ -4,14 +4,19 @@ import type {
   BaseDocumentWrite,
 } from './db-service-document-types'
 
+export interface DBWriteTarget {
+  id: string
+  path: string
+}
+
 export interface IDBService<
   Read extends BaseDocumentRead,
   Write extends BaseDocumentWrite,
 > {
-  create(data: Write, collectionPath?: string[]): Promise<string>
-  createWithId(data: Write, documentPath: string[]): Promise<string>
+  create(data: Write, collectionPath?: string[]): Promise<DBWriteTarget>
+  createWithId(data: Write, documentPath: string[]): Promise<DBWriteTarget>
   read(documentPath: string[]): Promise<Read | null>
-  update(data: Partial<Write>, documentPath: string[]): Promise<string>
+  update(data: Partial<Write>, documentPath: string[]): Promise<DBWriteTarget>
   hardDelete(documentPath: string[]): Promise<void>
   softDelete(
     documentPath: string[],

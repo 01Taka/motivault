@@ -2,13 +2,16 @@ import type {
   MakeDocumentRead,
   MakeDocumentWrite,
 } from '../../../../types/db/db-service-document-types'
-import type { KnowledgeGapBlock, TextBlock } from './feynman-technique-types'
+import type {
+  KnowledgeGapBlockData,
+  TextBlockData,
+} from './feynman-technique-types'
 
 interface NoteTextLineBlockBase {
   index: number
 }
-interface NoteTextBlock extends TextBlock, NoteTextLineBlockBase {}
-interface NoteGapBlock extends KnowledgeGapBlock, NoteTextLineBlockBase {}
+interface NoteTextBlock extends TextBlockData, NoteTextLineBlockBase {}
+interface NoteGapBlock extends KnowledgeGapBlockData, NoteTextLineBlockBase {}
 
 export type FeynmanNoteTextLineBlock = NoteTextBlock | NoteGapBlock
 

@@ -5,6 +5,7 @@ import type {
 } from '../types/db/db-service-document-types'
 import type { TransactionalService } from './indexed-db-types'
 import type {
+  DBWriteTarget,
   IDBService,
   IndexedDBQueryConstraints,
 } from '../types/db/db-service-interface'
@@ -178,26 +179,26 @@ export abstract class IndexedDBService<
   public async create(
     data: Write,
     collectionPath: string[] = []
-  ): Promise<string> {
+  ): Promise<DBWriteTarget> {
     const store = await this.getStore(collectionPath)
     const id = createFirestoreId()
     const filtered = this.filterWriteData(data)
     const record = this.createRecord(filtered, id)
     const db = await this.dbPromise
     await db.put(store, record)
-    return `${store}/${id}`
+    return { id, path: `${store}/${id}` }
   }
 
   public async createWithId(
     data: Write,
     documentPath: string[]
-  ): Promise<string> {
+  ): Promise<DBWriteTarget> {
     const { store, id } = await this.getStoreAndId(documentPath)
     const filtered = this.filterWriteData(data)
     const record = this.createRecord(filtered as Write, id)
     const db = await this.dbPromise
     await db.put(store, record)
-    return `${store}/${id}`
+    return { id, path: `${store}/${id}` }
   }
 
   public async read(documentPath: string[]): Promise<Read | null> {
@@ -207,7 +208,7 @@ export abstract class IndexedDBService<
   public async update(
     data: Partial<Write>,
     documentPath: string[]
-  ): Promise<string> {
+  ): Promise<DBWriteTarget> {
     const existing = await this.getFromDB(documentPath)
     if (!existing) throw new Error('Document not found')
     const prevData = await this.read(documentPath)
@@ -217,7 +218,7 @@ export abstract class IndexedDBService<
     const { id, store } = await this.getStoreAndId(documentPath)
     const db = await this.dbPromise
     await db.put(store, updated)
-    return `${store}/${id}`
+    return { id, path: `${store}/${id}` }
   }
 
   public async hardDelete(documentPath: string[]): Promise<void> {

@@ -7,8 +7,9 @@ import useFeynmanNoteService from '../../services/hooks/useFeynmanService'
 import { usePersistedState } from '../../../../hooks/utils/usePersistedState'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import type { NoteBlock } from '../../services/documents/feynman-technique-types'
 
-interface NoteEditorProps {}
+const HEADER_HEIGHT = 50
 
 const copyToClipboard = async (text: string) => {
   try {
@@ -18,8 +19,9 @@ const copyToClipboard = async (text: string) => {
   }
 }
 
-const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
+const NoteEditor: React.FC = () => {
   const navigate = useNavigate()
+  const initialBlocks: NoteBlock[] = []
 
   const [title, setTitle] = usePersistedState<string>({
     key: 'feynmanNoteTitle',
@@ -38,7 +40,9 @@ const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
     handleKeyDown,
     setFocus,
     getAllText,
-  } = useNoteEditor()
+    getNewGapsComparedTo,
+    getModifiedGapsComparedTo,
+  } = useNoteEditor(initialBlocks)
 
   const { saveNote } = useFeynmanNoteService()
 
@@ -51,7 +55,14 @@ const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
       setTitleError(true)
       return
     }
-    const { success } = await saveNote(title, blocks)
+    const newGapBlocks = getNewGapsComparedTo(initialBlocks)
+    const updatedGapBlock = getModifiedGapsComparedTo(initialBlocks)
+    const { success } = await saveNote(
+      title,
+      blocks,
+      newGapBlocks,
+      updatedGapBlock
+    )
     if (success) {
       clearBlocks()
       setTitle('')
@@ -60,43 +71,76 @@ const NoteEditor: React.FC<NoteEditorProps> = ({}) => {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 10, backgroundColor: '#F4F5FF', minHeight: '100vh' }}>
-      <NoteEditorHeader
-        title={title}
-        titleError={titleError}
-        onChangeTitle={(title) => {
-          setTitle(title)
-          setTitleError(false)
+    <Box
+      sx={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: '#F4F5FF',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* 固定ヘッダー */}
+      <Box
+        sx={{
+          height: HEADER_HEIGHT,
+          px: 2,
+          py: 1,
+          position: 'sticky',
+          top: 10,
+          zIndex: 10,
+          backgroundColor: '#F4F5FF',
+          borderBottom: '1px solid #ddd',
         }}
-        onCopyNote={() => copyAllToClipboard()}
-        onCreateGapBlock={() => insertGapBlockAt(activeIndex + 1)}
-        onCompleted={onSaveNote}
-      />
-      <Stack>
-        {blocks.map((block, index) =>
-          block.type === 'text' ? (
-            <TextBlock
-              key={index}
-              text={block.text}
-              placeholder={index === 0 ? '説明を記入...' : ''}
-              onChange={(val) => handleTextChange(index, val)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onFocus={() => setFocus(index)}
-              inputRef={(el) => (refs.current[index] = el)}
-            />
-          ) : (
-            <KnowledgeGapBlock
-              key={index}
-              content={block.content}
-              placeholder="理解できていない点を記入..."
-              onChange={(val) => handleGapChange(index, val)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onFocus={() => setFocus(index)}
-              inputRef={(el) => (refs.current[index] = el)}
-            />
-          )
-        )}
-      </Stack>
+      >
+        <NoteEditorHeader
+          title={title}
+          titleError={titleError}
+          onChangeTitle={(title) => {
+            setTitle(title)
+            setTitleError(false)
+          }}
+          onCopyNote={copyAllToClipboard}
+          onCreateGapBlock={() => insertGapBlockAt(activeIndex + 1)}
+          onCompleted={onSaveNote}
+        />
+      </Box>
+
+      {/* 編集エリア */}
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          px: 2,
+          py: 3,
+        }}
+      >
+        <Stack>
+          {blocks.map((block, index) =>
+            block.type === 'text' ? (
+              <TextBlock
+                key={index}
+                text={block.text}
+                placeholder={index === 0 ? '説明を記入...' : ''}
+                onChange={(val) => handleTextChange(index, val)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onFocus={() => setFocus(index)}
+                inputRef={(el) => (refs.current[index] = el)}
+              />
+            ) : (
+              <KnowledgeGapBlock
+                key={index}
+                content={block.content}
+                placeholder="理解できていない点を記入..."
+                onChange={(val) => handleGapChange(index, val)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onFocus={() => setFocus(index)}
+                inputRef={(el) => (refs.current[index] = el)}
+              />
+            )
+          )}
+        </Stack>
+      </Box>
     </Box>
   )
 }
