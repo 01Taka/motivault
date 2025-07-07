@@ -1,4 +1,4 @@
-import { useState, useRef, type KeyboardEvent } from 'react'
+import { useState, useRef, type KeyboardEvent, useCallback } from 'react'
 import type {
   KnowledgeGapBlockData,
   NoteBlock,
@@ -7,10 +7,11 @@ import { createFirestoreId } from '../../../functions/services/firestore-id-serv
 import { usePersistedState } from '../../../hooks/utils/usePersistedState'
 
 export const useNoteEditor = (
-  initialBlocks: NoteBlock[] = [{ type: 'text', text: '' }]
+  initialBlocks: NoteBlock[] = [{ type: 'text', text: '' }],
+  stateKey?: string
 ) => {
   const [blocks, setBlocks] = usePersistedState<NoteBlock[]>({
-    key: 'feynmanNoteBlocks',
+    key: `feynmanNoteBlocks${stateKey && `/${stateKey}`}`,
     initialValue: initialBlocks,
   })
   const [activeIndex, setActiveIndex] = useState(0)
@@ -51,12 +52,18 @@ export const useNoteEditor = (
       type: 'gap',
       content,
       id,
-      state: 'unresolved',
     }
     updateBlock(index, newBlock)
   }
 
   // ---------- MODIFIERS ----------
+  const initializeBlocks = useCallback(
+    (initialBlocks: NoteBlock[]) => {
+      setBlocks(initialBlocks)
+    },
+    [setBlocks]
+  )
+
   const insertBlock = (index: number, block: NoteBlock) => {
     const updated = [...blocks]
     updated.splice(index, 0, block)
@@ -110,7 +117,6 @@ export const useNoteEditor = (
         type: 'gap',
         content: trimmed,
         id,
-        state: 'unresolved',
       }
       newBlocks.splice(index + 1, 0, { type: 'text', text: '' })
 
@@ -139,7 +145,6 @@ export const useNoteEditor = (
       type: 'gap',
       content: '',
       id: createFirestoreId(),
-      state: 'unresolved',
     })
 
   const setFocus = (index: number) => {
@@ -184,6 +189,7 @@ export const useNoteEditor = (
     activeIndex,
     refs,
     setFocus,
+    initializeBlocks,
     insertNewTextBlockAt,
     insertGapBlockAt,
     clearBlocks,

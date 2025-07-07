@@ -36,11 +36,11 @@ export function usePersistedState<T>({
     })
   }
 
-  const deleteKey = useCallback(async () => {
+  const deleteKey = async () => {
     saveToDB.cancel()
     await db.input.delete(key)
     setValue(initialValue)
-  }, [saveToDB])
+  }
 
   // 初期化時にDBから読み込み
   useEffect(() => {

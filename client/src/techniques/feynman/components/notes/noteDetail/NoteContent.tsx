@@ -17,7 +17,7 @@ const NoteContent: React.FC<NoteContentProps> = ({
   onResolvedGapClick,
 }) => {
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} width="100%">
       {contentBlocks.map((block) => {
         if (block.type === 'text') {
           return (

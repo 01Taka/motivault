@@ -10,7 +10,7 @@ const FeynmanDetailHeader: React.FC<FeynmanDetailHeaderProps> = ({
   title,
   onEdit,
 }) => (
-  <Stack direction="row" justifyContent="space-between">
+  <Stack direction="row" justifyContent="space-between" width="100%">
     <Typography
       variant="h6"
       fontWeight="bold"

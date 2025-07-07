@@ -18,8 +18,6 @@ const KnowledgeGap: React.FC<KnowledgeGapProps> = ({}) => {
   const [tab, setTab] = useState<'unresolved' | 'resolved'>('unresolved')
 
   const handleClickGap = (gap: FeynmanKnowledgeGapRead) => {
-    console.log(gap)
-
     navigate(`create-answer/${gap.docId}`)
   }
 
@@ -37,7 +35,10 @@ const KnowledgeGap: React.FC<KnowledgeGapProps> = ({}) => {
           onClickGap={handleClickGap}
         />
       ) : (
-        <ResolvedKnowledgeGaps resolvedGaps={resolvedGaps} />
+        <ResolvedKnowledgeGaps
+          resolvedGaps={resolvedGaps}
+          onClickGap={handleClickGap}
+        />
       )}
     </Box>
   )

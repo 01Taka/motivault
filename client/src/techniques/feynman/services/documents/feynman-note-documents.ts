@@ -18,6 +18,7 @@ export type FeynmanNoteTextLineBlock = NoteTextBlock | NoteGapBlock
 export interface FeynmanNoteData {
   title: string
   contents: FeynmanNoteTextLineBlock[]
+  resolvedGapIds: string[]
   rewriteCount: number | undefined
 }
 

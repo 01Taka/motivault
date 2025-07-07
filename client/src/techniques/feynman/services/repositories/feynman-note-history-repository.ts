@@ -24,6 +24,7 @@ export class FeynmanNoteHistoryIDBRepository extends IndexedDBService<
   protected filterWriteData<
     T extends FeynmanNoteWrite | Partial<FeynmanNoteWrite>,
   >(data: T): T {
+    // resolvedGapIds は意図的に削除中
     const { title, rewriteCount, contents } = data
     return {
       title,

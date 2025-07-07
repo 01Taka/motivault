@@ -2,6 +2,7 @@ import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
 import type { FeynmanKnowledgeGapWrite } from '../documents/feynman-knowledge-gap-documents'
 import type {
   FeynmanNoteRead,
+  FeynmanNoteTextLineBlock,
   FeynmanNoteWrite,
 } from '../documents/feynman-note-documents'
 import type { KnowledgeGapState } from '../documents/feynman-technique-types'
@@ -75,7 +76,8 @@ export const createFeynmanNote = async (
 export const rewriteFeynmanNote = async (
   uid: string,
   noteId: string,
-  data: FeynmanNoteWrite
+  contents: FeynmanNoteTextLineBlock[],
+  title?: string
 ): Promise<DBWriteTarget | null> => {
   try {
     const { noteRepo, noteHistoryRepo } = getRepo(uid)
@@ -86,10 +88,13 @@ export const rewriteFeynmanNote = async (
       return null
     }
 
-    await noteHistoryRepo.create(prevNote, [uid])
+    await noteHistoryRepo.create(prevNote, [uid, noteId])
     const rewriteCount = (prevNote.rewriteCount ?? 0) + 1
 
-    return await noteRepo.update({ ...data, rewriteCount }, [uid, noteId])
+    return await noteRepo.update({ contents, title, rewriteCount }, [
+      uid,
+      noteId,
+    ])
   } catch (error) {
     console.error('Error in rewriteFeynmanNote:', error)
     return null
@@ -154,11 +159,25 @@ export const updateGapBlocks = async (
   await Promise.all(promises)
 }
 
-export const updateFeynmanKnowledgeGap = async (
+export const updateFeynmanKnowledgeGapAnswer = async (
   uid: string,
-  id: string,
-  data: Partial<FeynmanKnowledgeGapWrite>
-) => {
-  const { knowledgeGapRepo } = getRepo(uid)
-  await knowledgeGapRepo.update(data, [uid, id])
+  gapId: string,
+  noteId: string,
+  answer: string,
+  state: KnowledgeGapState = 'resolved'
+): Promise<void> => {
+  const { knowledgeGapRepo, noteRepo } = getRepo(uid)
+
+  await knowledgeGapRepo.update({ answer, state }, [uid, gapId])
+
+  const isResolved = state === 'resolved'
+  if (!isResolved) return
+
+  const note = await noteRepo.read([uid, noteId])
+
+  const prevResolvedGapIds = note?.resolvedGapIds ?? []
+  if (note && !prevResolvedGapIds.includes(gapId)) {
+    const updatedIds = [...prevResolvedGapIds, gapId]
+    await noteRepo.update({ resolvedGapIds: updatedIds }, [uid, note.docId])
+  }
 }

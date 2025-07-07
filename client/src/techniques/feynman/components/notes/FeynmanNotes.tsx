@@ -5,10 +5,12 @@ import { Box, Typography } from '@mui/material'
 import Popup from '../../../../components/utils/Popup'
 import FeynmanNoteDetail from './noteDetail/FeynmanNoteDetail'
 import { useFeynmanStore } from '../../store/feynmanStore'
+import { useNavigate } from 'react-router-dom'
 
 interface FeynmanNotesProps {}
 
 const FeynmanNotes: React.FC<FeynmanNotesProps> = ({}) => {
+  const navigate = useNavigate()
   const { allFeynmanNotes } = useFeynmanStore()
   const [openDetail, setOpenDetail] = useState(false)
   const [selectedNote, setSelectedNote] = useState<FeynmanNoteRead | null>(null)
@@ -39,14 +41,20 @@ const FeynmanNotes: React.FC<FeynmanNotesProps> = ({}) => {
       <Popup open={openDetail} onClose={() => setOpenDetail(false)}>
         {selectedNote && (
           <FeynmanNoteDetail
-            latestVersion={selectedNote.rewriteCount + 3}
+            latestVersion={selectedNote.rewriteCount + 1}
             latestNote={selectedNote}
-            resolvedGapIds={[]}
+            resolvedGapIds={selectedNote.resolvedGapIds ?? []}
             getPreviousNote={() => selectedNote}
             onEdit={() => {}}
-            onRewrite={() => {}}
-            onResolveGap={() => {}}
-            onShowResolvedGapDetail={() => {}}
+            onRewrite={() =>
+              navigate(`/techniques/feynman/rewrite/${selectedNote.docId}`)
+            }
+            onResolveGap={(gap) =>
+              navigate(`/techniques/feynman/create-answer/${gap.id}`)
+            }
+            onShowResolvedGapDetail={(gap) =>
+              navigate(`/techniques/feynman/create-answer/${gap.id}`)
+            }
           />
         )}
       </Popup>

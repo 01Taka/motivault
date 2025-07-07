@@ -85,7 +85,7 @@ const useFeynmanNoteService = () => {
     if (!uid) return { success: false, message: 'User not logged in' }
 
     const contents = convertToTextLineBlocks(blocks)
-    const data: FeynmanNoteWrite = { title, contents }
+    const data: FeynmanNoteWrite = { title, contents, resolvedGapIds: [] }
 
     try {
       const result = await createFeynmanNote(uid, data)
@@ -124,10 +124,14 @@ const useFeynmanNoteService = () => {
 
     const newTitle = updatedTitle || prevNote.title
     const contents = convertToTextLineBlocks(blocks)
-    const data: FeynmanNoteWrite = { title: newTitle, contents }
 
     try {
-      const result = await rewriteFeynmanNote(uid, prevNote.docId, data)
+      const result = await rewriteFeynmanNote(
+        uid,
+        prevNote.docId,
+        contents,
+        newTitle
+      )
 
       if (!result) {
         return { success: false, message: 'ノートの更新に失敗しました。' }

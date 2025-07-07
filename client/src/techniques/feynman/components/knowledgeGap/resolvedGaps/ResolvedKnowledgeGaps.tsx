@@ -4,14 +4,20 @@ import KnowledgeGapCardList from '../card/KnowledgeGapCardList'
 
 interface ResolvedKnowledgeGapsProps {
   resolvedGaps: FeynmanKnowledgeGapRead[]
+  onClickGap: (gap: FeynmanKnowledgeGapRead) => void
 }
 
 const ResolvedKnowledgeGaps: React.FC<ResolvedKnowledgeGapsProps> = ({
   resolvedGaps,
+  onClickGap,
 }) => {
   return (
     <div>
-      <KnowledgeGapCardList gaps={resolvedGaps} colorType="resolved" />
+      <KnowledgeGapCardList
+        gaps={resolvedGaps}
+        colorType="resolved"
+        onClickGap={onClickGap}
+      />
     </div>
   )
 }

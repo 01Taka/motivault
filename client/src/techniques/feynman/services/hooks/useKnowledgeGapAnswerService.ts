@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { useCurrentUserStore } from '../../../../stores/user/currentUserStore'
-import { updateFeynmanKnowledgeGap } from '../functions/feynman-note-service'
 import { useFeynmanStore } from '../../store/feynmanStore'
 import { useFeynmanStoreSetter } from '../../hooks/useFeynmanStoreSetter'
+import { updateFeynmanKnowledgeGapAnswer } from '../functions/feynman-note-service'
+import type { FeynmanNoteRead } from '../documents/feynman-note-documents'
 
 export const useKnowledgeGapAnswerService = (id: string | null) => {
   const { uid } = useCurrentUserStore()
@@ -20,12 +21,13 @@ export const useKnowledgeGapAnswerService = (id: string | null) => {
     loadGap()
   }, [id, getKnowledgeGap, setAnswerTargetGap])
 
-  const answeringKnowledgeGap = async (answer: string, targetId = id) => {
+  const answeringKnowledgeGap = async (
+    answer: string,
+    noteId: string,
+    targetId = id
+  ) => {
     if (uid && targetId) {
-      await updateFeynmanKnowledgeGap(uid, targetId, {
-        answer,
-        state: 'resolved',
-      })
+      await updateFeynmanKnowledgeGapAnswer(uid, targetId, noteId, answer)
     }
   }
   return { answerTargetGap, answeringKnowledgeGap }

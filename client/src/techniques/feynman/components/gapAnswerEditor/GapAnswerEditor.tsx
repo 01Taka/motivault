@@ -20,7 +20,7 @@ const GapAnswerEditor: React.FC<GapAnswerEditorProps> = ({}) => {
     useKnowledgeGapAnswerService(id ?? null)
 
   const [answer, setAnswer, deleteKey] = usePersistedState<string>({
-    key: 'feynmanCreateGapAnswer',
+    key: `feynmanCreateGapAnswer/${id ?? ''}`,
     initialValue: '',
   })
 
@@ -31,8 +31,8 @@ const GapAnswerEditor: React.FC<GapAnswerEditorProps> = ({}) => {
   }, [answerTargetGap?.answer])
 
   const handleSubmit = () => {
-    if (answer.trim()) {
-      answeringKnowledgeGap(answer)
+    if (answer.trim() && answerTargetGap?.noteId) {
+      answeringKnowledgeGap(answer, answerTargetGap.noteId)
       deleteKey()
       navigate('/techniques/feynman')
     }

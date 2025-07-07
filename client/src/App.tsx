@@ -30,6 +30,7 @@ import KnowledgeGap from './techniques/feynman/components/knowledgeGap/Knowledge
 import FeynmanNotes from './techniques/feynman/components/notes/FeynmanNotes'
 import NoteEditor from './techniques/feynman/components/noteEditor/NoteEditor'
 import GapAnswerEditor from './techniques/feynman/components/gapAnswerEditor/GapAnswerEditor'
+import NoteRewriteEditor from './techniques/feynman/components/rewrite/NoteRewriteEditor'
 
 function App() {
   useSyncCurrentUser()
@@ -60,6 +61,7 @@ function App() {
             <Route index element={<KnowledgeGap />} />
             <Route path="notes" element={<FeynmanNotes />} />
             <Route path="create" element={<NoteEditor />} />
+            <Route path="rewrite/:id" element={<NoteRewriteEditor />} />
             <Route path="create-answer/:id" element={<GapAnswerEditor />} />
           </Route>
         </Route>

@@ -7,7 +7,6 @@ export interface KnowledgeGapBlockData {
   id: string
   type: 'gap'
   content: string
-  state: KnowledgeGapState
 }
 
 export type NoteBlock = TextBlockData | KnowledgeGapBlockData
