@@ -2,6 +2,36 @@ import type { Technique } from '../../types/technique-types'
 
 export const techniques: Technique[] = [
   {
+    id: 'TaskPress',
+    path: 'task-press',
+    title: '課題、圧してこ。',
+    officialName: 'TaskPress',
+    category: '学習タスク管理',
+    imageUrl:
+      'https://cdn.pixabay.com/photo/2020/04/29/20/59/task-5112951_1280.png',
+    description: 'やるべき課題を、ムダなく・ちょっとずつ・確実に。',
+    benefits:
+      '期限ギリギリで焦るのはもう終わり。ページ単位・区切り単位で、今やるべき分がハッキリ見えるから、毎日ちょい進めでOK。',
+    reason:
+      '長い課題も、分ければこわくない。タスクを分解して、今やるべき量と締切から逆算。スマホ感覚で進められるUIで、続けやすさに全振り。',
+    steps: [
+      '課題を登録（問題集 or レポート）',
+      'ページやステップごとに進捗管理',
+      '毎日必要な分が自動で出てくる',
+      '終わったらボタンでポチッと完了！',
+    ],
+    references: [
+      {
+        label: '「TaskPress」開発ノート（Qiita）',
+        url: 'https://qiita.com/search?q=taskpress',
+      },
+      {
+        label: '学生の課題管理を変えるアプリとは？',
+        url: 'https://note.com/search?query=taskpress',
+      },
+    ],
+  },
+  {
     id: 'tinySteps',
     path: 'tiny-steps',
     title: 'ちょこっと行動',

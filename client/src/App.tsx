@@ -32,6 +32,7 @@ import NoteEditor from './techniques/feynman/components/noteEditor/NoteEditor'
 import GapAnswerEditor from './techniques/feynman/components/gapAnswerEditor/GapAnswerEditor'
 import NoteRewriteEditor from './techniques/feynman/components/rewrite/NoteRewriteEditor'
 import TinySteps from './techniques/tinySteps/components/TinySteps'
+import TaskPress from './techniques/taskPress/components/TaskPress'
 
 function App() {
   useSyncCurrentUser()
@@ -66,7 +67,8 @@ function App() {
             <Route path="create-answer/:id" element={<GapAnswerEditor />} />
           </Route>
 
-          <Route path={'tiny-steps'} element={<TinySteps />} />
+          <Route path="tiny-steps" element={<TinySteps />} />
+          <Route path="task-press" element={<TaskPress />} />
         </Route>
 
         {/* Fallback */}
