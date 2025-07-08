@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import GoalCard from './GoalCard'
 import { tags, goals as tinyStepGoals } from '../constants/goals-constants'
 import type { TinyStepsGoal } from '../types/goal-types'
@@ -71,10 +71,12 @@ const TinySteps: React.FC<TinyStepsProps> = ({}) => {
   return (
     <Stack spacing={2} alignItems="center" sx={{ width: '100%', pt: 5 }}>
       {/* GoalCardにランダムな目標とタグを渡す */}
-      <GoalCard
-        timer={remainingTime}
-        data={goal ? { goal, tag: tags[goal.tagId] } : null}
-      />
+      <Box sx={{ width: '95%' }}>
+        <GoalCard
+          timer={remainingTime}
+          data={goal ? { goal, tag: tags[goal.tagId] } : null}
+        />
+      </Box>
       <DrawButton
         type={isFirstDraw ? 'draw' : 'redraw'}
         onClick={() => handleDrawGoal()}

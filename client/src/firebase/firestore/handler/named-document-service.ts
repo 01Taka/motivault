@@ -5,6 +5,7 @@ import type {
   BaseDocumentWrite,
   BaseDocument,
 } from '../../../types/db/db-service-document-types'
+import type { DBWriteTarget } from '../../../types/db/db-service-interface'
 
 class NamedDocumentService<
   Read extends BaseDocumentRead,
@@ -30,7 +31,10 @@ class NamedDocumentService<
     return this.baseService.read(this.getPath(basePath))
   }
 
-  async update(data: Partial<Write>, basePath: string[]): Promise<string> {
+  async update(
+    data: Partial<Write>,
+    basePath: string[]
+  ): Promise<DBWriteTarget> {
     return this.baseService.update(data, this.getPath(basePath))
   }
 
@@ -38,7 +42,7 @@ class NamedDocumentService<
     data: Write,
     basePath: string[],
     options?: SetOptions
-  ): Promise<string> {
+  ): Promise<DBWriteTarget> {
     return this.baseService.createWithId(data, this.getPath(basePath), options)
   }
 

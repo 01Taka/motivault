@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Typography, Chip, Rating } from '@mui/material'
+import { Typography, Chip, Rating, Stack } from '@mui/material'
 import type { TinyStepsGoal, TinyStepsTag } from '../types/goal-types'
 import { format } from 'date-fns'
 
@@ -14,8 +14,9 @@ interface GoalCardProps {
 
 const GoalCard: React.FC<GoalCardProps> = ({ timer, data, bgColor }) => {
   return (
-    <Box
+    <Stack
       sx={{
+        width: '100%',
         borderRadius: 3,
         backgroundColor: bgColor ?? (data ? data.tag.backgroundColor : '#fff'),
         boxShadow: 2,
@@ -54,7 +55,7 @@ const GoalCard: React.FC<GoalCardProps> = ({ timer, data, bgColor }) => {
       <Typography
         variant="h6"
         sx={{
-          marginTop: 4,
+          marginTop: 3,
           fontWeight: 'bold',
           padding: 3,
           pb: 4,
@@ -63,7 +64,7 @@ const GoalCard: React.FC<GoalCardProps> = ({ timer, data, bgColor }) => {
       >
         {data?.goal.text ?? '小さな一歩をふみ出す'}
       </Typography>
-    </Box>
+    </Stack>
   )
 }
 

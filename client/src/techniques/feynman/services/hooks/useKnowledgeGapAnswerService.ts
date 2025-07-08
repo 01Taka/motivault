@@ -3,7 +3,6 @@ import { useCurrentUserStore } from '../../../../stores/user/currentUserStore'
 import { useFeynmanStore } from '../../store/feynmanStore'
 import { useFeynmanStoreSetter } from '../../hooks/useFeynmanStoreSetter'
 import { updateFeynmanKnowledgeGapAnswer } from '../functions/feynman-note-service'
-import type { FeynmanNoteRead } from '../documents/feynman-note-documents'
 
 export const useKnowledgeGapAnswerService = (id: string | null) => {
   const { uid } = useCurrentUserStore()
