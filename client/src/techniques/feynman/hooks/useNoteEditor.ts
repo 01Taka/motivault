@@ -13,6 +13,7 @@ export const useNoteEditor = (
   const [blocks, setBlocks] = usePersistedState<NoteBlock[]>({
     key: `feynmanNoteBlocks${stateKey && `/${stateKey}`}`,
     initialValue: initialBlocks,
+    debounceMs: 500,
   })
   const [activeIndex, setActiveIndex] = useState(0)
   const refs = useRef<(HTMLTextAreaElement | null)[]>([])

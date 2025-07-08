@@ -1,5 +1,4 @@
-// usePersistedState.ts
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { debounce } from 'lodash'
 import { db } from './db'
 
@@ -7,51 +6,55 @@ interface UsePersistedStateSettings<T> {
   key: string
   initialValue: T
   debounceMs?: number
+  onReady?: (value: T) => void
 }
 
 export function usePersistedState<T>({
   key,
   initialValue,
-  debounceMs = 500,
+  debounceMs,
+  onReady,
 }: UsePersistedStateSettings<T>) {
   const [value, setValue] = useState<T>(initialValue)
 
-  // IndexedDBに保存（debounced）
-  const saveToDB = useCallback(
-    debounce(async (val: T) => {
+  const saveFn = useMemo(() => {
+    const fn = async (val: T) => {
       await db.input.put({ key, value: val })
-    }, debounceMs),
-    [key, debounceMs]
-  )
+    }
+    return debounceMs ? debounce(fn, debounceMs) : fn
+  }, [key, debounceMs])
 
-  // 値を変更して保存も行う
   const updateValue = (valOrUpdater: T | ((prev: T) => T)) => {
     setValue((prev) => {
       const next =
         typeof valOrUpdater === 'function'
           ? (valOrUpdater as (prev: T) => T)(prev)
           : valOrUpdater
-      saveToDB(next)
+      saveFn(next)
       return next
     })
   }
 
   const deleteKey = async () => {
-    saveToDB.cancel()
+    if (typeof (saveFn as any).cancel === 'function') {
+      ;(saveFn as any).cancel()
+    }
     await db.input.delete(key)
     setValue(initialValue)
   }
 
-  // 初期化時にDBから読み込み
   useEffect(() => {
     const load = async () => {
       const entry = await db.input.get(key)
       if (entry?.value !== undefined) {
         setValue(entry.value as T)
+        onReady?.(entry.value as T)
+      } else {
+        onReady?.(initialValue)
       }
     }
     load()
-  }, [key])
+  }, [key, initialValue])
 
   return [value, updateValue, deleteKey] as const
 }

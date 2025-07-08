@@ -31,6 +31,7 @@ import FeynmanNotes from './techniques/feynman/components/notes/FeynmanNotes'
 import NoteEditor from './techniques/feynman/components/noteEditor/NoteEditor'
 import GapAnswerEditor from './techniques/feynman/components/gapAnswerEditor/GapAnswerEditor'
 import NoteRewriteEditor from './techniques/feynman/components/rewrite/NoteRewriteEditor'
+import TinySteps from './techniques/tinySteps/components/TinySteps'
 
 function App() {
   useSyncCurrentUser()
@@ -64,6 +65,8 @@ function App() {
             <Route path="rewrite/:id" element={<NoteRewriteEditor />} />
             <Route path="create-answer/:id" element={<GapAnswerEditor />} />
           </Route>
+
+          <Route path={'tiny-steps'} element={<TinySteps />} />
         </Route>
 
         {/* Fallback */}

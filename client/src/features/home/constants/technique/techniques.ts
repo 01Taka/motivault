@@ -2,6 +2,37 @@ import type { Technique } from '../../types/technique-types'
 
 export const techniques: Technique[] = [
   {
+    id: 'tinySteps',
+    path: 'tiny-steps',
+    title: 'ちょこっと行動',
+    officialName: 'TinySteps',
+    category: '無気力サポート',
+    imageUrl:
+      'https://thumb.ac-illust.com/fc/fc16f137af366df32bd8862fb9764795_t.jpeg',
+    description:
+      '何もやる気がでない？ガチャで今からやることを決めてもらおう！1分でできる！',
+    benefits:
+      '「やる気が出ない」「何を始めたらいいか分からない」という状態でも、tinyStepsなら簡単な目標から始めて、少しずつ行動できるようになる。ガチャで決めるタスクが手軽で、やる気を少しずつ引き出してくれる。',
+    reason:
+      '無気力を感じているとき、大きな目標に取り掛かるのは難しい。でも、小さな目標をひとつずつクリアすることで、少しずつ気分が変わり、行動できるようになる。ガチャで目標を決めることで、迷わずに進むことができる。',
+    steps: [
+      'ガチャを引いて目標を決める',
+      '15分のタイマーで集中する',
+      '終了後、できたかどうか簡単にフィードバック',
+      '続けることで達成感を得られる',
+    ],
+    references: [
+      {
+        label: '無気力症候群の理解と対策｜精神科医のアドバイス',
+        url: 'https://example.com/article1',
+      },
+      {
+        label: '行動を促進するための小さな目標設定法',
+        url: 'https://example.com/article2',
+      },
+    ],
+  },
+  {
     id: 'pomodoro',
     path: 'pomodoro',
     title: '25分で全集中！',

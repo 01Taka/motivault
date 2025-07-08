@@ -15,6 +15,7 @@ export const useNoteEditorLogic = (
   const [title, setTitle] = usePersistedState<string>({
     key: 'feynmanNoteTitle',
     initialValue: mode === 'edit' && prevNote ? prevNote.title : '',
+    debounceMs: 500,
   })
   const [titleError, setTitleError] = useState(false)
 

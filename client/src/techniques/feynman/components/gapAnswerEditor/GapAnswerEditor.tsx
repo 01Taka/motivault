@@ -22,6 +22,7 @@ const GapAnswerEditor: React.FC<GapAnswerEditorProps> = ({}) => {
   const [answer, setAnswer, deleteKey] = usePersistedState<string>({
     key: `feynmanCreateGapAnswer/${id ?? ''}`,
     initialValue: '',
+    debounceMs: 500,
   })
 
   useEffect(() => {
