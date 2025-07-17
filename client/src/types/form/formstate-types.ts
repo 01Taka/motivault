@@ -1,5 +1,5 @@
 import type { SelectChangeEvent } from '@mui/material'
-import type { ChangeEvent } from 'react'
+import type { ChangeEvent, SyntheticEvent } from 'react'
 
 export type FormStateChangeAction<T = any> = {
   name: string
@@ -22,21 +22,76 @@ interface ElementPushAction<Value = any> {
   value: Value
 }
 
+interface ElementSetAction<Value extends any[] = any[]> {
+  operation: 'set'
+  value: Value
+}
+
 export type ArrayFieldChangeAction<Value = any> =
   | ElementReplaceAction
   | ElementDeleteAction
   | ElementPushAction<Value>
-
-export type FormInputEvent =
-  | ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  | SelectChangeEvent<string>
-
-export type CreateInputProps = (name: string) => {
-  value: any
-  name: string
-  onChange: (e: FormInputEvent, ..._args: any[]) => void
-}
+  | ElementSetAction<Value[]>
 
 export type KeyMirrorObject<T extends Record<string, any>> = {
   [K in keyof T]: K
+}
+
+// 1. Centralized Event Map
+// This map directly links a type key to its corresponding React ChangeEvent type.
+export type ElementChangeEventMap = {
+  input: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  muiSelect: SelectChangeEvent<string> // Renamed for clarity, assuming Material-UI
+  tabs: [SyntheticEvent, any] // Tab events often have a SyntheticEvent and a value
+}
+
+// 2. Type for Generic Change Handlers
+// This utility type generates the function signature for each specific change handler.
+export type ChangeHandler<K extends keyof ElementChangeEventMap> = (
+  event: ElementChangeEventMap[K]
+) => void
+
+// 3. Specific Change Handler Types (Optional, for explicit naming)
+// If you prefer explicit type names for each handler, you can define them like this.
+// Otherwise, `ChangeHandler<'input'>` is sufficient.
+export type InputChangeEvent = ChangeHandler<'input'>
+export type MuiSelectChangeEvent = ChangeHandler<'muiSelect'>
+
+// For tabs, it's slightly different due to the tuple, so we can define it directly or adjust ChangeHandler.
+// Given the tuple, it's clearer to define TabChangeEvent explicitly if the ChangeHandler utility isn't adapted for it.
+export type TabChangeEvent = (...args: ElementChangeEventMap['tabs']) => void
+
+// 4. Props Map for OnChange Handlers
+// This maps a key to its corresponding `onChange` handler function type.
+export type OnChangeHandlersMap = {
+  [K in keyof ElementChangeEventMap]: ChangeHandler<K>
+} & {
+  // Override for tabs if its signature deviates from the generic ChangeHandler
+  tabs: TabChangeEvent
+}
+
+// 5. CreateInputProps Function Type
+// This type defines the signature for a function that generates input-like props.
+export type CreateInputProps = <
+  T extends keyof ElementChangeEventMap = 'input',
+>(
+  name: string,
+  type?: T
+) => {
+  value: string
+  name: string
+  onChange: OnChangeHandlersMap[T]
+}
+
+export type CreateInputPropsInArray = <
+  T extends keyof ElementChangeEventMap = 'input',
+>(
+  name: string,
+  index: number,
+  replaceObjectKey?: string,
+  type?: T
+) => {
+  value: string
+  name: string
+  onChange: OnChangeHandlersMap[T]
 }

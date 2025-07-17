@@ -1,10 +1,10 @@
 import { parseISO, differenceInCalendarDays } from 'date-fns'
 import type {
-  TaskPressProblemSetTask,
-  TaskPressReportStep,
-  TaskPressReportTask,
-  TaskPressTask,
-} from '../types/task-press-task-types'
+  MergedProblemSetTask,
+  MergedReportStep,
+  MergedReportTask,
+  TaskPressMergedTask,
+} from '../types/task-press-merge-task-types'
 
 // ---
 // ヘルパー関数
@@ -27,11 +27,11 @@ export const getNextPages = (
 }
 
 export const getNextStep = (
-  steps: TaskPressReportStep[],
-  completedStepOrders: number[]
+  steps: MergedReportStep[],
+  completedStepOrders: number[] = []
 ) => {
   const completedSteps = steps.filter(
-    (step) => !completedStepOrders.includes(step.order)
+    (step) => !step.completed && !completedStepOrders.includes(step.order)
   )
   return completedSteps.length > 0 ? completedSteps[0] : null
 }
@@ -54,14 +54,14 @@ export const getRemainingDays = (deadline: string): number => {
  * @param task 問題集タスク
  * @returns 残りページ数
  */
-const getRemainingProblemSetPages = (task: TaskPressProblemSetTask): number => {
-  return task.pages.filter((page) => !task.completedPages.includes(page)).length
+const getRemainingProblemSetPages = (task: MergedProblemSetTask): number[] => {
+  return task.pages.filter((page) => !task.completedPages.includes(page))
 }
 
-const getRemainingReportSteps = (task: TaskPressReportTask): number => {
-  return task.steps.filter(
-    (step) => !task.completedStepOrders.includes(step.order)
-  ).length
+const getRemainingReportSteps = (
+  task: MergedReportTask
+): MergedReportStep[] => {
+  return task.steps.filter((step) => !step.completed)
 }
 
 /**
@@ -70,11 +70,9 @@ const getRemainingReportSteps = (task: TaskPressReportTask): number => {
  * @param task ステップベースのタスク
  * @returns 残りステップの推定合計時間
  */
-const getRemainingStepEstimatedTime = (task: TaskPressReportTask): number => {
+const getRemainingStepEstimatedTime = (task: MergedReportTask): number => {
   return task.steps.reduce((totalTime, step) => {
-    return task.completedStepOrders.includes(step.order)
-      ? totalTime
-      : totalTime + step.estimatedTime
+    return step.completed ? totalTime : totalTime + step.estimatedTime
   }, 0)
 }
 
@@ -87,7 +85,7 @@ const getRemainingStepEstimatedTime = (task: TaskPressReportTask): number => {
  * @throws remainingDaysが0以下の場合にエラーをスローします。
  */
 export const getDailyEstimatedTime = (
-  task: TaskPressTask,
+  task: TaskPressMergedTask,
   remainingDays: number
 ): number => {
   if (remainingDays <= 0) {
@@ -99,7 +97,7 @@ export const getDailyEstimatedTime = (
   }
 
   if (task.type === 'problemSet') {
-    const remainingPages = getRemainingProblemSetPages(task)
+    const remainingPages = getRemainingProblemSetPages(task).length
     return (remainingPages * task.timePerPage) / remainingDays
   } else {
     const totalEstimatedTime = getRemainingStepEstimatedTime(task)
@@ -107,8 +105,8 @@ export const getDailyEstimatedTime = (
   }
 }
 
-export const getRemainingItemCount = (task: TaskPressTask) => {
+export const getRemainingItemCount = (task: TaskPressMergedTask) => {
   return task.type === 'problemSet'
-    ? getRemainingProblemSetPages(task)
-    : getRemainingReportSteps(task)
+    ? getRemainingProblemSetPages(task).length
+    : getRemainingReportSteps(task).length
 }

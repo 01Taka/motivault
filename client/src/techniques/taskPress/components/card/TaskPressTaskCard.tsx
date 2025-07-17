@@ -1,8 +1,4 @@
 import React from 'react'
-import type {
-  TaskPressReportStep,
-  TaskPressTask,
-} from '../../types/task-press-task-types'
 import TaskPressTaskCardHeader from './TaskPressTaskCardHeader'
 import ProblemSetTaskQuickCompletion from './ProblemSetTaskQuickCompletion'
 import { Stack, Typography } from '@mui/material'
@@ -15,11 +11,15 @@ import {
 import ReportTaskQuickCompletion from './ReportTaskQuickCompletion'
 import usePageCompletion from '../../hooks/usePageCompletion'
 import useStepCompletion from '../../hooks/useStepCompletion'
+import type {
+  MergedReportStep,
+  TaskPressMergedTask,
+} from '../../types/task-press-merge-task-types'
 
 interface TaskPressTaskCardProps {
-  task: TaskPressTask
+  task: TaskPressMergedTask
   onPageComplete: (pages: number[]) => void
-  onCompleteStep: (steps: TaskPressReportStep[]) => void
+  onCompleteStep: (steps: MergedReportStep[]) => void
   onEdit: () => void
 }
 

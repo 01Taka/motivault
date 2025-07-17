@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Button } from '@mui/material'
 import { keyframes } from '@emotion/react'
-import type { TaskPressReportStep } from '../../types/task-press-task-types'
+import type { TaskPressReportStep } from '../../services/documents/task-press-task-document'
 
 interface ReportTaskQuickCompletionProps {
   nextStep: TaskPressReportStep | null

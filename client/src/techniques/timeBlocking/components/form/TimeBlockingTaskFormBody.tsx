@@ -15,7 +15,7 @@ import { TagCreateModal } from './TagCreateModal'
 import type {
   CreateInputProps,
   KeyMirrorObject,
-} from '../../../../types/form/formstate-types'
+} from '../../../../types/form/formState-types'
 import type { TimeBlockingTaskFormState } from './TimeBlockingTaskForm'
 import type { TimeBlockingTags } from '../../services/documents/time-blocking-document'
 import {

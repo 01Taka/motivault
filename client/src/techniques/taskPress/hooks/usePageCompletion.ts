@@ -1,12 +1,12 @@
 import { useState, useCallback, useMemo } from 'react'
 import { debounce } from 'lodash'
-import type { TaskPressTask } from '../types/task-press-task-types'
 import { getNextPages } from '../functions/task-press-task-utils'
+import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
 
 const DEFAULT_NEXT_PAGES_LENGTH = 3
 
 const usePageCompletion = (
-  task: TaskPressTask,
+  task: TaskPressMergedTask,
   onPageComplete: (pages: number[]) => void
 ) => {
   const [completedPages, setCompletedPages] = useState<number[]>([])

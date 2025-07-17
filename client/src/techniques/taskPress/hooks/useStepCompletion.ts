@@ -1,34 +1,29 @@
 import { useState, useCallback, useMemo } from 'react'
 import { debounce } from 'lodash'
-import type {
-  TaskPressReportStep,
-  TaskPressTask,
-} from '../types/task-press-task-types'
 import { getNextStep } from '../functions/task-press-task-utils'
+import type {
+  MergedReportStep,
+  TaskPressMergedTask,
+} from '../types/task-press-merge-task-types'
 
 const useStepCompletion = (
-  task: TaskPressTask,
-  onCompleteStep: (steps: TaskPressReportStep[]) => void // 一度に複数のステップを返す
+  task: TaskPressMergedTask,
+  onCompleteStep: (steps: MergedReportStep[]) => void // 一度に複数のステップを返す
 ) => {
   const [completedStepOrders, setCompletedStepOrders] = useState<number[]>([])
-  const [stepsInProgress, setStepsInProgress] = useState<TaskPressReportStep[]>(
-    []
-  ) // 遅延中のステップを保存
+  const [stepsInProgress, setStepsInProgress] = useState<MergedReportStep[]>([]) // 遅延中のステップを保存
 
   // 次に完了するべきステップを取得
   const nextStep = useMemo(() => {
     if (task.type === 'report') {
-      return getNextStep(task.steps, [
-        ...task.completedStepOrders,
-        ...completedStepOrders,
-      ])
+      return getNextStep(task.steps, [...completedStepOrders])
     }
     return null
   }, [task, completedStepOrders])
 
   // ステップ完了後の処理を遅延させて実行
   const debouncedCompleteStep = useCallback(
-    debounce((steps: TaskPressReportStep[]) => {
+    debounce((steps: MergedReportStep[]) => {
       onCompleteStep(steps) // 複数のステップを一括で送信
     }, 1500), // 1.5秒遅延して送信
     [onCompleteStep]

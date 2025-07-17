@@ -1,10 +1,10 @@
 import React from 'react'
-import type { TaskPressTask } from '../types/task-press-task-types'
 import { Stack } from '@mui/material'
 import TaskPressTaskCard from './card/TaskPressTaskCard'
+import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
 
 interface TaskPressTaskListProps {
-  tasks: TaskPressTask[]
+  tasks: TaskPressMergedTask[]
 }
 
 const TaskPressTaskList: React.FC<TaskPressTaskListProps> = ({ tasks }) => {

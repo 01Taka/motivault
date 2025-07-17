@@ -1,60 +1,72 @@
 import React from 'react'
-import type { TaskPressTask } from '../types/task-press-task-types'
 import TaskPressTaskList from './TaskPressTaskList'
+import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
 
 interface TaskPressProps {}
-
-const taskPressTasks: TaskPressTask[] = [
+const sampleTasks: TaskPressMergedTask[] = [
   {
-    id: 'task1',
     type: 'problemSet',
-    title: 'Math Problem Set 1',
-    deadline: '2025-07-10',
-    pages: [1, 2, 3, 4],
-    completedPages: [1, 3],
+    title: '数学 I の復習',
+    subject: '数学',
+    timePerPage: 15,
+    pages: [1, 2, 3],
+    completedPages: [1],
+    deadline: '2025-08-01',
+    taskDocId: 'ps-1',
+    templateDocId: 'template_ps_001',
+    createdById: 'user_123',
+  },
+  {
+    type: 'problemSet',
+    title: '英語 長文読解',
+    subject: '英語',
     timePerPage: 20,
+    pages: [10, 11, 12, 13],
+    completedPages: [10, 11],
+    deadline: '2025-08-05',
+    taskDocId: 'ps-2',
+    templateDocId: 'template_ps_002',
+    createdById: 'user_789',
   },
   {
-    id: 'task2',
-    type: 'problemSet',
-    title: 'Science Problem Set 1',
-    deadline: '2025-07-12',
-    pages: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    completedPages: [2, 4],
-    timePerPage: 25,
-  },
-  {
-    id: 'task3',
     type: 'report',
-    title: 'History Report',
-    deadline: '2025-07-15',
+    title: '化学レポート 中和反応の考察',
+    subject: '化学',
     steps: [
-      { order: 1, text: 'Introduction', estimatedTime: 60 },
-      { order: 2, text: 'Body - Part 1', estimatedTime: 120 },
-      { order: 3, text: 'Body - Part 2', estimatedTime: 100 },
-      { order: 4, text: 'Conclusion', estimatedTime: 30 },
+      { order: 1, text: '序論を書く', estimatedTime: 20, completed: true },
+      {
+        order: 2,
+        text: '中和の定義を説明',
+        estimatedTime: 30,
+        completed: false,
+      },
+      { order: 3, text: '実験結果を考察', estimatedTime: 40, completed: false },
     ],
-    completedStepOrders: [],
+    deadline: '2025-08-10',
+    taskDocId: 'rp-1',
+    templateDocId: 'template_rp_001',
+    createdById: 'user_456',
   },
   {
-    id: 'task4',
     type: 'report',
-    title: 'Physics Report',
-    deadline: '2025-07-20',
+    title: '物理レポート 力学の基礎',
+    subject: '物理',
     steps: [
-      { order: 1, text: 'Introduction', estimatedTime: 50 },
-      { order: 2, text: 'Experiment Setup', estimatedTime: 80 },
-      { order: 3, text: 'Results Analysis', estimatedTime: 90 },
-      { order: 4, text: 'Conclusion', estimatedTime: 40 },
+      { order: 1, text: '課題文の確認', estimatedTime: 10, completed: false },
+      { order: 2, text: '計算過程の記述', estimatedTime: 45, completed: true },
+      { order: 3, text: '結論と考察', estimatedTime: 25, completed: false },
     ],
-    completedStepOrders: [2, 4],
+    deadline: '2025-08-15',
+    taskDocId: 'rp-2',
+    templateDocId: 'template_rp_002',
+    createdById: 'user_321',
   },
 ]
 
 const TaskPress: React.FC<TaskPressProps> = ({}) => {
   return (
     <div>
-      <TaskPressTaskList tasks={taskPressTasks} />
+      <TaskPressTaskList tasks={sampleTasks} />
     </div>
   )
 }
