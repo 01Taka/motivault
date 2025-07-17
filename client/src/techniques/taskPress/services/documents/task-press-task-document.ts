@@ -24,5 +24,5 @@ export interface TaskPressReportTask extends BaseTask {
 
 type TaskPressTask = TaskPressProblemSetTask | TaskPressReportTask
 
-export type ReadTaskPressTask = MakeDocumentRead<TaskPressTask>
-export type WriteTaskPressTask = MakeDocumentWrite<TaskPressTask>
+export type TaskPressTaskRead = MakeDocumentRead<TaskPressTask>
+export type TaskPressTaskWrite = MakeDocumentWrite<TaskPressTask>

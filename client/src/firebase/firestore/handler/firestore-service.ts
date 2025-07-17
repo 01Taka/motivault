@@ -20,11 +20,11 @@ import CollectionManager from './collection-manager'
 import { parseDocumentSnapshot, parseQuerySnapshot } from '../snapshotUtils'
 import { CRUDHandler } from './crud-dandler'
 import { CallbacksHandler } from './callbacks-handler'
-import { getAuth } from 'firebase/auth'
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
   BaseDocument,
+  BaseMetadata,
 } from '../../../types/db/db-service-document-types'
 import type {
   DBWriteTarget,
@@ -41,13 +41,16 @@ abstract class FirestoreService<
   private _callbacksHandler?: CallbacksHandler<Read>
   private firestore: Firestore
   private collectionPathComposition: string | string[]
+  private fixedPath: Record<string, string>
 
   constructor(
     firestore: Firestore,
-    collectionPathComposition: string | string[]
+    collectionPathComposition: string | string[],
+    fixedPath: Record<string, string> = {}
   ) {
     this.firestore = firestore
     this.collectionPathComposition = collectionPathComposition
+    this.fixedPath = fixedPath
   }
 
   // ======================================================================
@@ -63,13 +66,7 @@ abstract class FirestoreService<
     data: T
   ): T extends Write ? Document : Partial<Document>
 
-  private getCreatorUid(): string {
-    const uid = getAuth().currentUser?.uid
-    if (!uid) {
-      throw new Error('Firestore Service においてUIDが取得できませんでした。')
-    }
-    return uid
-  }
+  protected abstract getCreatorUid(): string
 
   private checkRequiredProperties(properties: Record<string, any>) {
     const missingProperties = Object.keys(properties).filter(
@@ -145,6 +142,7 @@ abstract class FirestoreService<
       this.firestore,
       this.collectionPathComposition,
       path ?? [],
+      this.fixedPath,
       refType
     )
   }
@@ -208,8 +206,8 @@ abstract class FirestoreService<
 
   async read(documentPath: string[]): Promise<Read | null> {
     console.error('called read')
-    const collectionRef = this.getReference(documentPath, 'doc')
-    return CRUDHandler.read<Read>(collectionRef)
+    const docRef = this.getReference(documentPath, 'doc')
+    return CRUDHandler.read<Read>(docRef)
   }
 
   async update(
@@ -272,13 +270,13 @@ abstract class FirestoreService<
   }
 
   async getFirstMatch(
-    field: keyof Read,
+    field: keyof (Write | BaseMetadata),
     value: any,
     collectionPath: string[] = []
   ): Promise<Read | null> {
     console.log('called get first match')
     const collectionRef = this.getReference(collectionPath, 'collection')
-    return CRUDHandler.getFirstMatch<Read>(collectionRef, field, value)
+    return CRUDHandler.getFirstMatch<Read, Write>(collectionRef, field, value)
   }
 
   async getAllWithPagination(

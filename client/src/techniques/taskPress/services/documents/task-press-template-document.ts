@@ -33,5 +33,5 @@ export interface TaskPressReportTemplate extends BaseTemplate {
 
 type TaskPressTemplate = TaskPressProblemSetTemplate | TaskPressReportTemplate
 
-export type ReadTaskPressTemplate = MakeDocumentRead<TaskPressTemplate>
-export type WriteTaskPressTemplate = MakeDocumentWrite<TaskPressTemplate>
+export type TaskPressTemplateRead = MakeDocumentRead<TaskPressTemplate>
+export type TaskPressTemplateWrite = MakeDocumentWrite<TaskPressTemplate>

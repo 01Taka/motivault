@@ -1,10 +1,10 @@
-import type { ReadTaskPressTask } from '../services/documents/task-press-task-document'
-import type { ReadTaskPressTemplate } from '../services/documents/task-press-template-document'
+import type { TaskPressTaskRead } from '../services/documents/task-press-task-document'
+import type { TaskPressTemplateRead } from '../services/documents/task-press-template-document'
 import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
 
 export function mergeTaskWithTemplate(
-  task: ReadTaskPressTask,
-  template: ReadTaskPressTemplate
+  task: TaskPressTaskRead,
+  template: TaskPressTemplateRead
 ): TaskPressMergedTask {
   if (task.type !== template.type) {
     throw new Error('Task and Template types do not match')

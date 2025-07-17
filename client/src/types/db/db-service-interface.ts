@@ -2,6 +2,7 @@ import { QueryConstraint } from 'firebase/firestore'
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
+  BaseMetadata,
 } from './db-service-document-types'
 
 export interface DBWriteTarget {
@@ -27,7 +28,7 @@ export interface IDBService<
     queryConstraints?: QueryConstraints
   ): Promise<Read[]>
   getFirstMatch(
-    field: keyof Read,
+    field: keyof (Write | BaseMetadata),
     value: any,
     collectionPath?: string[]
   ): Promise<Read | null>
@@ -58,5 +59,3 @@ export type IDBRepositories<T extends string = string> = Record<
   T,
   IDBService<any, any>
 >
-
-// export type IDBRepositories = Record<string, IDBService<any, any>>

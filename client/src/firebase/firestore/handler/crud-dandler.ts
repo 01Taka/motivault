@@ -21,6 +21,7 @@ import { parseDocumentSnapshot, parseQuerySnapshot } from '../snapshotUtils'
 import type {
   BaseDocument,
   BaseDocumentRead,
+  BaseMetadata,
 } from '../../../types/db/db-service-document-types'
 
 export class CRUDHandler {
@@ -177,9 +178,12 @@ export class CRUDHandler {
    * @param value 検索する値
    * @param throwIfNotFound 見つからなかった場合にエラーをスローするかどうか（デフォルト: false）
    */
-  public static async getFirstMatch<Read extends BaseDocumentRead>(
+  public static async getFirstMatch<
+    Read extends BaseDocumentRead,
+    Write extends BaseDocument,
+  >(
     collectionRef: CollectionReference,
-    field: keyof Read,
+    field: keyof (Write | BaseMetadata),
     value: any,
     throwIfNotFound: boolean = false
   ): Promise<Read | null> {
