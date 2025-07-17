@@ -5,33 +5,13 @@ import type {
   CreateInputProps,
   CreateInputPropsInArray,
 } from '../../../../types/form/formState-types'
-import type { TaskPressTaskType } from '../../services/documents/task-press-shared-types'
+import type {
+  TaskPressCreateFormState,
+  TaskPressFormStateStep,
+} from '../../types/formState/task-press-create-form-state'
+import useCrudTaskPress from '../../services/hooks/useCrudTaskPress'
 
 interface CreateTaskPressProps {}
-
-interface FormStateBase {
-  type: TaskPressTaskType
-  templateId: string | '' // 明示的に空文字を許容
-  deadline: string
-  title: string
-  subject: string
-}
-
-interface ProblemSetFormState extends FormStateBase {
-  timePerPage: number
-  pages: number[]
-}
-
-interface FormStateStep {
-  text: string
-  estimatedTime: number
-}
-
-interface ReportFormState extends FormStateBase {
-  steps: FormStateStep[]
-}
-
-type FormState = ProblemSetFormState & ReportFormState
 
 const CreateTaskPress: React.FC<CreateTaskPressProps> = ({}) => {
   const {
@@ -40,26 +20,22 @@ const CreateTaskPress: React.FC<CreateTaskPressProps> = ({}) => {
     createInputPropsInArray,
     onChangeArrayField,
     checkHasEmptyInput,
-  } = useFormState<FormState, { steps: FormStateStep }>({
-    templateId: '',
-    type: 'problemSet',
-    title: '',
-    subject: '',
-    deadline: '',
-    // ProblemSet
-    timePerPage: 0,
-    pages: [],
-    // Report
-    steps: [],
-  })
-
-  const handleSubmit = () => {
-    const data = {
-      ...formState,
-      steps: formState.type === 'report' ? formState.steps : undefined,
+  } = useFormState<TaskPressCreateFormState, { steps: TaskPressFormStateStep }>(
+    {
+      templateId: '',
+      type: 'problemSet',
+      title: '',
+      subject: '',
+      deadline: '',
+      // ProblemSet
+      timePerPage: 0,
+      pages: [],
+      // Report
+      steps: [],
     }
-    console.log('送信:', data)
-  }
+  )
+
+  const { handleSubmit } = useCrudTaskPress()
 
   const hasEmptyInput = checkHasEmptyInput({
     exclude:
@@ -75,7 +51,7 @@ const CreateTaskPress: React.FC<CreateTaskPressProps> = ({}) => {
       createInputPropsInArray={
         createInputPropsInArray as CreateInputPropsInArray
       }
-      onSubmit={handleSubmit}
+      onSubmit={() => handleSubmit(formState)}
       onAddStep={() =>
         onChangeArrayField('steps', {
           operation: 'push',

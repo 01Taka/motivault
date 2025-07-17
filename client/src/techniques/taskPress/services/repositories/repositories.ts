@@ -23,4 +23,4 @@ onAuthStateChanged(auth, (user) => {
   }
 })
 
-export const getIDBRepositories = () => repositories
+export const getTaskPressRepo = () => repositories
