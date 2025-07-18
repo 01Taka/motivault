@@ -12,7 +12,6 @@ import {
   doc,
   type DocumentData,
   type SetOptions,
-  type Unsubscribe,
 } from 'firebase/firestore'
 import BatchHandler from './batch-handler'
 import TransactionHandler from './transaction-handler'
@@ -302,7 +301,7 @@ abstract class FirestoreService<
     callback: (snapshot: DocumentSnapshot<Read, DocumentData>) => void,
     documentPath: string[],
     callbackId?: string
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     const docRef = this.getReference(
       documentPath,
       'doc'
@@ -314,7 +313,7 @@ abstract class FirestoreService<
     callback: (data: Read | null) => void,
     documentPath: string[],
     callbackId?: string
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     return this.addCallback(
       (snapshot) => callback(parseDocumentSnapshot(snapshot)),
       documentPath,
@@ -334,7 +333,7 @@ abstract class FirestoreService<
     callback: (snapshot: QuerySnapshot<Read, DocumentData>) => void,
     collectionPath: string[] = [],
     callbackId?: string
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     const collectionRef = this.getReference(
       collectionPath,
       'collection'
@@ -350,7 +349,7 @@ abstract class FirestoreService<
     callback: (data: Read[]) => void,
     collectionPath: string[] = [],
     callbackId?: string
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     return this.addCollectionCallback(
       (snapshot) => callback(parseQuerySnapshot(snapshot)),
       collectionPath,

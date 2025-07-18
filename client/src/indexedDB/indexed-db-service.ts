@@ -33,6 +33,19 @@ export abstract class IndexedDBService<
   private fixedPath: Record<string, string> // 例: { userId: 'abc123' }
   private currentDBVersion: number // 現在のデータベースバージョン
 
+  // Snapshot Listener specific members
+  private documentListeners = new Map<
+    string,
+    Map<string, (data: Read | null) => void>
+  >()
+  private collectionListeners = new Map<
+    string,
+    Map<string, (data: Read[]) => void>
+  >()
+  // Cache last known states as JSON strings to detect actual changes for listeners
+  private lastKnownDocumentStates = new Map<string, string>()
+  private lastKnownCollectionStates = new Map<string, string>()
+
   /**
    * IndexedDBServiceのコンストラクタ。
    * アプリケーションのデータ構造を定義し、IndexedDB接続を初期化します。
@@ -166,7 +179,7 @@ export abstract class IndexedDBService<
    * そのパスの最後のセグメント（ドキュメントID自体）を取得します。
    *
    * @param documentPathSegments ドキュメントパスの動的IDセグメント（例: ['userA', 'post123']）
-   * @returns IndexedDBのdocId（完全な論理パス）と、パスの最後のセグメント（ID）を含むオブジェクト
+   * @returns IndexedDBのdocId（完全な論リパス）と、パスの最後のセグメント（ID）を含むオブジェクト
    */
   private getPathAndId(documentPathSegments: string[]): {
     path: string
@@ -270,6 +283,74 @@ export abstract class IndexedDBService<
   }
 
   /**
+   * Snapshot Listener: Helper to generate unique IDs for callbacks if not provided.
+   */
+  private generateCallbackId(): string {
+    return createFirestoreId()
+  }
+
+  /**
+   * Snapshot Listener: Notifies relevant document and collection listeners after a data change.
+   * This should be called after any successful write operation (put, delete).
+   *
+   * @param affectedLogicalPath The full logical path of the document that was changed (added, updated, deleted).
+   */
+  private async _handleWriteSuccess(
+    affectedLogicalPath: string
+  ): Promise<void> {
+    // 1. Notify Document Listeners for the specific affected path
+    if (this.documentListeners.has(affectedLogicalPath)) {
+      // Extract dynamic segments for getFromDB
+      const segments = affectedLogicalPath
+        .split('/')
+        .filter((_, i) => i % 2 !== 0)
+      const data = await this.getFromDB(segments)
+      const currentDataString = JSON.stringify(data)
+
+      // Only notify if data has actually changed from the last known state
+      if (
+        currentDataString !==
+        this.lastKnownDocumentStates.get(affectedLogicalPath)
+      ) {
+        this.lastKnownDocumentStates.set(affectedLogicalPath, currentDataString)
+        this.documentListeners
+          .get(affectedLogicalPath)
+          ?.forEach((callback) => callback(data))
+      }
+    }
+
+    // 2. Notify Collection Listeners that might contain the affected path
+    // Iterate through all registered collection listeners
+    for (const [
+      collectionPathPrefix,
+      callbacks,
+    ] of this.collectionListeners.entries()) {
+      // Check if the affected document path starts with the collection's logical path prefix
+      if (affectedLogicalPath.startsWith(collectionPathPrefix)) {
+        // Re-fetch the entire collection
+        const collectionSegments = collectionPathPrefix
+          .split('/')
+          .filter((s) => s)
+        const collectionData = await this.getAll(
+          collectionSegments.filter((_, i) => i % 2 !== 0)
+        )
+
+        const currentCollectionDataString = JSON.stringify(collectionData)
+        if (
+          currentCollectionDataString !==
+          this.lastKnownCollectionStates.get(collectionPathPrefix)
+        ) {
+          this.lastKnownCollectionStates.set(
+            collectionPathPrefix,
+            currentCollectionDataString
+          )
+          callbacks.forEach((callback) => callback(collectionData))
+        }
+      }
+    }
+  }
+
+  /**
    * 新しいドキュメントを作成します。
    *
    * @param data 書き込みデータ
@@ -297,6 +378,7 @@ export abstract class IndexedDBService<
     const db = await this.dbPromise
 
     await db.put(IndexedDBService.storeName, record) // レコードをストアに追加/更新
+    await this._handleWriteSuccess(fullLogicalPath) // Trigger snapshot listeners
 
     return { id: newDocIdSegment, path: fullLogicalPath } // 戻り値は最後のIDと完全パス
   }
@@ -319,6 +401,7 @@ export abstract class IndexedDBService<
 
     const db = await this.dbPromise
     await db.put(IndexedDBService.storeName, record)
+    await this._handleWriteSuccess(fullLogicalPath) // Trigger snapshot listeners
     return { id, path: fullLogicalPath }
   }
 
@@ -359,6 +442,7 @@ export abstract class IndexedDBService<
       this.getPathAndId(documentPathSegments)
     const db = await this.dbPromise
     await db.put(IndexedDBService.storeName, updated)
+    await this._handleWriteSuccess(fullLogicalPath) // Trigger snapshot listeners
     return { id, path: fullLogicalPath }
   }
 
@@ -371,6 +455,7 @@ export abstract class IndexedDBService<
     const { path: fullLogicalPath } = this.getPathAndId(documentPathSegments) // 完全な論理パスを取得
     const db = await this.dbPromise
     await db.delete(IndexedDBService.storeName, fullLogicalPath) // keyPathである完全パスで削除
+    await this._handleWriteSuccess(fullLogicalPath) // Trigger snapshot listeners (data will be null for listeners)
   }
 
   /**
@@ -397,8 +482,10 @@ export abstract class IndexedDBService<
     updated.isActive = false
     updated.deletedAt = Date.now()
 
+    const { path: fullLogicalPath } = this.getPathAndId(documentPathSegments) // Get path for notification
     const db = await this.dbPromise
     await db.put(IndexedDBService.storeName, updated)
+    await this._handleWriteSuccess(fullLogicalPath) // Trigger snapshot listeners
   }
 
   /**
@@ -471,10 +558,133 @@ export abstract class IndexedDBService<
     return results[0] ?? null
   }
 
+  /*
+  ## Snapshot Listener Methods
+
+  Here are the completed snapshot listener methods. They allow you to subscribe to changes in a specific document or a collection.
+
+  * `addDocumentSnapshotListener`: Registers a callback to be notified when a specific document changes. It immediately triggers the callback with the current data.
+  * `removeDocumentSnapshotListener`: Unsubscribes a previously registered document listener.
+  * `addCollectionSnapshotListener`: Registers a callback to be notified when any document within a collection changes. It also immediately triggers the callback with the current collection data.
+  * `removeCollectionSnapshotListener`: Unsubscribes a previously registered collection listener.
+
+  The core logic for notifying these listeners (`_handleWriteSuccess`) is integrated into the `create`, `createWithId`, `update`, `hardDelete`, `softDelete`, and `runTransaction` methods. This ensures that listeners are automatically notified when data is modified through this service.
+
+  */
+
+  public addDocumentSnapshotListener(
+    callback: (data: Read | null) => void,
+    documentPathSegments: string[],
+    callbackId?: string
+  ): { callbackId: string; unsubscribe: () => void } {
+    const id = callbackId || this.generateCallbackId()
+    const fullLogicalPath = this.composeDocumentLogicalPath(
+      documentPathSegments,
+      'doc'
+    )
+
+    if (!this.documentListeners.has(fullLogicalPath)) {
+      this.documentListeners.set(fullLogicalPath, new Map())
+    }
+    this.documentListeners.get(fullLogicalPath)?.set(id, callback)
+
+    // Immediately trigger the callback with the current data
+    this.read(documentPathSegments)
+      .then((data) => {
+        const dataString = JSON.stringify(data)
+        this.lastKnownDocumentStates.set(fullLogicalPath, dataString) // Cache initial state
+        callback(data)
+      })
+      .catch((error) =>
+        console.error(
+          `Failed to get initial document data for listener on ${fullLogicalPath}:`,
+          error
+        )
+      )
+
+    const unsubscribe = () =>
+      this.removeDocumentSnapshotListener(id, documentPathSegments)
+    return { callbackId: id, unsubscribe }
+  }
+
+  public removeDocumentSnapshotListener(
+    callbackId: string,
+    documentPathSegments: string[]
+  ): void {
+    const fullLogicalPath = this.composeDocumentLogicalPath(
+      documentPathSegments,
+      'doc'
+    )
+    const listeners = this.documentListeners.get(fullLogicalPath)
+    if (listeners) {
+      listeners.delete(callbackId)
+      if (listeners.size === 0) {
+        this.documentListeners.delete(fullLogicalPath)
+        this.lastKnownDocumentStates.delete(fullLogicalPath) // Clear cached state if no more listeners
+      }
+    }
+  }
+
+  public addCollectionSnapshotListener(
+    callback: (data: Read[]) => void,
+    collectionPathSegments: string[] = [],
+    callbackId?: string
+  ): { callbackId: string; unsubscribe: () => void } {
+    const id = callbackId || this.generateCallbackId()
+    const collectionPathPrefix = this.composeDocumentLogicalPath(
+      collectionPathSegments,
+      'collection'
+    )
+
+    if (!this.collectionListeners.has(collectionPathPrefix)) {
+      this.collectionListeners.set(collectionPathPrefix, new Map())
+    }
+    this.collectionListeners.get(collectionPathPrefix)?.set(id, callback)
+
+    // Immediately trigger the callback with the current data
+    this.getAll(collectionPathSegments)
+      .then((data) => {
+        const dataString = JSON.stringify(data)
+        this.lastKnownCollectionStates.set(collectionPathPrefix, dataString) // Cache initial state
+        callback(data)
+      })
+      .catch((error) =>
+        console.error(
+          `Failed to get initial collection data for listener on ${collectionPathPrefix}:`,
+          error
+        )
+      )
+
+    const unsubscribe = () =>
+      this.removeCollectionSnapshotListener(id, collectionPathSegments)
+    return { callbackId: id, unsubscribe }
+  }
+
+  public removeCollectionSnapshotListener(
+    callbackId: string,
+    collectionPathSegments: string[] = []
+  ): void {
+    const collectionPathPrefix = this.composeDocumentLogicalPath(
+      collectionPathSegments,
+      'collection'
+    )
+    const listeners = this.collectionListeners.get(collectionPathPrefix)
+    if (listeners) {
+      listeners.delete(callbackId)
+      if (listeners.size === 0) {
+        this.collectionListeners.delete(collectionPathPrefix)
+        this.lastKnownCollectionStates.delete(collectionPathPrefix) // Clear cached state if no more listeners
+      }
+    }
+  }
+
+  /*
+  ## TransactionHandler Methods
+  */
+
   /**
    * IndexedDBトランザクション内で一連のアクションを実行します。
    *
-   * @param storeNames トランザクションに含めるオブジェクトストア名の配列（この実装では単一ストアなので、IndexedDBService.storeNameのみ）
    * @param actions トランザクション内で実行する非同期関数。TransactionalServiceインスタンスを受け取ります。
    */
   public async runTransaction(
@@ -483,9 +693,8 @@ export abstract class IndexedDBService<
     const db = await this.dbPromise
     // トランザクションのスコープを限定
     const tx = db.transaction(IndexedDBService.storeName, 'readwrite') // 単一ストア名を使用
-
-    // トランザクション内のオブジェクトストアへのアクセスを簡素化するヘルパー
     const objectStore = tx.objectStore(IndexedDBService.storeName)
+    const affectedPathsInTransaction: Set<string> = new Set() // Track all paths modified in this transaction
 
     try {
       await actions({
@@ -503,6 +712,7 @@ export abstract class IndexedDBService<
             newDocIdSegment
           )
           await objectStore.add(rec) // addを使用（putは既存を上書き）
+          affectedPathsInTransaction.add(fullLogicalPath) // Record affected path
           return newDocIdSegment // 戻り値は最後のIDセグメント
         },
         update: async (data, documentPathSegments) => {
@@ -513,11 +723,13 @@ export abstract class IndexedDBService<
             throw new Error('Document not found in transaction for update')
           const rec = this.updateRecord(existing, this.filterWriteData(data))
           await objectStore.put(rec)
+          affectedPathsInTransaction.add(fullLogicalPath) // Record affected path
         },
         delete: async (documentPathSegments) => {
           const { path: fullLogicalPath } =
             this.getPathAndId(documentPathSegments)
           await objectStore.delete(fullLogicalPath)
+          affectedPathsInTransaction.add(fullLogicalPath) // Record affected path
         },
         read: async (documentPathSegments) => {
           const { path: fullLogicalPath } =
@@ -525,7 +737,12 @@ export abstract class IndexedDBService<
           return (await objectStore.get(fullLogicalPath)) ?? null
         },
       })
-      await tx.done
+      await tx.done // Wait for transaction to complete
+
+      // After transaction completes successfully, notify listeners for all affected paths
+      for (const path of affectedPathsInTransaction) {
+        await this._handleWriteSuccess(path)
+      }
     } catch (err) {
       tx.abort()
       console.error('IndexedDB transaction failed:', err)

@@ -1,19 +1,19 @@
 import type { TaskPressTaskWrite } from '../documents/task-press-task-document'
 import type { TaskPressTemplateWrite } from '../documents/task-press-template-document'
-import { getTaskPressRepo } from '../repositories/repositories'
+import type { TaskPressRepo } from '../hooks/useTaskPressRepo'
 
 export const createNewTaskPressTask = async (
   uid: string,
+  repo: TaskPressRepo,
   task: TaskPressTaskWrite,
   template: TaskPressTemplateWrite
 ): Promise<void> => {
-  const repo = getTaskPressRepo()
   if (!repo) {
     throw new Error('Repository not available')
   }
 
   try {
-    const templateExists = task.templateId && (await isExistTemplate(uid))
+    const templateExists = task.templateId && (await isExistTemplate(uid, repo))
 
     if (templateExists) {
       await repo.idbTask.create(task, [uid])
@@ -32,8 +32,10 @@ export const createNewTaskPressTask = async (
   }
 }
 
-const isExistTemplate = async (uid: string): Promise<boolean> => {
-  const repo = getTaskPressRepo()
+const isExistTemplate = async (
+  uid: string,
+  repo: TaskPressRepo
+): Promise<boolean> => {
   if (!repo) {
     throw new Error('Repository not available in isExistTemplate')
   }

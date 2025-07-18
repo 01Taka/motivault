@@ -60,7 +60,7 @@ export class CallbacksHandler<Read extends BaseDocumentRead> {
     callback: (snapshot: DocumentSnapshot<Read>) => void,
     callbackId?: string,
     overwrite = false
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     const key = `${docRef.path}`
     const cbId = callbackId ?? nanoid()
     let callbackEntry =
@@ -76,7 +76,7 @@ export class CallbacksHandler<Read extends BaseDocumentRead> {
 
     return {
       callbackId: cbId,
-      unsubscribe: callbackEntry.unsubscribe,
+      unsubscribe: () => this.removeCallback(docRef, cbId),
     }
   }
 
@@ -111,7 +111,7 @@ export class CallbacksHandler<Read extends BaseDocumentRead> {
     callback: (snapshot: QuerySnapshot<Read>) => void,
     callbackId?: string,
     overwrite = false
-  ): { callbackId: string; unsubscribe: Unsubscribe } {
+  ): { callbackId: string; unsubscribe: () => void } {
     const key = collectionRef.path
     let colCallback = this.collectionCallbacks.get(key)
 
@@ -132,7 +132,7 @@ export class CallbacksHandler<Read extends BaseDocumentRead> {
     }
     return {
       callbackId: cbId,
-      unsubscribe: colCallback.unsubscribe,
+      unsubscribe: () => this.removeCollectionCallback(collectionRef, cbId),
     }
   }
 

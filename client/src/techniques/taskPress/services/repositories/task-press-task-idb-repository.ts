@@ -1,20 +1,20 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
 import type {
-  TaskPressTemplateRead,
-  TaskPressTemplateWrite,
-} from '../documents/task-press-template-document'
+  TaskPressTaskRead,
+  TaskPressTaskWrite,
+} from '../documents/task-press-task-document'
 
 /**
- * documentPath: [uid, templateId]
+ * documentPath: [uid, taskId]
  */
-export class TaskPressTemplateIDBRepository extends IndexedDBService<
-  TaskPressTemplateRead,
-  TaskPressTemplateWrite
+export class TaskPressTaskIDBRepository extends IndexedDBService<
+  TaskPressTaskRead,
+  TaskPressTaskWrite
 > {
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniques', 'templates'], {
+    super(['users', 'techniques', 'tasks'], {
       techniques: 'taskPress',
     })
     this.uid = uid
@@ -25,28 +25,28 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
   }
 
   protected filterWriteData<
-    T extends TaskPressTemplateWrite | Partial<TaskPressTemplateWrite>,
-  >(data: T): T {
+    T extends TaskPressTaskWrite | Partial<TaskPressTaskWrite>,
+  >(
+    data: T
+  ): T extends TaskPressTaskWrite
+    ? TaskPressTaskWrite
+    : Partial<TaskPressTaskWrite> {
     const {
-      title,
-      subject,
+      templateId,
+      deadline,
       type,
-      timePerPage,
-      order,
-      text,
-      estimatedTime,
-      steps,
+      pages,
+      completedPages,
+      completedStepOrders,
     } = data
 
     return {
-      title,
-      subject,
+      templateId,
+      deadline,
       type,
-      timePerPage,
-      order,
-      text,
-      estimatedTime,
-      steps,
+      pages,
+      completedPages,
+      completedStepOrders,
     } as any
   }
 }

@@ -1,34 +1,33 @@
-import { useEffect, useState } from 'react'
-import type { TaskPressTaskWrite } from '../documents/task-press-task-document'
-import type { TaskPressTemplateWrite } from '../documents/task-press-template-document'
 import { createNewTaskPressTask } from '../functions/task-press-crud'
 import { useCurrentUserStore } from '../../../../stores/user/currentUserStore'
 import type { TaskPressCreateFormState } from '../../types/formState/task-press-create-form-state'
-import { getTaskPressRepo } from '../repositories/repositories'
+import useMultipleAsyncHandler from '../../../../hooks/async-processing/useMultipleAsyncHandler'
+import type { TaskPressTaskWrite } from '../documents/task-press-task-document'
+import type { TaskPressTemplateWrite } from '../documents/task-press-template-document'
+import { useTaskPressRepo } from './useTaskPressRepo'
 
 const useCrudTaskPress = () => {
   const { uid } = useCurrentUserStore()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const repo = useTaskPressRepo()
 
-  useEffect(() => {
-    const fetch = async () => {
-      const repo = getTaskPressRepo()
-      if (uid && repo) {
-        console.log(await repo.idbTask.getAll([uid]))
-      }
-    }
-    fetch()
-  }, [uid])
+  const {
+    asyncStates,
+    allMatchStates,
+    globalError,
+    logError,
+    callAsyncFunction,
+  } = useMultipleAsyncHandler(['submit'])
 
   const handleSubmit = async (formState: TaskPressCreateFormState) => {
     if (!uid) {
-      setError('ログイン情報が見つかりません')
+      logError('submit', 'ログイン情報が見つかりません')
       return
     }
 
-    setIsSubmitting(true)
-    setError(null)
+    if (!repo) {
+      logError('submit', 'レポジトリが初期化されていません')
+      return
+    }
 
     const task: TaskPressTaskWrite = {
       ...formState,
@@ -51,18 +50,15 @@ const useCrudTaskPress = () => {
             type: 'problemSet',
           }
 
-    try {
-      await createNewTaskPressTask(uid, task, template)
-      // 成功時の後処理（例: モーダルを閉じる、トースト通知、リダイレクトなど）
-    } catch (err) {
-      console.error('タスク作成に失敗しました:', err)
-      setError('タスクの作成中にエラーが発生しました。再試行してください。')
-    } finally {
-      setIsSubmitting(false)
-    }
+    callAsyncFunction('submit', createNewTaskPressTask, [
+      uid,
+      repo,
+      task,
+      template,
+    ])
   }
 
-  return { isSubmitting, error, handleSubmit }
+  return { asyncStates, allMatchStates, globalError, handleSubmit }
 }
 
 export default useCrudTaskPress
