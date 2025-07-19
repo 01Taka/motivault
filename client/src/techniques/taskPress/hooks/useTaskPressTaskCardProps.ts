@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import {
   getRemainingDays,
   getDailyEstimatedTime,
@@ -31,6 +31,48 @@ const useTaskPressTaskCardProps = ({ task }: UseTaskPressTaskCardProps) => {
   const [completedStepOrdersCache, setCompletedStepOrdersCache] = useState<
     number[]
   >([])
+
+  // useRef to store the *previous* values of completedPages and completedStepOrders
+  const prevTaskDataString = useRef<{
+    completedPages: undefined | string
+    completedStepOrders: undefined | string
+  }>({
+    completedPages: undefined,
+    completedStepOrders: undefined,
+  })
+
+  useEffect(() => {
+    let currentCompletedPagesString
+    let currentCompletedStepOrdersString
+
+    if (task.type === 'problemSet') {
+      // Stringify the array to compare its content
+      currentCompletedPagesString = JSON.stringify(task.completedPages)
+      currentCompletedStepOrdersString = undefined
+    } else {
+      currentCompletedPagesString = undefined
+      // Stringify the array to compare its content
+      currentCompletedStepOrdersString = JSON.stringify(
+        task.completedStepOrders
+      )
+    }
+
+    // Check if the stringified relevant data has changed
+    if (
+      currentCompletedPagesString !==
+        prevTaskDataString.current.completedPages ||
+      currentCompletedStepOrdersString !==
+        prevTaskDataString.current.completedStepOrders
+    ) {
+      setCompletedPagesCache([])
+      setCompletedStepOrdersCache([])
+    }
+
+    // Update the ref with the current stringified values for the next render
+    prevTaskDataString.current.completedPages = currentCompletedPagesString
+    prevTaskDataString.current.completedStepOrders =
+      currentCompletedStepOrdersString
+  }, [task]) // Depend on 'task' so this effect re-runs when 'task' object changes
 
   /**
    * Handles the completion of one or more pages.

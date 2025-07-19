@@ -29,6 +29,7 @@ export interface MergedReportTask {
   subject: string
   deadline: string
   steps: MergedReportStep[]
+  completedStepOrders: number[]
 }
 
 /** 共通合成済みタスク */

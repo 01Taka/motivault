@@ -33,11 +33,8 @@ function separateByCompletionStatus(data: Record<string, boolean>): {
 const TaskPress: React.FC<TaskPressProps> = ({}) => {
   const { tasks, templates } = useTaskPressStore()
   const mergedTasks = useMemo(() => {
-    try {
-      return mergeTasksWithTemplates(tasks, templates)
-    } catch {
-      return []
-    }
+    const result = mergeTasksWithTemplates(tasks, templates)
+    return result.successfulMerges
   }, [tasks, templates])
 
   const [isShowingDetail, setIsShowingDetail] = useState(false)
@@ -94,6 +91,8 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
         uncompletedNumber
       )
     } else {
+      console.log(completedNumber, uncompletedNumber)
+
       updateCompletedStepOrders(
         showingDetailTask.taskDocId,
         completedNumber,

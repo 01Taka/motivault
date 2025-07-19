@@ -42,8 +42,8 @@ export class TaskPressTaskIDBRepository extends IndexedDBService<
 
     if (
       type === 'problemSet' ||
-      pages !== undefined ||
-      completedPages !== undefined
+      (type === undefined &&
+        (pages !== undefined || completedPages !== undefined))
     ) {
       return {
         type,
@@ -56,7 +56,10 @@ export class TaskPressTaskIDBRepository extends IndexedDBService<
         : Partial<TaskPressTaskWrite>
     }
 
-    if (type === 'report' || completedPages !== undefined) {
+    if (
+      type === 'report' ||
+      (type === undefined && completedStepOrders !== undefined)
+    ) {
       return {
         type,
         templateId,
