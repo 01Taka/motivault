@@ -7,7 +7,7 @@ import MyTechniques from './features/home/components/techniques/myTechnique/MyTe
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
 
-// Lazy imports（ページ単位の初回読み込みコスト軽減）
+// Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
 const LoginPage = lazy(() => import('./components/organisms/Login'))
 const UserSetupPage = lazy(() => import('./components/organisms/UserSetup'))
@@ -24,17 +24,40 @@ const TimeBlocking = lazy(
   () => import('./techniques/timeBlocking/components/TimeBlocking')
 )
 
-// Feynman系は同技術内なので通常import
-import FeynmanTechnique from './techniques/feynman/components/FeynmanTechnique'
-import KnowledgeGap from './techniques/feynman/components/knowledgeGap/KnowledgeGap'
-import FeynmanNotes from './techniques/feynman/components/notes/FeynmanNotes'
-import NoteEditor from './techniques/feynman/components/noteEditor/NoteEditor'
-import GapAnswerEditor from './techniques/feynman/components/gapAnswerEditor/GapAnswerEditor'
-import NoteRewriteEditor from './techniques/feynman/components/rewrite/NoteRewriteEditor'
-import TinySteps from './techniques/tinySteps/components/TinySteps'
-import TaskPress from './techniques/taskPress/components/TaskPress'
-import TaskPressLayout from './techniques/taskPress/components/TaskPressLayout'
-import CreateTaskPress from './techniques/taskPress/components/create/CreateTaskPress'
+// Feynman Technique related components
+const FeynmanTechnique = lazy(
+  () => import('./techniques/feynman/components/FeynmanTechnique')
+)
+const KnowledgeGap = lazy(
+  () => import('./techniques/feynman/components/knowledgeGap/KnowledgeGap')
+)
+const FeynmanNotes = lazy(
+  () => import('./techniques/feynman/components/notes/FeynmanNotes')
+)
+const NoteEditor = lazy(
+  () => import('./techniques/feynman/components/noteEditor/NoteEditor')
+)
+const GapAnswerEditor = lazy(
+  () =>
+    import('./techniques/feynman/components/gapAnswerEditor/GapAnswerEditor')
+)
+const NoteRewriteEditor = lazy(
+  () => import('./techniques/feynman/components/rewrite/NoteRewriteEditor')
+)
+
+// Other technique components
+const TinySteps = lazy(
+  () => import('./techniques/tinySteps/components/TinySteps')
+)
+const TaskPress = lazy(
+  () => import('./techniques/taskPress/components/TaskPress')
+)
+const TaskPressLayout = lazy(
+  () => import('./techniques/taskPress/components/TaskPressLayout')
+)
+const CreateTaskPress = lazy(
+  () => import('./techniques/taskPress/components/create/CreateTaskPress')
+)
 
 function App() {
   useSyncCurrentUser()

@@ -1,72 +1,63 @@
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import TaskPressTaskList from './TaskPressTaskList'
-import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
+import { mergeTasksWithTemplates } from '../functions/task-press-merge-task'
+import useBatchedDebouncedCallback from '../../../hooks/components/useDebouncedCallback'
+import useTaskPressCrudHandler from '../services/hooks/useTaskPressCrudHandler'
+import { useTaskPressStore } from '../services/stores/useTaskPressStore'
 
 interface TaskPressProps {}
-const sampleTasks: TaskPressMergedTask[] = [
-  {
-    type: 'problemSet',
-    title: '数学 I の復習',
-    subject: '数学',
-    timePerPage: 15,
-    pages: [1, 2, 3],
-    completedPages: [1],
-    deadline: '2025-08-01',
-    taskDocId: 'ps-1',
-    templateDocId: 'template_ps_001',
-    createdById: 'user_123',
-  },
-  {
-    type: 'problemSet',
-    title: '英語 長文読解',
-    subject: '英語',
-    timePerPage: 20,
-    pages: [10, 11, 12, 13],
-    completedPages: [10, 11],
-    deadline: '2025-08-05',
-    taskDocId: 'ps-2',
-    templateDocId: 'template_ps_002',
-    createdById: 'user_789',
-  },
-  {
-    type: 'report',
-    title: '化学レポート 中和反応の考察',
-    subject: '化学',
-    steps: [
-      { order: 1, text: '序論を書く', estimatedTime: 20, completed: true },
-      {
-        order: 2,
-        text: '中和の定義を説明',
-        estimatedTime: 30,
-        completed: false,
-      },
-      { order: 3, text: '実験結果を考察', estimatedTime: 40, completed: false },
-    ],
-    deadline: '2025-08-10',
-    taskDocId: 'rp-1',
-    templateDocId: 'template_rp_001',
-    createdById: 'user_456',
-  },
-  {
-    type: 'report',
-    title: '物理レポート 力学の基礎',
-    subject: '物理',
-    steps: [
-      { order: 1, text: '課題文の確認', estimatedTime: 10, completed: false },
-      { order: 2, text: '計算過程の記述', estimatedTime: 45, completed: true },
-      { order: 3, text: '結論と考察', estimatedTime: 25, completed: false },
-    ],
-    deadline: '2025-08-15',
-    taskDocId: 'rp-2',
-    templateDocId: 'template_rp_002',
-    createdById: 'user_321',
-  },
-]
 
 const TaskPress: React.FC<TaskPressProps> = ({}) => {
+  const { tasks, templates } = useTaskPressStore()
+  const mergedTasks = useMemo(() => {
+    try {
+      return mergeTasksWithTemplates(tasks, templates)
+    } catch {
+      return []
+    }
+  }, [tasks, templates])
+
+  const { pushCompletedPages, pushCompletedStepOrders } =
+    useTaskPressCrudHandler()
+
+  const callBatchDebounce = useBatchedDebouncedCallback<[number]>(
+    ({ debounceKey, debounceType, mergedArgs }) => {
+      const values = mergedArgs[0]
+      if (debounceKey && values) {
+        if (debounceType === 'problemSet' && debounceKey && values) {
+          pushCompletedPages(debounceKey, values)
+        } else {
+          pushCompletedStepOrders(debounceKey, values)
+        }
+      }
+    },
+    { delays: { problemSet: 1500, report: 2000 } }
+  )
+
+  useEffect(() => {
+    console.log(tasks)
+  }, [tasks])
+
   return (
     <div>
-      <TaskPressTaskList tasks={sampleTasks} />
+      <TaskPressTaskList
+        tasks={mergedTasks}
+        onPageComplete={(task, page) =>
+          callBatchDebounce({
+            debounceKey: task.taskDocId,
+            debounceType: task.type,
+            args: [page],
+          })
+        }
+        onCompleteStep={(task, step) =>
+          callBatchDebounce({
+            debounceKey: task.taskDocId,
+            debounceType: task.type,
+            args: [step.order],
+          })
+        }
+        onEdit={() => {}}
+      />
     </div>
   )
 }

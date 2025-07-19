@@ -1,10 +1,13 @@
 /** @jsxImportSource @emotion/react */
-import { IconButton, Stack } from '@mui/material'
-import React, { useState } from 'react'
+import { IconButton, Stack, Typography } from '@mui/material'
+import React from 'react'
 import { keyframes } from '@emotion/react'
+import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
 
 interface ProblemSetTaskQuickCompletionProps {
   nextPages: number[]
+  timePerPage: number
+  animatingPages?: number[]
   size?: number
   delay?: number
   onPageComplete: (delay: number, page: number) => void
@@ -25,11 +28,15 @@ const rotateAndScale = keyframes`
 
 const ProblemSetTaskQuickCompletion: React.FC<
   ProblemSetTaskQuickCompletionProps
-> = ({ nextPages, size = 56, delay = 300, onPageComplete }) => {
-  const [completedPages, setCompletedPages] = useState<number[]>([])
-
+> = ({
+  nextPages,
+  timePerPage,
+  animatingPages = [],
+  size = 56,
+  delay = 300,
+  onPageComplete,
+}) => {
   const handleClick = (page: number) => {
-    setCompletedPages((prev) => [...prev, page]) // 完了したページを追跡
     onPageComplete(delay, page)
   }
 
@@ -41,9 +48,10 @@ const ProblemSetTaskQuickCompletion: React.FC<
           sx={{
             width: size,
             height: size,
+            position: 'relative',
             borderRadius: 2,
-            backgroundColor: completedPages.includes(page) ? '#4caf50' : '#fff',
-            color: completedPages.includes(page) ? '#fff' : '#000',
+            backgroundColor: animatingPages.includes(page) ? '#4caf50' : '#fff',
+            color: animatingPages.includes(page) ? '#fff' : '#000',
             border: '1px solid #ddd',
             fontWeight: 'bold',
             fontSize: '1.1rem',
@@ -54,16 +62,23 @@ const ProblemSetTaskQuickCompletion: React.FC<
               animation: `${rotateAndScale} 0.3s linear`,
             },
             '&:hover': {
-              backgroundColor: completedPages.includes(page)
+              backgroundColor: animatingPages.includes(page)
                 ? '#4caf50'
                 : '#f0f0f0',
               cursor: 'pointer',
             },
           }}
           onClick={() => handleClick(page)}
-          className={completedPages.includes(page) ? 'completed' : ''}
+          className={animatingPages.includes(page) ? 'completed' : ''}
         >
-          {completedPages.includes(page) ? '✔' : page}
+          {animatingPages.includes(page) ? '✔' : page}
+          <Typography
+            variant="caption"
+            color="textDisabled"
+            sx={{ position: 'absolute', bottom: 0, right: 1 }}
+          >
+            {Math.floor(timePerPage / MINUTES_IN_MS)}分
+          </Typography>
         </IconButton>
       ))}
     </Stack>

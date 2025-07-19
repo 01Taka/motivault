@@ -32,6 +32,24 @@ export interface IDBService<
     value: any,
     collectionPath?: string[]
   ): Promise<Read | null>
+  addDocumentSnapshotListener(
+    callback: (data: Read | null) => void,
+    documentPathSegments: string[],
+    callbackId?: string
+  ): { callbackId: string; unsubscribe: () => void }
+  removeDocumentSnapshotListener(
+    callbackId: string,
+    documentPathSegments: string[]
+  ): void
+  addCollectionSnapshotListener(
+    callback: (data: Read[]) => void,
+    collectionPathSegments: string[],
+    callbackId?: string
+  ): { callbackId: string; unsubscribe: () => void }
+  removeCollectionSnapshotListener(
+    callbackId: string,
+    collectionPathSegments: string[]
+  ): void
 }
 
 interface BaseQueryConstraint {

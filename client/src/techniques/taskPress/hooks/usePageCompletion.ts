@@ -10,6 +10,7 @@ const usePageCompletion = (
   onPageComplete: (pages: number[]) => void
 ) => {
   const [completedPages, setCompletedPages] = useState<number[]>([])
+  const [completedPagesCache, setCompletedPagesCache] = useState<number[]>([])
 
   // ページ完了の遅延処理を管理するためのdebounce
   const debouncedCompletePages = useCallback(
@@ -20,6 +21,10 @@ const usePageCompletion = (
   )
 
   const handlePageComplete = (delay: number, page: number) => {
+    setCompletedPagesCache((prev) =>
+      prev.includes(page) ? prev : [...prev, page]
+    )
+
     setTimeout(() => {
       setCompletedPages((prev) => {
         const newCompletedPages = [...prev, page]
@@ -41,6 +46,7 @@ const usePageCompletion = (
 
   return {
     nextPages,
+    completedPagesCache,
     completedPages,
     handlePageComplete,
   }

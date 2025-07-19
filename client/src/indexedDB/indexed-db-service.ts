@@ -38,7 +38,7 @@ export abstract class IndexedDBService<
     string,
     Map<string, (data: Read | null) => void>
   >()
-  private collectionListeners = new Map<
+  public collectionListeners = new Map<
     string,
     Map<string, (data: Read[]) => void>
   >()
@@ -332,7 +332,7 @@ export abstract class IndexedDBService<
           .split('/')
           .filter((s) => s)
         const collectionData = await this.getAll(
-          collectionSegments.filter((_, i) => i % 2 !== 0)
+          collectionSegments.filter((_, i) => i % 2 !== 0).slice(0, -1)
         )
 
         const currentCollectionDataString = JSON.stringify(collectionData)
@@ -639,6 +639,7 @@ export abstract class IndexedDBService<
     if (!this.collectionListeners.has(collectionPathPrefix)) {
       this.collectionListeners.set(collectionPathPrefix, new Map())
     }
+
     this.collectionListeners.get(collectionPathPrefix)?.set(id, callback)
 
     // Immediately trigger the callback with the current data

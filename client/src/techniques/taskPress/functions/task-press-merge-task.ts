@@ -2,25 +2,30 @@ import type { TaskPressTaskRead } from '../services/documents/task-press-task-do
 import type { TaskPressTemplateRead } from '../services/documents/task-press-template-document'
 import type { TaskPressMergedTask } from '../types/task-press-merge-task-types'
 
+function validateTaskAndTemplate(
+  task: TaskPressTaskRead,
+  template: TaskPressTemplateRead
+) {
+  if (task.type !== template.type) {
+    throw new Error(`Type mismatch: ${task.type} !== ${template.type}`)
+  }
+  if (task.createdById !== template.createdById) {
+    throw new Error(
+      `CreatedById mismatch: ${task.createdById} !== ${template.createdById}`
+    )
+  }
+  if (task.templateId !== template.docId) {
+    throw new Error(
+      `Template ID mismatch: ${task.templateId} !== ${template.docId}`
+    )
+  }
+}
+
 export function mergeTaskWithTemplate(
   task: TaskPressTaskRead,
   template: TaskPressTemplateRead
 ): TaskPressMergedTask {
-  if (task.type !== template.type) {
-    throw new Error('Task and Template types do not match')
-  }
-
-  if (task.createdById !== template.createdById) {
-    throw new Error(
-      'Task and Template have different owners (createdById mismatch)'
-    )
-  }
-
-  if (task.templateId !== template.docId) {
-    throw new Error(
-      'Task references a different template (templateId mismatch)'
-    )
-  }
+  validateTaskAndTemplate(task, template)
 
   if (task.type === 'problemSet' && template.type === 'problemSet') {
     return {
@@ -56,4 +61,23 @@ export function mergeTaskWithTemplate(
 
   // ここまで来るのは型チェックが甘いときだけ
   throw new Error('Unsupported task/template type combination')
+}
+
+export const mergeTasksWithTemplates = (
+  tasks: TaskPressTaskRead[],
+  templates: TaskPressTemplateRead[]
+) => {
+  const templatesMap = Object.fromEntries(
+    templates.map((template) => [template.docId, template])
+  )
+
+  return tasks.map((task) => {
+    const template = templatesMap[task.templateId]
+    if (!template) {
+      throw new Error(
+        `Template not found for task.templateId: ${task.templateId}`
+      )
+    }
+    return mergeTaskWithTemplate(task, template)
+  })
 }

@@ -9,7 +9,7 @@ import type {
   TaskPressCreateFormState,
   TaskPressFormStateStep,
 } from '../../types/formState/task-press-create-form-state'
-import useCrudTaskPress from '../../services/hooks/useCrudTaskPress'
+import useTaskPressCrudHandler from '../../services/hooks/useTaskPressCrudHandler'
 
 interface CreateTaskPressProps {}
 
@@ -35,7 +35,7 @@ const CreateTaskPress: React.FC<CreateTaskPressProps> = ({}) => {
     }
   )
 
-  const { handleSubmit } = useCrudTaskPress()
+  const { handleSubmit } = useTaskPressCrudHandler()
 
   const hasEmptyInput = checkHasEmptyInput({
     exclude:

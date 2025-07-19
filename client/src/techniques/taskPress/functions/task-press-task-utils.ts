@@ -54,14 +54,22 @@ export const getRemainingDays = (deadline: string): number => {
  * @param task 問題集タスク
  * @returns 残りページ数
  */
-const getRemainingProblemSetPages = (task: MergedProblemSetTask): number[] => {
-  return task.pages.filter((page) => !task.completedPages.includes(page))
+const getRemainingProblemSetPages = (
+  task: MergedProblemSetTask,
+  extraCompletedPages: number[] = []
+): number[] => {
+  return task.pages.filter(
+    (page) => ![...task.completedPages, ...extraCompletedPages].includes(page)
+  )
 }
 
 const getRemainingReportSteps = (
-  task: MergedReportTask
+  task: MergedReportTask,
+  extraCompletedStepOrders: number[] = []
 ): MergedReportStep[] => {
-  return task.steps.filter((step) => !step.completed)
+  return task.steps.filter(
+    (step) => !step.completed && !extraCompletedStepOrders.includes(step.order)
+  )
 }
 
 /**
@@ -70,9 +78,13 @@ const getRemainingReportSteps = (
  * @param task ステップベースのタスク
  * @returns 残りステップの推定合計時間
  */
-const getRemainingStepEstimatedTime = (task: MergedReportTask): number => {
-  return task.steps.reduce((totalTime, step) => {
-    return step.completed ? totalTime : totalTime + step.estimatedTime
+const getRemainingStepEstimatedTime = (
+  task: MergedReportTask,
+  extraCompletedStepOrders: number[] = []
+): number => {
+  const remainingSteps = getRemainingReportSteps(task, extraCompletedStepOrders)
+  return remainingSteps.reduce((totalTime, step) => {
+    return totalTime + step.estimatedTime
   }, 0)
 }
 
@@ -86,7 +98,9 @@ const getRemainingStepEstimatedTime = (task: MergedReportTask): number => {
  */
 export const getDailyEstimatedTime = (
   task: TaskPressMergedTask,
-  remainingDays: number
+  remainingDays: number,
+  extraCompletedPages: number[] = [],
+  extraCompletedStepOrders: number[] = []
 ): number => {
   if (remainingDays <= 0) {
     // 0で割ることを避けるため、または期限切れのタスクの場合の処理
@@ -97,16 +111,26 @@ export const getDailyEstimatedTime = (
   }
 
   if (task.type === 'problemSet') {
-    const remainingPages = getRemainingProblemSetPages(task).length
+    const remainingPages = getRemainingProblemSetPages(
+      task,
+      extraCompletedPages
+    ).length
     return (remainingPages * task.timePerPage) / remainingDays
   } else {
-    const totalEstimatedTime = getRemainingStepEstimatedTime(task)
+    const totalEstimatedTime = getRemainingStepEstimatedTime(
+      task,
+      extraCompletedStepOrders
+    )
     return totalEstimatedTime / remainingDays
   }
 }
 
-export const getRemainingItemCount = (task: TaskPressMergedTask) => {
+export const getRemainingItemCount = (
+  task: TaskPressMergedTask,
+  extraCompletedPages?: number[],
+  extraCompletedStepOrders?: number[]
+) => {
   return task.type === 'problemSet'
-    ? getRemainingProblemSetPages(task).length
-    : getRemainingReportSteps(task).length
+    ? getRemainingProblemSetPages(task, extraCompletedPages).length
+    : getRemainingReportSteps(task, extraCompletedStepOrders).length
 }

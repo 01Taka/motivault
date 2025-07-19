@@ -3,24 +3,18 @@ import TaskPressTaskCardHeader from './TaskPressTaskCardHeader'
 import ProblemSetTaskQuickCompletion from './ProblemSetTaskQuickCompletion'
 import { Stack, Typography } from '@mui/material'
 import TaskProgressSummary from './TaskProgressSummary'
-import {
-  getDailyEstimatedTime,
-  getRemainingDays,
-  getRemainingItemCount,
-} from '../../functions/task-press-task-utils'
 import ReportTaskQuickCompletion from './ReportTaskQuickCompletion'
-import usePageCompletion from '../../hooks/usePageCompletion'
-import useStepCompletion from '../../hooks/useStepCompletion'
 import type {
   MergedReportStep,
   TaskPressMergedTask,
 } from '../../types/task-press-merge-task-types'
+import useTaskPressTaskCardProps from '../../hooks/useTaskPressTaskCardProps'
 
 interface TaskPressTaskCardProps {
   task: TaskPressMergedTask
-  onPageComplete: (pages: number[]) => void
-  onCompleteStep: (steps: MergedReportStep[]) => void
   onEdit: () => void
+  onPageComplete: (page: number) => void
+  onCompleteStep: (step: MergedReportStep) => void
 }
 
 /**
@@ -33,22 +27,17 @@ const TaskPressTaskCard: React.FC<TaskPressTaskCardProps> = ({
   onPageComplete,
   onCompleteStep,
 }) => {
-  const remainingDays = getRemainingDays(task.deadline)
-
-  const dailyEstimatedTime = getDailyEstimatedTime(
-    task,
-    remainingDays > 0 ? remainingDays : 1
-  )
-
-  const { nextPages, completedPages, handlePageComplete } = usePageCompletion(
-    task,
-    onPageComplete
-  )
-
-  const { nextStep, handleStepComplete } = useStepCompletion(
-    task,
-    onCompleteStep
-  )
+  const {
+    nextPages,
+    nextStep,
+    animatingPages,
+    completedStepOrdersCache,
+    remainingDays,
+    dailyEstimatedTime,
+    remainingCount,
+    handlePageComplete,
+    handleStepComplete,
+  } = useTaskPressTaskCardProps({ task })
 
   return (
     <Stack
@@ -74,15 +63,26 @@ const TaskPressTaskCard: React.FC<TaskPressTaskCardProps> = ({
           <Typography sx={{ color: 'GrayText' }}>次のおすすめ</Typography>
           {task.type === 'problemSet' ? (
             <ProblemSetTaskQuickCompletion
-              nextPages={nextPages.filter(
-                (page) => !completedPages.includes(page)
-              )}
-              onPageComplete={handlePageComplete}
+              nextPages={nextPages}
+              timePerPage={task.timePerPage}
+              animatingPages={animatingPages}
+              onPageComplete={(delay, page) => {
+                onPageComplete(page)
+                handlePageComplete(delay, [page])
+              }}
             />
           ) : (
             <ReportTaskQuickCompletion
               nextStep={nextStep}
-              onCompleteStep={handleStepComplete}
+              isCompleted={
+                !!nextStep && completedStepOrdersCache.includes(nextStep.order)
+              }
+              onCompleteStep={(delay, step) => {
+                if (step) {
+                  onCompleteStep(step)
+                  handleStepComplete(delay, [step])
+                }
+              }}
             />
           )}
         </Stack>
@@ -90,7 +90,7 @@ const TaskPressTaskCard: React.FC<TaskPressTaskCardProps> = ({
       <TaskProgressSummary
         remainingDays={remainingDays}
         dailyEstimatedTime={Math.round(dailyEstimatedTime)}
-        remainingCount={getRemainingItemCount(task)}
+        remainingCount={remainingCount}
         countLabel={task.type === 'problemSet' ? 'ページ' : '段階'}
       />
     </Stack>

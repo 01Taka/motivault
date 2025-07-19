@@ -9,13 +9,20 @@ import {
 } from '@mui/material'
 import { useRangeInput } from '../../../hooks/useRangeInput'
 import { Add } from '@mui/icons-material'
+import type { CreateInputProps } from '../../../../../types/form/formState-types'
+import type React from 'react'
 
-interface Props {
+interface ProblemSetInputsProps {
+  createInputProps: CreateInputProps
   setPages: (pages: number[]) => void
   isUsingTemplate: boolean
 }
 
-const ProblemSetInputs = ({ setPages, isUsingTemplate }: Props) => {
+const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
+  createInputProps,
+  setPages,
+  isUsingTemplate,
+}) => {
   const {
     value: pages,
     start,
@@ -37,6 +44,7 @@ const ProblemSetInputs = ({ setPages, isUsingTemplate }: Props) => {
         fullWidth
         disabled={isUsingTemplate}
         InputProps={{ inputProps: { min: 1 } }}
+        {...createInputProps('timePerPage')}
       />
 
       <Box>

@@ -1,15 +1,17 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react'
+import React from 'react'
 import { Button } from '@mui/material'
 import { keyframes } from '@emotion/react'
-import type { TaskPressReportStep } from '../../services/documents/task-press-task-document'
+import type { MergedReportStep } from '../../types/task-press-merge-task-types'
+import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
 
 interface ReportTaskQuickCompletionProps {
-  nextStep: TaskPressReportStep | null
-  onCompleteStep: (delay: number) => void
+  nextStep: MergedReportStep | null
+  isCompleted: boolean
+  onCompleteStep: (delay: number, step: MergedReportStep | null) => void
 }
 
-// フェードアウトとスケールのアニメーションを定義
+// Define fade-out and scale animation
 const fadeOutAndScale = keyframes`
   0% {
     opacity: 1;
@@ -27,45 +29,47 @@ const fadeOutAndScale = keyframes`
 
 const ReportTaskQuickCompletion: React.FC<ReportTaskQuickCompletionProps> = ({
   nextStep,
+  isCompleted,
   onCompleteStep,
 }) => {
-  const [completedStepOrders, setCompletedStepOrders] = useState<number[]>([])
-
-  const handleClick = () => {
-    onCompleteStep(700) // 遅延時間を設定して完了処理を開始
-    if (nextStep) {
-      setCompletedStepOrders((prev) => [...prev, nextStep.order])
-    }
-  }
-
-  const completed = nextStep
-    ? completedStepOrders.includes(nextStep.order)
-    : false
+  const buttonText = isCompleted
+    ? '✔ 完了'
+    : nextStep
+      ? `${nextStep.text} (${Math.floor(nextStep.estimatedTime / MINUTES_IN_MS)}分)`
+      : 'すべて完了'
 
   return (
     <Button
-      onClick={handleClick}
-      sx={{
-        backgroundColor: completed ? '#4caf50' : '#fff',
-        color: completed ? '#fff' : '#000',
-        border: '1px solid #ddd',
+      onClick={() => onCompleteStep(700, nextStep)}
+      sx={(theme) => ({
+        // Use theme for consistent colors if available, otherwise use hardcoded
+        backgroundColor: isCompleted ? '#4caf50' : '#fff',
+        color: isCompleted ? '#fff' : '#000',
+        border: nextStep ? '1px solid #ddd' : 'none', // Use 'none' for clarity when no border
         fontWeight: 'bold',
         fontSize: '1.1rem',
         padding: '8px 16px',
-        borderRadius: 2,
+        borderRadius: theme.shape.borderRadius || 2, // Use theme borderRadius
+        textTransform: 'none', // Prevent uppercase transformation
+
+        // Animations and transitions
         transition: 'transform 0.3s ease, opacity 0.5s ease',
+        opacity: isCompleted ? 0 : 1,
+        animation: isCompleted ? `${fadeOutAndScale} 0.7s forwards` : 'none',
+
         '&:hover': {
-          backgroundColor: completed ? '#4caf50' : '#f0f0f0',
+          backgroundColor: isCompleted ? '#4caf50' : '#f0f0f0',
           cursor: 'pointer',
-          // 完了後はアニメーションが起きないように調整
-          transform: 'scale(1)',
+          // Prevent animation on hover when completed
+          transform: isCompleted ? 'scale(1)' : 'scale(1.03)', // Slight scale for uncompleted hover
         },
-        opacity: completed ? 0 : 1, // 完了時にフェードアウト
-        animation: completed ? `${fadeOutAndScale} 0.7s forwards` : 'none', // 完了時にアニメーションを適用
-        textTransform: 'none',
-      }}
+        // Disable button interactions when completed, if desired
+        ...(isCompleted && {
+          pointerEvents: 'none',
+        }),
+      })}
     >
-      {completed ? '✔ 完了' : nextStep ? nextStep.text : 'すべて完了'}
+      {buttonText}
     </Button>
   )
 }

@@ -297,7 +297,7 @@ abstract class FirestoreService<
   // Callbacks Methods
   // ======================================================================
 
-  addCallback(
+  addDocumentSnapshotListenerWithSnapshot(
     callback: (snapshot: DocumentSnapshot<Read, DocumentData>) => void,
     documentPath: string[],
     callbackId?: string
@@ -309,19 +309,22 @@ abstract class FirestoreService<
     return this.callbacksHandler.addCallback(docRef, callback, callbackId)
   }
 
-  addReadCallback(
+  addDocumentSnapshotListener(
     callback: (data: Read | null) => void,
     documentPath: string[],
     callbackId?: string
   ): { callbackId: string; unsubscribe: () => void } {
-    return this.addCallback(
+    return this.addDocumentSnapshotListenerWithSnapshot(
       (snapshot) => callback(parseDocumentSnapshot(snapshot)),
       documentPath,
       callbackId
     )
   }
 
-  removeCallback(callbackId: string, documentPath: string[]): void {
+  removeDocumentSnapshotListener(
+    callbackId: string,
+    documentPath: string[]
+  ): void {
     const docRef = this.getReference(
       documentPath,
       'doc'
@@ -329,7 +332,7 @@ abstract class FirestoreService<
     this.callbacksHandler.removeCallback(docRef, callbackId)
   }
 
-  addCollectionCallback(
+  addCollectionSnapshotListenerWithSnapshot(
     callback: (snapshot: QuerySnapshot<Read, DocumentData>) => void,
     collectionPath: string[] = [],
     callbackId?: string
@@ -345,19 +348,19 @@ abstract class FirestoreService<
     )
   }
 
-  addReadCollectionCallback(
+  addCollectionSnapshotListener(
     callback: (data: Read[]) => void,
     collectionPath: string[] = [],
     callbackId?: string
   ): { callbackId: string; unsubscribe: () => void } {
-    return this.addCollectionCallback(
+    return this.addCollectionSnapshotListenerWithSnapshot(
       (snapshot) => callback(parseQuerySnapshot(snapshot)),
       collectionPath,
       callbackId
     )
   }
 
-  removeCollectionCallback(
+  removeCollectionSnapshotListener(
     callbackId: string,
     collectionPath: string[] = []
   ): void {

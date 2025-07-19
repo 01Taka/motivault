@@ -1,50 +1,90 @@
+import type {
+  TaskPressTaskRepository,
+  TaskPressTemplateRepository,
+} from '../documents/repositories'
 import type { TaskPressTaskWrite } from '../documents/task-press-task-document'
 import type { TaskPressTemplateWrite } from '../documents/task-press-template-document'
-import type { TaskPressRepo } from '../hooks/useTaskPressRepo'
 
 export const createNewTaskPressTask = async (
+  taskRepo: TaskPressTaskRepository,
+  templateRepo: TaskPressTemplateRepository,
   uid: string,
-  repo: TaskPressRepo,
   task: TaskPressTaskWrite,
   template: TaskPressTemplateWrite
 ): Promise<void> => {
-  if (!repo) {
-    throw new Error('Repository not available')
-  }
+  const templateExists =
+    task.templateId && (await isExistTemplate(uid, templateRepo))
 
-  try {
-    const templateExists = task.templateId && (await isExistTemplate(uid, repo))
-
-    if (templateExists) {
-      await repo.idbTask.create(task, [uid])
-    } else {
-      const createdTemplate = await repo.idbTemplate.create(template, [uid])
-      if (!createdTemplate?.id) {
-        throw new Error('Failed to create template')
-      }
-      await repo.idbTask.create({ ...task, templateId: createdTemplate.id }, [
-        uid,
-      ])
+  if (templateExists) {
+    await taskRepo.create(task, [uid])
+  } else {
+    const createdTemplate = await templateRepo.create(template, [uid])
+    if (!createdTemplate?.id) {
+      throw new Error('テンプレートの作成に失敗しました')
     }
-  } catch (error) {
-    console.error('Failed to create task:', error)
-    throw error
+    await taskRepo.create({ ...task, templateId: createdTemplate.id }, [uid])
   }
 }
 
 const isExistTemplate = async (
   uid: string,
-  repo: TaskPressRepo
+  templateRepo: TaskPressTemplateRepository
 ): Promise<boolean> => {
-  if (!repo) {
-    throw new Error('Repository not available in isExistTemplate')
+  const data = await templateRepo.read([uid])
+  return Boolean(data && data.isActive)
+}
+
+export const taskPressPushCompletedPages = async (
+  taskRepo: TaskPressTaskRepository,
+  uid: string,
+  taskId: string,
+  completedPages: number[]
+): Promise<boolean> => {
+  const task = await taskRepo.read([uid, taskId])
+
+  if (!task) {
+    throw new Error(`タスクが見つかりません: uid=${uid}, taskId=${taskId}`)
   }
 
-  try {
-    const data = await repo.idbTemplate.read([uid])
-    return Boolean(data && data.isActive)
-  } catch (error) {
-    console.error('Failed to check if template exists:', error)
-    throw error
+  if (task.type !== 'problemSet') {
+    throw new Error(
+      `不正なタスクタイプ: expected 'problemSet', got '${task.type}'`
+    )
   }
+
+  const newCompletedPages = Array.from(
+    new Set([...task.completedPages, ...completedPages])
+  ).sort((a, b) => a - b)
+
+  await taskRepo.update({ completedPages: newCompletedPages }, [uid, taskId])
+
+  return true
+}
+
+export const taskPressPushCompletedStepOrders = async (
+  taskRepo: TaskPressTaskRepository,
+  uid: string,
+  taskId: string,
+  completedStepOrders: number[]
+): Promise<boolean> => {
+  const task = await taskRepo.read([uid, taskId])
+
+  if (!task) {
+    throw new Error(`タスクが見つかりません: uid=${uid}, taskId=${taskId}`)
+  }
+
+  if (task.type !== 'report') {
+    throw new Error(`不正なタスクタイプ: expected 'report', got '${task.type}'`)
+  }
+
+  const newCompletedStepOrders = Array.from(
+    new Set([...task.completedStepOrders, ...completedStepOrders])
+  ).sort((a, b) => a - b)
+
+  await taskRepo.update({ completedStepOrders: newCompletedStepOrders }, [
+    uid,
+    taskId,
+  ])
+
+  return true
 }

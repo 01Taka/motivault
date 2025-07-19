@@ -86,6 +86,7 @@ export default function CreateTaskForm({
 
           {formState.type === 'problemSet' && (
             <ProblemSetInputs
+              createInputProps={createInputProps}
               setPages={onSetPages}
               isUsingTemplate={isUsingTemplate}
             />
