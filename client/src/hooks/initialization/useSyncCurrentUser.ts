@@ -33,7 +33,7 @@ export const useSyncCurrentUser = () => {
       }
 
       // 更新監視
-      const result = getRepositories().users.addReadCallback(
+      const result = getRepositories().users.addDocumentSnapshotListener(
         (data) => {
           setUser(data)
         },

@@ -74,7 +74,10 @@ export const TimeBlockingTaskFormBody: React.FC<Props> = ({
 
       <FormControl fullWidth>
         <InputLabel>所要時間（分）</InputLabel>
-        <Select label="所要時間（分）" {...createInputProps(names.duration)}>
+        <Select
+          label="所要時間（分）"
+          {...createInputProps(names.duration, 'muiSelect')}
+        >
           {durations.map((d) => (
             <MenuItem key={d} value={d}>
               {d} 分
@@ -88,7 +91,7 @@ export const TimeBlockingTaskFormBody: React.FC<Props> = ({
           <InputLabel>タグ</InputLabel>
           <Select
             label="タグ"
-            {...createInputProps(names.tagId)}
+            {...createInputProps(names.tagId, 'muiSelect')}
             sx={{
               color: formData.tagId ? tags[formData.tagId].color : 'black',
             }}
@@ -112,7 +115,10 @@ export const TimeBlockingTaskFormBody: React.FC<Props> = ({
 
       <FormControl fullWidth>
         <InputLabel>繰り返し</InputLabel>
-        <Select label="繰り返し" {...createInputProps(names.repeat!)}>
+        <Select
+          label="繰り返し"
+          {...createInputProps(names.repeat!, 'muiSelect')}
+        >
           <MenuItem value="none">なし</MenuItem>
           <MenuItem value="daily">毎日</MenuItem>
           <MenuItem value="weekly">毎週</MenuItem>

@@ -62,7 +62,7 @@ class NamedDocumentService<
     basePath: string[],
     callbackId?: string
   ): { callbackId: string; unsubscribe: Unsubscribe } {
-    return this.baseService.addReadCallback(
+    return this.baseService.addDocumentSnapshotListener(
       callback,
       this.getPath(basePath),
       callbackId
@@ -70,7 +70,10 @@ class NamedDocumentService<
   }
 
   removeCallback(callbackId: string, basePath: string[]): void {
-    this.baseService.removeCallback(callbackId, this.getPath(basePath))
+    this.baseService.removeDocumentSnapshotListener(
+      callbackId,
+      this.getPath(basePath)
+    )
   }
 }
 

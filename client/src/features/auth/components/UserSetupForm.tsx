@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import { useUserSetupForm } from '../../../hooks/forms/userForm'
 import FormSelect from '../../../components/atoms/form/FormSelect'
-import FormTextField from '../../../components/atoms/form/FormTextField'
+// import FormTextField from '../../../components/atoms/form/FormTextField'
 
 interface UserSetupFormProps {
   onSubmit: (
@@ -14,9 +14,9 @@ const UserSetupForm = ({ onSubmit }: UserSetupFormProps) => {
 
   return (
     <Box display="flex" flexDirection="column" gap={3} mt={2}>
-      <FormTextField
+      {/*TODO <FormTextField
         label="ニックネーム"
-        {...createInputProps('displayName')}
+        {...createInputProps('displayName', "")}
       />
       <FormTextField
         label="生年月日"
@@ -27,7 +27,7 @@ const UserSetupForm = ({ onSubmit }: UserSetupFormProps) => {
             shrink: true,
           },
         }}
-      />
+      /> */}
       <FormSelect
         label="性別"
         options={[

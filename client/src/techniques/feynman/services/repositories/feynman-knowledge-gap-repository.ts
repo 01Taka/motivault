@@ -26,7 +26,11 @@ export class FeynmanKnowledgeGapIDBRepository extends IndexedDBService<
 
   protected filterWriteData<
     T extends FeynmanKnowledgeGapWrite | Partial<FeynmanKnowledgeGapWrite>,
-  >(data: T): T {
+  >(
+    data: T
+  ): T extends FeynmanKnowledgeGapWrite
+    ? FeynmanKnowledgeGapWrite
+    : Partial<FeynmanKnowledgeGapWrite> {
     const { noteId, noteTitle, contents, state, answer } = data
     return {
       noteId,

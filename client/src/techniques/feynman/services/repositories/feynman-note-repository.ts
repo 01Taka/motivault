@@ -25,7 +25,9 @@ export class FeynmanNoteIDBRepository extends IndexedDBService<
 
   protected filterWriteData<
     T extends FeynmanNoteWrite | Partial<FeynmanNoteWrite>,
-  >(data: T): T {
+  >(
+    data: T
+  ): T extends FeynmanNoteWrite ? FeynmanNoteWrite : Partial<FeynmanNoteWrite> {
     const { title, rewriteCount, contents, resolvedGapIds } = data
     return {
       title,

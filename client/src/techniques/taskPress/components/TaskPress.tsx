@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import TaskPressTaskList from './TaskPressTaskList'
 import { mergeTasksWithTemplates } from '../functions/task-press-merge-task'
 import useBatchedDebouncedCallback from '../../../hooks/components/useDebouncedCallback'
@@ -33,10 +33,6 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
     },
     { delays: { problemSet: 1500, report: 2000 } }
   )
-
-  useEffect(() => {
-    console.log(tasks)
-  }, [tasks])
 
   return (
     <div>
