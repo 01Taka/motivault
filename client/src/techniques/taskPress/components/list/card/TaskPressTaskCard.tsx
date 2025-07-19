@@ -7,8 +7,8 @@ import ReportTaskQuickCompletion from './ReportTaskQuickCompletion'
 import type {
   MergedReportStep,
   TaskPressMergedTask,
-} from '../../types/task-press-merge-task-types'
-import useTaskPressTaskCardProps from '../../hooks/useTaskPressTaskCardProps'
+} from '../../../types/task-press-merge-task-types'
+import useTaskPressTaskCardProps from '../../../hooks/useTaskPressTaskCardProps'
 
 interface TaskPressTaskCardProps {
   task: TaskPressMergedTask
@@ -42,24 +42,27 @@ const TaskPressTaskCard: React.FC<TaskPressTaskCardProps> = ({
   return (
     <Stack
       direction="row"
-      spacing={2}
+      spacing={1}
       sx={{
         backgroundColor: '#FFFFFF',
         borderRadius: 2,
         boxShadow: 3,
-        padding: 2,
+        padding: 1,
         width: '100%',
         maxWidth: 480,
       }}
     >
       <Stack
         spacing={2}
+        justifyContent="space-around"
         sx={{
+          padding: 1,
           flex: 1,
+          width: '70%',
         }}
       >
         <TaskPressTaskCardHeader title={task.title} onEdit={onEdit} />
-        <Stack>
+        <Stack alignItems="center" spacing={1}>
           <Typography sx={{ color: 'GrayText' }}>次のおすすめ</Typography>
           {task.type === 'problemSet' ? (
             <ProblemSetTaskQuickCompletion

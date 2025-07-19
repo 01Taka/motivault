@@ -37,6 +37,12 @@ export type KeyMirrorObject<T extends Record<string, any>> = {
   [K in keyof T]: K
 }
 
+export type CheckOptions<T> = {
+  include?: (keyof T)[] // チェックに含めるフィールドの配列
+  exclude?: (keyof T)[] // チェックから除外するフィールドの配列
+  priority?: 'include' | 'exclude' // include と exclude が両方指定された場合の優先順位
+}
+
 // 1. Centralized Event Map
 // This map directly links a type key to its corresponding React ChangeEvent type.
 export type ElementChangeEventMap = {

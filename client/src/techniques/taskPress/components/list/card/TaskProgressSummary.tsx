@@ -1,7 +1,7 @@
 import { Stack } from '@mui/material'
 import React from 'react'
 import TaskProgressSummaryCard from './TaskProgressSummaryCard'
-import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
+import { MINUTES_IN_MS } from '../../../../../constants/datetime-constants'
 
 interface TaskProgressSummaryProps {
   dailyEstimatedTime: number

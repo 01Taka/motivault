@@ -2,7 +2,7 @@
 import { IconButton, Stack, Typography } from '@mui/material'
 import React from 'react'
 import { keyframes } from '@emotion/react'
-import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
+import { MINUTES_IN_MS } from '../../../../../constants/datetime-constants'
 
 interface ProblemSetTaskQuickCompletionProps {
   nextPages: number[]

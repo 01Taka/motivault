@@ -34,11 +34,12 @@ const isExistTemplate = async (
   return Boolean(data && data.isActive)
 }
 
-export const taskPressPushCompletedPages = async (
+export const taskPressUpdateProblemSetPages = async (
   taskRepo: TaskPressTaskRepository,
   uid: string,
   taskId: string,
-  completedPages: number[]
+  pagesToComplete: number[] = [],
+  pagesToUncomplete: number[] = [] // New parameter for pages to uncomplete
 ): Promise<boolean> => {
   const task = await taskRepo.read([uid, taskId])
 
@@ -52,20 +53,30 @@ export const taskPressPushCompletedPages = async (
     )
   }
 
-  const newCompletedPages = Array.from(
-    new Set([...task.completedPages, ...completedPages])
-  ).sort((a, b) => a - b)
+  // Start with current completed pages
+  let currentCompletedPages = new Set(task.completedPages)
+
+  // Add pages to complete
+  pagesToComplete.forEach((page) => currentCompletedPages.add(page))
+
+  // Remove pages to uncomplete
+  pagesToUncomplete.forEach((page) => currentCompletedPages.delete(page))
+
+  const newCompletedPages = Array.from(currentCompletedPages).sort(
+    (a, b) => a - b
+  )
 
   await taskRepo.update({ completedPages: newCompletedPages }, [uid, taskId])
 
   return true
 }
 
-export const taskPressPushCompletedStepOrders = async (
+export const taskPressUpdateReportStepOrders = async (
   taskRepo: TaskPressTaskRepository,
   uid: string,
   taskId: string,
-  completedStepOrders: number[]
+  stepOrdersToComplete: number[] = [],
+  stepOrdersToUncomplete: number[] = [] // New parameter for step orders to uncomplete
 ): Promise<boolean> => {
   const task = await taskRepo.read([uid, taskId])
 
@@ -77,9 +88,20 @@ export const taskPressPushCompletedStepOrders = async (
     throw new Error(`不正なタスクタイプ: expected 'report', got '${task.type}'`)
   }
 
-  const newCompletedStepOrders = Array.from(
-    new Set([...task.completedStepOrders, ...completedStepOrders])
-  ).sort((a, b) => a - b)
+  // Start with current completed step orders
+  let currentCompletedStepOrders = new Set(task.completedStepOrders)
+
+  // Add step orders to complete
+  stepOrdersToComplete.forEach((step) => currentCompletedStepOrders.add(step))
+
+  // Remove step orders to uncomplete
+  stepOrdersToUncomplete.forEach((step) =>
+    currentCompletedStepOrders.delete(step)
+  )
+
+  const newCompletedStepOrders = Array.from(currentCompletedStepOrders).sort(
+    (a, b) => a - b
+  )
 
   await taskRepo.update({ completedStepOrders: newCompletedStepOrders }, [
     uid,
@@ -87,4 +109,22 @@ export const taskPressPushCompletedStepOrders = async (
   ])
 
   return true
+}
+
+export const updateTaskPressTask = async (
+  taskRepo: TaskPressTaskRepository,
+  uid: string,
+  taskId: string,
+  data: Partial<TaskPressTaskWrite>
+) => {
+  await taskRepo.update(data, [uid, taskId])
+}
+
+export const updateTaskPressTemplate = async (
+  templateRepo: TaskPressTemplateRepository,
+  uid: string,
+  taskId: string,
+  data: Partial<TaskPressTemplateWrite>
+) => {
+  await templateRepo.update(data, [uid, taskId])
 }

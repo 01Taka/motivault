@@ -5,7 +5,7 @@ import type {
 } from '../../types/form/async-handler-types'
 
 const useMultipleAsyncHandler = <StateTypes extends Record<string, any>>(
-  keys?: (keyof StateTypes)[]
+  keys?: readonly (keyof StateTypes)[]
 ) => {
   const [asyncStates, setAsyncStates] = useState<{
     [K in keyof StateTypes]?: AsyncState<StateTypes[K]>

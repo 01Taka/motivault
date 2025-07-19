@@ -44,8 +44,11 @@ const CreateTaskPress: React.FC<CreateTaskPressProps> = ({}) => {
         : ['templateId', 'timePerPage', 'pages'],
   })
 
+  const subjects = ['数学', '英語', '物理', '化学']
+
   return (
     <CreateTaskForm
+      subjects={subjects}
       formState={formState}
       createInputProps={createInputProps as CreateInputProps}
       createInputPropsInArray={

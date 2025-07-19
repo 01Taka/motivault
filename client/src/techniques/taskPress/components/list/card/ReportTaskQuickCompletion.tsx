@@ -2,8 +2,8 @@
 import React from 'react'
 import { Button } from '@mui/material'
 import { keyframes } from '@emotion/react'
-import type { MergedReportStep } from '../../types/task-press-merge-task-types'
-import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
+import type { MergedReportStep } from '../../../types/task-press-merge-task-types'
+import { MINUTES_IN_MS } from '../../../../../constants/datetime-constants'
 
 interface ReportTaskQuickCompletionProps {
   nextStep: MergedReportStep | null
@@ -40,6 +40,7 @@ const ReportTaskQuickCompletion: React.FC<ReportTaskQuickCompletionProps> = ({
 
   return (
     <Button
+      fullWidth
       onClick={() => onCompleteStep(700, nextStep)}
       sx={(theme) => ({
         // Use theme for consistent colors if available, otherwise use hardcoded

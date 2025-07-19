@@ -31,26 +31,32 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
   ): T extends TaskPressTemplateWrite
     ? TaskPressTemplateWrite
     : Partial<TaskPressTemplateWrite> {
-    const {
-      title,
-      subject,
-      type,
-      timePerPage,
-      order,
-      text,
-      estimatedTime,
-      steps,
-    } = data
+    const { title, subject, type, timePerPage, steps } = data
 
-    return {
-      title,
-      subject,
-      type,
-      timePerPage,
-      order,
-      text,
-      estimatedTime,
-      steps,
-    } as any
+    if (type === 'problemSet' || timePerPage !== undefined) {
+      return {
+        type,
+        title,
+        subject,
+        timePerPage,
+      } as T extends TaskPressTemplateWrite
+        ? TaskPressTemplateWrite
+        : Partial<TaskPressTemplateWrite>
+    }
+
+    if (type === 'report' || steps !== undefined) {
+      return {
+        type,
+        title,
+        subject,
+        steps,
+      } as T extends TaskPressTemplateWrite
+        ? TaskPressTemplateWrite
+        : Partial<TaskPressTemplateWrite>
+    }
+
+    return { title, subject } as T extends TaskPressTemplateWrite
+      ? TaskPressTemplateWrite
+      : Partial<TaskPressTemplateWrite>
   }
 }

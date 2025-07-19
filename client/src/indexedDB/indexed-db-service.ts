@@ -433,7 +433,10 @@ export abstract class IndexedDBService<
       )
     }
 
-    const mergedData = { ...existing, ...data } as Partial<Write> // Write型にキャストしてfilterWriteDataに渡す
+    const removeUndefinedData = Object.fromEntries(
+      Object.entries(data).filter(([_, data]) => data !== undefined)
+    ) as Partial<Write>
+    const mergedData = { ...existing, ...removeUndefinedData } as Partial<Write> // Write型にキャストしてfilterWriteDataに渡す
     const filteredUpdates = this.filterWriteData(mergedData) // マージされたデータ全体をフィルタリング
 
     const updated = this.updateRecord(existing, filteredUpdates as Document) // 既存のレコードを更新データで上書きし、updatedAtを更新
@@ -475,7 +478,10 @@ export abstract class IndexedDBService<
       )
     }
 
-    const mergedData = { ...existing, ...updateFields } as Partial<Write>
+    const removeUndefinedData = Object.fromEntries(
+      Object.entries(updateFields).filter(([_, data]) => data !== undefined)
+    ) as Partial<Write>
+    const mergedData = { ...existing, ...removeUndefinedData } as Partial<Write>
     const filteredUpdates = this.filterWriteData(mergedData)
 
     const updated = this.updateRecord(existing, filteredUpdates)

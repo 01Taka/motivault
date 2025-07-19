@@ -4,11 +4,11 @@ import TaskPressTaskCard from './card/TaskPressTaskCard'
 import type {
   MergedReportStep,
   TaskPressMergedTask,
-} from '../types/task-press-merge-task-types'
+} from '../../types/task-press-merge-task-types'
 
 interface TaskPressTaskListProps {
   tasks: TaskPressMergedTask[]
-  onEdit: () => void
+  onEdit: (task: TaskPressMergedTask) => void
   onPageComplete: (task: TaskPressMergedTask, page: number) => void
   onCompleteStep: (task: TaskPressMergedTask, step: MergedReportStep) => void
 }
@@ -20,12 +20,12 @@ const TaskPressTaskList: React.FC<TaskPressTaskListProps> = ({
   onCompleteStep,
 }) => {
   return (
-    <Stack alignItems="center" spacing={2} sx={{ padding: 2 }}>
+    <Stack alignItems="center" spacing={2} sx={{ padding: 2, width: '90vw' }}>
       {tasks.map((task) => (
         <TaskPressTaskCard
           key={task.taskDocId}
           task={task}
-          onEdit={onEdit}
+          onEdit={() => onEdit(task)}
           onPageComplete={(page) => onPageComplete(task, page)}
           onCompleteStep={(step) => onCompleteStep(task, step)}
         />

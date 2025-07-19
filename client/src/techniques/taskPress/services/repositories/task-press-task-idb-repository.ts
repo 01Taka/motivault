@@ -40,13 +40,35 @@ export class TaskPressTaskIDBRepository extends IndexedDBService<
       completedStepOrders,
     } = data
 
-    return {
-      templateId,
-      deadline,
-      type,
-      pages,
-      completedPages,
-      completedStepOrders,
-    } as any
+    if (
+      type === 'problemSet' ||
+      pages !== undefined ||
+      completedPages !== undefined
+    ) {
+      return {
+        type,
+        templateId,
+        deadline,
+        pages,
+        completedPages,
+      } as T extends TaskPressTaskWrite
+        ? TaskPressTaskWrite
+        : Partial<TaskPressTaskWrite>
+    }
+
+    if (type === 'report' || completedPages !== undefined) {
+      return {
+        type,
+        templateId,
+        deadline,
+        completedStepOrders,
+      } as T extends TaskPressTaskWrite
+        ? TaskPressTaskWrite
+        : Partial<TaskPressTaskWrite>
+    }
+
+    return { templateId, deadline } as T extends TaskPressTaskWrite
+      ? TaskPressTaskWrite
+      : Partial<TaskPressTaskWrite>
   }
 }

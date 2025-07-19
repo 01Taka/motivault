@@ -18,6 +18,7 @@ import type {
 } from '../../../../../types/form/formState-types'
 
 interface CreateTaskFormProps {
+  subjects: string[]
   formState: Record<string, any>
   createInputProps: CreateInputProps
   createInputPropsInArray: CreateInputPropsInArray
@@ -30,6 +31,7 @@ interface CreateTaskFormProps {
 }
 
 export default function CreateTaskForm({
+  subjects,
   formState,
   createInputProps,
   createInputPropsInArray,
@@ -40,8 +42,6 @@ export default function CreateTaskForm({
   hasEmptyInput,
   isUsingTemplate,
 }: CreateTaskFormProps) {
-  const subjects = ['数学', '英語', '物理', '化学']
-
   return (
     <Container maxWidth="sm">
       <Paper sx={{ p: 3, mt: 4 }}>
