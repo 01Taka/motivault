@@ -6,6 +6,9 @@ import HomePage from './components/pages/home/HomePage'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
+import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
+import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
+import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
@@ -96,6 +99,10 @@ function App() {
           <Route path="task-press" element={<TaskPressLayout />}>
             <Route index element={<TaskPress />} />
             <Route path="create" element={<CreateTaskPress />} />
+          </Route>
+          <Route path="habit-mate" element={<HabitMateLayout />}>
+            <Route index element={<HabitMateIndex />} />
+            <Route path="start-habit" element={<HabitMateStartHabit />} />
           </Route>
         </Route>
 

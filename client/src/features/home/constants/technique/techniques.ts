@@ -2,7 +2,20 @@ import type { Technique } from '../../types/technique-types'
 
 export const techniques: Technique[] = [
   {
-    id: 'TaskPress',
+    id: 'habitMate',
+    path: 'habit-mate',
+    title: '習慣身に着け',
+    officialName: 'HabitMate',
+    category: '学習タスク管理',
+    imageUrl: '',
+    description: 'やるべき課題を、ムダなく・ちょっとずつ・確実に。',
+    benefits: '',
+    reason: '',
+    steps: [],
+    references: [],
+  },
+  {
+    id: 'taskPress',
     path: 'task-press',
     title: '課題、圧してこ。',
     officialName: 'TaskPress',
