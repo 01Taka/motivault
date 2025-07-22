@@ -86,4 +86,5 @@ export interface LevelInfo {
   unlockCondition: string
   reward: string
   isUnlocked: boolean
+  bgSrc: string
 }

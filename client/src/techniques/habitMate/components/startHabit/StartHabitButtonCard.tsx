@@ -22,6 +22,7 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
 
   // 現在のレベルのテーマカラーを取得
   const currentTheme = levelThemes[levelInfo.level] || defaultLevelTheme
+  const textColor = currentTheme.primary
 
   return (
     <Box
@@ -40,7 +41,7 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
       {/* 背景画像（最背面） */}
       <GrayscaleImage
         src={src}
-        grayscale={0.9}
+        grayscale={levelInfo.isUnlocked ? 0 : 0.9}
         style={{
           position: 'absolute',
           top: 0,
@@ -50,6 +51,7 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
           objectFit: 'cover',
           zIndex: 0,
         }}
+        overlayColor="rgba(0,0,0,0.4)"
         borderRadius={3}
       />
 
@@ -70,14 +72,20 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
         <Typography
           variant="h5"
           component="div"
-          sx={{ fontWeight: 'bold', color: currentTheme.primary }} // プライマリカラーを適用
+          sx={{
+            fontWeight: 'bold',
+            color: textColor,
+          }} // プライマリカラーを適用
         >
           Level {levelInfo.level}
         </Typography>
         <Typography
           variant="h6"
           component="div"
-          sx={{ mb: 2, color: currentTheme.primary }} // プライマリカラーを適用
+          sx={{
+            mb: 2,
+            color: textColor,
+          }} // プライマリカラーを適用
         >
           {levelInfo.name}
         </Typography>

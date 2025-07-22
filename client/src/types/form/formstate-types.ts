@@ -1,5 +1,10 @@
-import type { SelectChangeEvent } from '@mui/material'
+import type {
+  AutocompleteChangeDetails,
+  AutocompleteChangeReason,
+  SelectChangeEvent,
+} from '@mui/material'
 import type { ChangeEvent, SyntheticEvent } from 'react'
+import type { AutocompleteOption } from '../components/autocomplete-types'
 
 export type FormStateChangeAction<T = any> = {
   name: string
@@ -48,7 +53,14 @@ export type CheckOptions<T> = {
 export type ElementChangeEventMap = {
   input: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   muiSelect: SelectChangeEvent<string> // Renamed for clarity, assuming Material-UI
+  checkbox: [SyntheticEvent, boolean]
   tabs: [SyntheticEvent, any] // Tab events often have a SyntheticEvent and a value
+  autocomplete: [
+    SyntheticEvent<Element, Event>,
+    string | AutocompleteOption | null,
+    AutocompleteChangeReason,
+    AutocompleteChangeDetails<string | AutocompleteOption> | undefined,
+  ]
 }
 
 // 2. Type for Generic Change Handlers
@@ -65,7 +77,15 @@ export type MuiSelectChangeEvent = ChangeHandler<'muiSelect'>
 
 // For tabs, it's slightly different due to the tuple, so we can define it directly or adjust ChangeHandler.
 // Given the tuple, it's clearer to define TabChangeEvent explicitly if the ChangeHandler utility isn't adapted for it.
+export type CheckboxChangeEvent = (
+  ...args: ElementChangeEventMap['checkbox']
+) => void
+
 export type TabChangeEvent = (...args: ElementChangeEventMap['tabs']) => void
+
+export type AutocompleteChangeEvent = (
+  ...args: ElementChangeEventMap['autocomplete']
+) => void
 
 // 4. Props Map for OnChange Handlers
 // This maps a key to its corresponding `onChange` handler function type.
@@ -73,7 +93,9 @@ export type OnChangeHandlersMap = {
   [K in keyof ElementChangeEventMap]: ChangeHandler<K>
 } & {
   // Override for tabs if its signature deviates from the generic ChangeHandler
+  checkbox: CheckboxChangeEvent
   tabs: TabChangeEvent
+  autocomplete: AutocompleteChangeEvent
 }
 
 // 5. CreateInputProps Function Type
@@ -83,11 +105,17 @@ export type CreateInputProps = <
 >(
   name: string,
   type?: T
-) => {
-  value: string
-  name: string
-  onChange: OnChangeHandlersMap[T]
-}
+) => T extends 'checkbox'
+  ? {
+      checked: boolean
+      name: string
+      onChange: OnChangeHandlersMap[T]
+    }
+  : {
+      value: string
+      name: string
+      onChange: OnChangeHandlersMap[T]
+    }
 
 export type CreateInputPropsInArray = <
   T extends keyof ElementChangeEventMap = 'input',
@@ -96,8 +124,14 @@ export type CreateInputPropsInArray = <
   index: number,
   replaceObjectKey?: string,
   type?: T
-) => {
-  value: string
-  name: string
-  onChange: OnChangeHandlersMap[T]
-}
+) => T extends 'checkbox'
+  ? {
+      checked: boolean
+      name: string
+      onChange: OnChangeHandlersMap[T]
+    }
+  : {
+      value: string
+      name: string
+      onChange: OnChangeHandlersMap[T]
+    }

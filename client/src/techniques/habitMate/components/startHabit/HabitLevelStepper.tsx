@@ -33,6 +33,10 @@ const HabitLevelStepper: React.FC<HabitLevelStepperProps> = ({
           // レベルのテーマカラーを取得 (levelThemesは0-indexedではなく1-indexedなので index + 1 を使用)
           const currentTheme = levelThemes[index + 1] || defaultLevelTheme
 
+          const currentColor = isCompleted
+            ? currentTheme.primary // 達成済みまたは現在地はテーマカラー
+            : 'text.disabled'
+
           return (
             <Step key={level.label} completed={isCompleted}>
               <StepLabel
@@ -45,21 +49,23 @@ const HabitLevelStepper: React.FC<HabitLevelStepperProps> = ({
                   display: 'flex', // アイコンとラベルを中央に揃えるため
                   flexDirection: 'column', // アイコンとラベルを縦に並べるため
                   alignItems: 'center', // 中央揃え
-
+                  WebkitTapHighlightColor: 'transparent',
                   // StepLabel内のテキストのスタイル
                   '& .MuiStepLabel-label': {
-                    color: isCompleted
-                      ? currentTheme.primary // 達成済みまたは現在地はテーマカラー
-                      : 'text.disabled', // 未達成はMUIのデフォルト灰色
+                    color: currentColor,
                     fontWeight: isActive ? 'bold' : 'normal', // 現在地は太字
                     fontSize: { xs: '0.75rem', sm: '0.875rem' }, // レスポンシブなフォントサイズ
                   },
 
                   // StepIconのスタイル（アイコンの色付け）
                   '& .MuiStepIcon-root': {
-                    color: isCompleted
-                      ? currentTheme.primary // 達成済みまたは現在地はテーマカラー
-                      : 'text.disabled', // 未達成はMUIのデフォルト灰色
+                    color: currentColor, // 未達成はMUIのデフォルト灰色
+                  },
+                  '&.Mui-active': {
+                    color: currentColor,
+                  },
+                  '&.Mui-completed': {
+                    color: currentColor,
                   },
                 }}
               >

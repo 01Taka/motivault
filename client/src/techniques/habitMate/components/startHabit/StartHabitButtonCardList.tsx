@@ -43,32 +43,31 @@ const StartHabitButtonCardList = forwardRef<
   }, [habitLevels])
 
   return (
-    <Stack
-      direction="row"
-      spacing={2}
-      sx={{ width: '98vw', overflowX: 'auto', py: 2 }}
-    >
-      {habitLevels.map((levelInfo, index) => {
-        // React.RefCallback<HTMLDivElement> 型を明示的に指定
-        const setRef: React.RefCallback<HTMLDivElement> = (el) => {
-          cardRefs.current[index] = el
-        }
+    <Box sx={{ width: '98vw', overflowX: 'auto', py: 2 }}>
+      <Stack direction="row" spacing={2} sx={{ px: 2 }}>
+        {habitLevels.map((levelInfo, index) => {
+          // React.RefCallback<HTMLDivElement> 型を明示的に指定
+          const setRef: React.RefCallback<HTMLDivElement> = (el) => {
+            cardRefs.current[index] = el
+          }
 
-        return (
-          <Box
-            key={levelInfo.level}
-            ref={setRef} // 型が期待されるものと一致するようになった
-            sx={{ flexShrink: 0 }}
-          >
-            <StartHabitButtonCard
-              src={levelInfo.src}
-              levelInfo={levelInfo}
-              onStartHabit={() => onStartHabit(levelInfo)}
-            />
-          </Box>
-        )
-      })}
-    </Stack>
+          return (
+            <Box
+              key={levelInfo.level}
+              ref={setRef} // 型が期待されるものと一致するようになった
+              sx={{ flexShrink: 0 }}
+            >
+              <StartHabitButtonCard
+                src={levelInfo.src}
+                levelInfo={levelInfo}
+                onStartHabit={() => onStartHabit(levelInfo)}
+              />
+            </Box>
+          )
+        })}
+        <Box pr={0.1} />
+      </Stack>
+    </Box>
   )
 })
 

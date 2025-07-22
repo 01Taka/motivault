@@ -9,6 +9,7 @@ import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
 import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
+import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCreateHabit'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
@@ -103,6 +104,7 @@ function App() {
           <Route path="habit-mate" element={<HabitMateLayout />}>
             <Route index element={<HabitMateIndex />} />
             <Route path="start-habit" element={<HabitMateStartHabit />} />
+            <Route path="create/:level" element={<HabitMateCreateHabit />} />
           </Route>
         </Route>
 

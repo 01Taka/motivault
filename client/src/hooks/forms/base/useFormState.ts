@@ -271,13 +271,23 @@ const useFormState = <
             updateCallback,
             fileKey
           )) as OnChangeHandlersMap[E]
+      case 'checkbox':
+        return ((...args: ElementChangeEventMap['checkbox']) => {
+          updateCallback(name, args[1])
+        }) as OnChangeHandlersMap[E]
       case 'tabs':
-        return ((_, value) => {
-          updateCallback(name, value)
+        return ((...args: ElementChangeEventMap['tabs']) => {
+          updateCallback(name, args[1])
         }) as OnChangeHandlersMap[E]
       case 'muiSelect':
         return ((event: ElementChangeEventMap['muiSelect']) =>
           updateCallback(name, event.target.value)) as OnChangeHandlersMap[E]
+      case 'autocomplete':
+        return ((...args: ElementChangeEventMap['autocomplete']) => {
+          const value =
+            typeof args[1] === 'string' ? args[1] : (args[1]?.label ?? '')
+          updateCallback(name, value)
+        }) as OnChangeHandlersMap[E]
       default:
         throw new Error(`Unknown Type: ${type}`)
     }
@@ -296,8 +306,7 @@ const useFormState = <
     name: keyof T,
     type?: E
   ) => {
-    return {
-      value: formState[name] ?? '',
+    const nameAndChange = {
       name: String(name),
       onChange: createOnChange(
         String(name),
@@ -306,9 +315,20 @@ const useFormState = <
           onChangeFormState({ name: fieldName, value: newValue })
       ),
     } as {
-      value: any
       name: string
       onChange: OnChangeHandlersMap[E]
+    }
+    switch (type) {
+      case 'checkbox':
+        return {
+          checked: formState[name] ?? false,
+          ...nameAndChange,
+        }
+      default:
+        return {
+          value: formState[name] ?? '',
+          ...nameAndChange,
+        }
     }
   }
 
@@ -350,12 +370,11 @@ const useFormState = <
       }
     }
 
-    const value = replaceObjectKey
+    const rawValue = replaceObjectKey
       ? (arrayField[index] as Record<string, any>)[replaceObjectKey as string]
       : arrayField[index]
 
-    return {
-      value: value ?? '',
+    const nameAndChange = {
       name: String(name),
       onChange: createOnChange(
         String(name),
@@ -368,6 +387,22 @@ const useFormState = <
           ),
         `${String(name)}-${index}`
       ),
+    } as {
+      name: string
+      onChange: OnChangeHandlersMap[E]
+    }
+
+    switch (type) {
+      case 'checkbox':
+        return {
+          checked: rawValue ?? false,
+          ...nameAndChange,
+        }
+      default:
+        return {
+          value: rawValue ?? '',
+          ...nameAndChange,
+        }
     }
   }
 

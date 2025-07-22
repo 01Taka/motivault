@@ -1,4 +1,9 @@
 import type { HabitDisplayProps, LevelInfo } from '../types/habit-types'
+import Emergence from '../../../assets/images/techniques/habit-mate/emergence.png'
+import LushRiverValley from '../../../assets/images/techniques/habit-mate/lush-river-valley.png'
+import EchoesOfDusk from '../../../assets/images/techniques/habit-mate/echoes-of-dusk.png'
+import TwilightDreamscape from '../../../assets/images/techniques/habit-mate/twilight-dreamscape.png'
+import RhoenixReborn from '../../../assets/images/techniques/habit-mate/rhoenix-reborn.png'
 
 export const habitLevels: LevelInfo[] = [
   {
@@ -9,6 +14,7 @@ export const habitLevels: LevelInfo[] = [
     unlockCondition: '初期解放',
     reward: '', // No specific reward mentioned for Lv.1
     isUnlocked: true, // Assuming Lv.1 is initially unlocked
+    bgSrc: Emergence,
   },
   {
     level: 2,
@@ -18,6 +24,7 @@ export const habitLevels: LevelInfo[] = [
     unlockCondition: 'Lv.1クリアで解放',
     reward: '', // No specific reward mentioned for Lv.2
     isUnlocked: false,
+    bgSrc: LushRiverValley,
   },
   {
     level: 3,
@@ -27,6 +34,7 @@ export const habitLevels: LevelInfo[] = [
     unlockCondition: 'Lv.2クリアで解放',
     reward: '並列習慣化 1 → 2',
     isUnlocked: false,
+    bgSrc: EchoesOfDusk, //https://divnil.com/wallpaper/iphone%E5%A3%81%E7%B4%99/img/app/o/l/old-townscape-1_20250425_s.jpg
   },
   {
     level: 4,
@@ -36,6 +44,7 @@ export const habitLevels: LevelInfo[] = [
     unlockCondition: 'Lv.3クリアで解放',
     reward: '同時習慣化 2 → 3',
     isUnlocked: false,
+    bgSrc: TwilightDreamscape, // https://widget-club.com/ja/i/381a9615c8f24d6eb536
   },
   {
     level: 5,
@@ -45,6 +54,7 @@ export const habitLevels: LevelInfo[] = [
     unlockCondition: 'Lv.4クリアで解放',
     reward: '', // No specific reward mentioned for Lv.5
     isUnlocked: false,
+    bgSrc: RhoenixReborn, // https://jp.pinterest.com/pin/958000151991651458/
   },
 ]
 
@@ -112,7 +122,7 @@ export const habitProps1: Omit<HabitDisplayProps, 'onToggleCompletion'> = {
 export const habitProps2: Omit<HabitDisplayProps, 'onToggleCompletion'> = {
   taskName: '読書',
   displayType: 'intermediateExtended',
-  isTodayCompleted: false,
+  isTodayCompleted: true,
   isYesterdayCompleted: true,
   currentDate: new Date('2025-07-20T10:00:00Z'),
   currentCount: 8, // 5日目の中間地点を超え、次の10日目に向かっている
