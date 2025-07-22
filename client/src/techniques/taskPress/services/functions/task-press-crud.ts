@@ -1,7 +1,7 @@
 import type {
   TaskPressTaskRepository,
   TaskPressTemplateRepository,
-} from '../documents/repositories'
+} from '../repositories/repositories'
 import type { TaskPressTaskWrite } from '../documents/task-press-task-document'
 import type { TaskPressTemplateWrite } from '../documents/task-press-template-document'
 

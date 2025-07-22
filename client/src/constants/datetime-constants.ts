@@ -1,4 +1,4 @@
-import type { TimeSizeUnit } from '../types/datetime-types'
+import type { TimeSizeUnit } from '../types/utils/datetime-types'
 
 export const SECONDS_IN_MS = 1000
 export const MINUTES_IN_MS = SECONDS_IN_MS * 60

@@ -13,35 +13,35 @@ export const habitMateLevels: HabitMateLevelInfo[] = [
     level: 1,
     name: 'お試しスタート',
     milestoneIntervalDays: 2,
-    maxDays: 7,
+    targetCount: { type: 'fixed', count: 7 },
     startHabitBgSrc: Emergence,
   },
   {
     level: 2,
     name: '習慣ビルダー',
     milestoneIntervalDays: 3,
-    maxDays: 15,
+    targetCount: { type: 'fixed', count: 15 },
     startHabitBgSrc: LushRiverValley,
   },
   {
     level: 3,
     name: 'マスターチャレンジャー',
     milestoneIntervalDays: 5,
-    maxDays: 30,
+    targetCount: { type: 'fixed', count: 30 },
     startHabitBgSrc: EchoesOfDusk,
   },
   {
     level: 4,
     name: 'レジェンド',
     milestoneIntervalDays: 5,
-    maxDays: 50,
+    targetCount: { type: 'fixed', count: 50 },
     startHabitBgSrc: TwilightDreamscape,
   },
   {
     level: 5,
     name: 'アルティメット',
     milestoneIntervalDays: 5,
-    maxDays: 'unlimited', // 無期限の場合
+    targetCount: { type: 'unlimited' }, // 無期限の場合
     startHabitBgSrc: RhoenixReborn,
   },
 ] as const

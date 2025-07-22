@@ -1,5 +1,5 @@
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Stack } from '@mui/material'
 import { levelThemes } from '../../constants/color/start-habit-theme'
 import {
@@ -14,8 +14,11 @@ import HabitInputForm from './HabitInputForm'
 import SubmitButton from './SubmitButton'
 import type { HabitMateCreateHabitFormState } from '../../types/form/habit-create-form'
 import type { CreateInputProps } from '../../../../types/form/formState-types'
+import useHabitMateCrudHandler from '../../services/hooks/useHabitMateCrudHandler'
+import { habitMateBasePath } from '../../constants/path-constants'
 
 const HabitMateCreateHabitForm: React.FC = () => {
+  const navigate = useNavigate()
   const params = useParams()
   const level = Number(params.level)
   const levelTheme = levelThemes[level] || levelThemes[1]
@@ -33,6 +36,16 @@ const HabitMateCreateHabitForm: React.FC = () => {
       isExecutable: false,
       timing: '',
     })
+
+  const { asyncStates, submitCreateHabit } = useHabitMateCrudHandler()
+
+  useEffect(() => {
+    if (asyncStates.createSubmit?.status === 'success') {
+      navigate(habitMateBasePath)
+    }
+  }, [asyncStates])
+
+  // |TODO| 未開放レベルにアクセスしようとしたら、まだ解放されていませんと表示。
 
   return (
     <Box
@@ -58,7 +71,13 @@ const HabitMateCreateHabitForm: React.FC = () => {
           checkboxColor={levelTheme.primary}
           createInputProps={createInputProps as CreateInputProps}
         />
-        <SubmitButton levelTheme={levelTheme} />
+        <SubmitButton
+          levelTheme={levelTheme}
+          onClick={() => submitCreateHabit(validLevel, formState)}
+          disabled={
+            !formState.habit || asyncStates.createSubmit?.status === 'loading'
+          }
+        />
       </Stack>
     </Box>
   )

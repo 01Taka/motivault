@@ -94,7 +94,9 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
           <Typography variant="body2">
             Interval: {levelInfo.interval}
           </Typography>
-          <Typography variant="body2">Max Days: {levelInfo.maxDays}</Typography>
+          <Typography variant="body2">
+            Max Days: {levelInfo.targetCount}
+          </Typography>
           {levelInfo.reward && (
             <Typography variant="body2">Reward: {levelInfo.reward}</Typography>
           )}

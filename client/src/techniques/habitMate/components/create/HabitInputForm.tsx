@@ -31,6 +31,7 @@ const HabitInputForm: React.FC<Props> = ({
       <TextField
         label="習慣"
         fullWidth
+        required
         variant="outlined"
         placeholder="例: 毎日5分読書をする"
         sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}

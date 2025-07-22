@@ -10,7 +10,7 @@ export const habitLevels: LevelInfo[] = [
     level: 1,
     name: 'お試しスタート',
     interval: '2日',
-    maxDays: '7日',
+    targetCount: '7日',
     unlockCondition: '初期解放',
     reward: '', // No specific reward mentioned for Lv.1
     isUnlocked: true, // Assuming Lv.1 is initially unlocked
@@ -20,7 +20,7 @@ export const habitLevels: LevelInfo[] = [
     level: 2,
     name: '習慣ビルダー',
     interval: '3日',
-    maxDays: '15日',
+    targetCount: '15日',
     unlockCondition: 'Lv.1クリアで解放',
     reward: '', // No specific reward mentioned for Lv.2
     isUnlocked: false,
@@ -30,7 +30,7 @@ export const habitLevels: LevelInfo[] = [
     level: 3,
     name: 'マスター',
     interval: '5日',
-    maxDays: '30日',
+    targetCount: '30日',
     unlockCondition: 'Lv.2クリアで解放',
     reward: '並列習慣化 1 → 2',
     isUnlocked: false,
@@ -40,7 +40,7 @@ export const habitLevels: LevelInfo[] = [
     level: 4,
     name: 'レジェンド',
     interval: '5日',
-    maxDays: '50日',
+    targetCount: '50日',
     unlockCondition: 'Lv.3クリアで解放',
     reward: '同時習慣化 2 → 3',
     isUnlocked: false,
@@ -50,7 +50,7 @@ export const habitLevels: LevelInfo[] = [
     level: 5,
     name: 'アルティメット',
     interval: '5日',
-    maxDays: '無期限',
+    targetCount: '無期限',
     unlockCondition: 'Lv.4クリアで解放',
     reward: '', // No specific reward mentioned for Lv.5
     isUnlocked: false,

@@ -8,7 +8,7 @@ import type {
   ISODateTime,
   TimeType,
   TimeSizeUnit,
-} from '../../types/datetime-types'
+} from '../../types/utils/datetime-types'
 
 /**
  * ISO形式の日付文字列をDateオブジェクトに変換します。

@@ -1,5 +1,5 @@
 import useFormState from './base/useFormState'
-import type { ISODate } from '../../types/datetime-types'
+import type { ISODate } from '../../types/utils/datetime-types'
 import type { Gender } from '../../types/firebase/firestore/util-document-types'
 
 export interface UserSetUpFormState {

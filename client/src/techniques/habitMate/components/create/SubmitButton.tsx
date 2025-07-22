@@ -1,11 +1,11 @@
 import React from 'react'
-import { Button } from '@mui/material'
+import { Button, type ButtonProps } from '@mui/material'
 
-interface Props {
+interface Props extends ButtonProps {
   levelTheme: { primary: string }
 }
 
-const SubmitButton: React.FC<Props> = ({ levelTheme }) => (
+const SubmitButton: React.FC<Props> = ({ levelTheme, ...props }) => (
   <Button
     variant="contained"
     sx={{
@@ -20,6 +20,7 @@ const SubmitButton: React.FC<Props> = ({ levelTheme }) => (
       fontWeight: 'bold',
       fontSize: '1.1rem',
     }}
+    {...props}
   >
     習慣を始める！
   </Button>

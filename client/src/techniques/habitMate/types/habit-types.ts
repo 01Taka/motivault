@@ -82,7 +82,7 @@ export interface LevelInfo {
   level: number
   name: string
   interval: string
-  maxDays: string
+  targetCount: string
   unlockCondition: string
   reward: string
   isUnlocked: boolean

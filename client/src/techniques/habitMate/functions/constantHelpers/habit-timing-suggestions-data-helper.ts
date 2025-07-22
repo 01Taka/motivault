@@ -46,7 +46,6 @@ export const createJapaneseFilterOptions = <T>(searchKeys: Array<keyof T>) => {
   return (options: T[], { inputValue }: { inputValue: string }) => {
     // 入力値をひらがなとカタカナの形式に変換
     const inputForms = getJapaneseSearchForms(inputValue)
-    console.log(inputForms)
 
     /**
      * 単一の値（文字列または文字列の配列）が入力フォームと一致するかをチェックするヘルパー関数
