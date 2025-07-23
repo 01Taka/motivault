@@ -343,7 +343,9 @@ export abstract class IndexedDBService<
       const segments = affectedLogicalPath
         .split('/')
         .filter((_, i) => i % 2 !== 0)
-      const data = await this.getFromDB(segments)
+      const data = await this.getFromDB(
+        this.singletonDocumentId ? segments.slice(0, -1) : segments
+      )
       const currentDataString = JSON.stringify(data)
 
       // Only notify if data has actually changed from the last known state
@@ -400,8 +402,10 @@ export abstract class IndexedDBService<
     data: Write,
     collectionPathSegments: string[] = []
   ): Promise<DBWriteTarget> {
-    const newDocIdSegment = createFirestoreId() // 新しいドキュメントの最後のIDセグメントを生成
-    const fullDynamicDocIds = [...collectionPathSegments, newDocIdSegment] // 完全な動的IDセグメント配列
+    const newDocIdSegment = this.singletonDocumentId ?? createFirestoreId() // 新しいドキュメントの最後のIDセグメントを生成
+    const fullDynamicDocIds = this.singletonDocumentId
+      ? collectionPathSegments
+      : [...collectionPathSegments, newDocIdSegment] // 完全な動的IDセグメント配列
 
     const fullLogicalPath = this.composeDocumentLogicalPath(
       fullDynamicDocIds,

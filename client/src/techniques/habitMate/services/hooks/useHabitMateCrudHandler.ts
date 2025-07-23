@@ -12,11 +12,14 @@ import {
   updateHabitMateHabitNextTargetCount,
 } from '../functions/habit-mate-habit-crud'
 import { useHabitMateDataStore } from '../stores/useHabitMateDataStore'
+import { createMetadataIfNeed } from '../functions/habit-mate-metadata-crud'
+import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
 
 const useHabitMateCrudHandler = () => {
   const { uid } = useCurrentUserStore()
-  const { idbHabit } = useHabitMateDataStore()
+  const { idbMetadata, idbHabit } = useHabitMateDataStore()
   const asyncKeys = [
+    'createMetadata',
     'createSubmit',
     'pushWorkedDate',
     'removeWorkedDate',
@@ -25,12 +28,30 @@ const useHabitMateCrudHandler = () => {
   ] as const
   const { asyncStates, callAsyncFunction } = useMultipleAsyncHandler(asyncKeys)
 
+  const createMetadata = () => {
+    if (!idbMetadata || !uid) {
+      console.error('初期化未完了')
+      return
+    }
+
+    const metadata: HabitMateMetadataWrite = {
+      maxConcurrentHabits: 1,
+      activeHabitIds: [],
+    }
+
+    callAsyncFunction('createMetadata', createMetadataIfNeed, [
+      idbMetadata,
+      uid,
+      metadata,
+    ])
+  }
+
   const submitCreateHabit = (
     level: HabitMateHabitLevel,
     formState: HabitMateCreateHabitFormState,
     startedAt = Date.now()
   ) => {
-    if (!idbHabit || !uid) {
+    if (!idbMetadata || !idbHabit || !uid) {
       console.error('初期化未完了')
       return
     }
@@ -50,9 +71,17 @@ const useHabitMateCrudHandler = () => {
     }
 
     callAsyncFunction('createSubmit', createHabitMateHabit, [
+      idbMetadata,
       idbHabit,
       uid,
       data,
+      {
+        try: true,
+        metadata: {
+          maxConcurrentHabits: 1,
+          activeHabitIds: [],
+        },
+      },
     ])
   }
 
@@ -110,6 +139,7 @@ const useHabitMateCrudHandler = () => {
 
   return {
     asyncStates,
+    createMetadata,
     submitCreateHabit,
     pushWorkedDate,
     removeWorkedDate,

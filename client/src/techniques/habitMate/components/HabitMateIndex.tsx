@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Stack } from '@mui/material'
 import HabitMateHabitProgress from './progress/HabitMateHabitProgress'
 import { useNavigate } from 'react-router-dom'
