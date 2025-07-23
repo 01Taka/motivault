@@ -32,6 +32,7 @@ export abstract class IndexedDBService<
   private collectionPathComposition: string[] // 例: ['users', 'userId', 'posts', 'postId']
   private fixedPath: Record<string, string> // 例: { userId: 'abc123' }
   private currentDBVersion: number // 現在のデータベースバージョン
+  private singletonDocumentId: string | null
 
   // Snapshot Listener specific members
   private documentListeners = new Map<
@@ -70,8 +71,46 @@ export abstract class IndexedDBService<
     this.currentDBVersion = version
     // アプリケーション全体で共有される単一のIndexedDBデータベースを初期化
     this.dbPromise = this.initializeDB()
+
+    this.singletonDocumentId = this.getSingletonDocumentId(
+      dbPathComposition,
+      fixedPath
+    )
   }
 
+  /**
+   * dbPathCompositionの最後の要素がfixedPathのキーに含まれているかを判定し、
+   * シングルトンとして判定された場合はその値を返します。
+   *
+   * @param dbPathComposition Firestoreのパスを表す文字列または文字列の配列
+   * @param fixedPath 固定パスを定義したオブジェクト
+   * @returns 最後の要素がfixedPathに含まれていればその文字列、そうでなければnull
+   */
+  private getSingletonDocumentId(
+    dbPathComposition: string | string[],
+    fixedPath: Record<string, string> = {}
+  ): string | null {
+    let lastElement: string
+
+    if (typeof dbPathComposition === 'string') {
+      lastElement = dbPathComposition
+    } else if (Array.isArray(dbPathComposition)) {
+      if (dbPathComposition.length === 0) {
+        return null
+      }
+      lastElement = dbPathComposition[dbPathComposition.length - 1]
+    } else {
+      // 想定外の型の場合はnullを返す
+      return null
+    }
+
+    // lastElementがfixedPathのキーとして存在するかどうかをチェック
+    if (fixedPath.hasOwnProperty(lastElement)) {
+      return lastElement
+    }
+
+    return null
+  }
   /**
    * IndexedDBデータベースと、全てのドキュメントを保存する単一のオブジェクトストアを初期化します。
    * このメソッドは、データベースのバージョンアップグレード時に、新しいインデックスやストアの作成を処理します。
@@ -394,6 +433,12 @@ export abstract class IndexedDBService<
     data: Write,
     documentPathSegments: string[]
   ): Promise<DBWriteTarget> {
+    if (this.singletonDocumentId) {
+      throw new Error(
+        "Cannot create a new singleton document. The document ID is reserved and already exists. Use 'update' or 'create' to modify the existing document."
+      )
+    }
+
     const { path: fullLogicalPath, id } =
       this.getPathAndId(documentPathSegments) // 完全パスとIDを取得
     const filtered = this.filterWriteData(data)
@@ -508,6 +553,12 @@ export abstract class IndexedDBService<
       type: 'indexedDB',
     }
   ): Promise<Read[]> {
+    if (this.singletonDocumentId) {
+      throw new Error(
+        "Cannot use 'getAll' on a singleton document. It is designed to be a single instance, not a collection."
+      )
+    }
+
     const db = await this.dbPromise
     let items: Read[] = []
 
@@ -556,6 +607,10 @@ export abstract class IndexedDBService<
     value: any,
     collectionPathSegments: string[] = []
   ): Promise<Read | null> {
+    if (this.singletonDocumentId) {
+      return this.read([...collectionPathSegments, this.singletonDocumentId])
+    }
+
     const results = await this.getAll(collectionPathSegments, {
       type: 'indexedDB',
       index: field as keyof (Write | BaseMetadata), // ReadとWriteで型が異なる場合があるためキャスト
@@ -636,6 +691,12 @@ export abstract class IndexedDBService<
     collectionPathSegments: string[] = [],
     callbackId?: string
   ): { callbackId: string; unsubscribe: () => void } {
+    if (this.singletonDocumentId) {
+      throw new Error(
+        "Cannot use 'addCollectionSnapshotListener' on a singleton document. Use 'addDocumentSnapshotListener' instead to listen for changes on a single document."
+      )
+    }
+
     const id = callbackId || this.generateCallbackId()
     const collectionPathPrefix = this.composeDocumentLogicalPath(
       collectionPathSegments,

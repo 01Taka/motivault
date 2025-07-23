@@ -1,8 +1,9 @@
 import type { HabitMateHabit } from '../../services/documents/habit-mate-habit-document'
-import type { HabitMateLevelInfo } from '../../types/habit-level-types'
+import type { HabitMateLevelInfo } from '../../types/data/habit-level-types'
 
 interface MilestoneCalculations {
   nextMilestoneCount: number
+  nextMilestoneAbsoluteCount: number
   milestonesAchieved: number
   milestonesTotal: number
 }
@@ -16,57 +17,53 @@ export function calculateMilestoneProgress(
   let milestonesTotal: number
   let targetFixedCount: number | undefined
 
-  // Determine targetFixedCount and milestonesTotal based on HabitMateTarget type
   if (levelInfo.targetCount.type === 'fixed') {
     targetFixedCount = levelInfo.targetCount.count
     milestonesTotal = Math.ceil(
-      targetFixedCount / levelInfo.milestoneIntervalDays
+      targetFixedCount / levelInfo.milestoneIntervalCount
     )
   } else {
-    // If type is 'unlimited', milestonesTotal could be a very large number or
-    // simply not applicable in the same way. For practical display, we'll
-    // set it to 0 or a flag that indicates continuous.
-    // For this calculation, we'll represent it as 0, meaning no finite total.
-    milestonesTotal = 0 // Represents an undefined or infinite total
+    milestonesTotal = 0 // unlimited
   }
 
-  // Calculate milestones achieved
   const milestonesAchieved = Math.floor(
-    workedDaysCount / levelInfo.milestoneIntervalDays
+    workedDaysCount / levelInfo.milestoneIntervalCount
   )
 
-  // Calculate days into the current milestone
   const daysIntoCurrentMilestone =
-    workedDaysCount % levelInfo.milestoneIntervalDays
+    workedDaysCount % levelInfo.milestoneIntervalCount
 
   let nextMilestoneCount: number
+  let nextMilestoneAbsoluteCount: number
 
   if (levelInfo.targetCount.type === 'unlimited') {
-    // For unlimited targets, the next milestone is always within the interval
     nextMilestoneCount =
-      levelInfo.milestoneIntervalDays - daysIntoCurrentMilestone
+      levelInfo.milestoneIntervalCount - daysIntoCurrentMilestone
     if (nextMilestoneCount === 0 && workedDaysCount > 0) {
-      // If exactly at a milestone, the next is a full interval away
-      nextMilestoneCount = levelInfo.milestoneIntervalDays
+      nextMilestoneCount = levelInfo.milestoneIntervalCount
     }
+    nextMilestoneAbsoluteCount = workedDaysCount + nextMilestoneCount
   } else {
-    // type is 'fixed'
     if (workedDaysCount >= targetFixedCount!) {
-      // Use ! because we've checked its type
-      // If the habit is completed or exceeded the fixed target
       nextMilestoneCount = 0
+      nextMilestoneAbsoluteCount = workedDaysCount
     } else {
       nextMilestoneCount =
-        levelInfo.milestoneIntervalDays - daysIntoCurrentMilestone
+        levelInfo.milestoneIntervalCount - daysIntoCurrentMilestone
       if (nextMilestoneCount === 0 && workedDaysCount > 0) {
-        // If exactly at a milestone, the next is a full interval away
-        nextMilestoneCount = levelInfo.milestoneIntervalDays
+        nextMilestoneCount = levelInfo.milestoneIntervalCount
       }
+
+      nextMilestoneAbsoluteCount = Math.min(
+        workedDaysCount + nextMilestoneCount,
+        targetFixedCount!
+      )
     }
   }
 
   return {
     nextMilestoneCount,
+    nextMilestoneAbsoluteCount,
     milestonesAchieved,
     milestonesTotal,
   }

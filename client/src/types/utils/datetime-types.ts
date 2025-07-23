@@ -1,5 +1,10 @@
 import { Timestamp } from 'firebase/firestore'
 import type { DecimalDight } from './number-types'
+import { z } from 'zod'
+import type { isoDateSchema, isoDateTimeSchema } from './datetime-schema'
+
+export type ISODate = z.infer<typeof isoDateSchema>
+export type ISODateTime = z.infer<typeof isoDateTimeSchema>
 
 export type Month = `0${DecimalDight}` | '10' | '11' | '12'
 export type Days =
@@ -15,8 +20,6 @@ export type Hours24 =
   | '21'
   | '22'
   | '23'
-export type ISODate = `${string}-${Month}-${Days}`
-export type ISODateTime = `${ISODate}T${string}Z`
 
 export type Week =
   | 'monday'

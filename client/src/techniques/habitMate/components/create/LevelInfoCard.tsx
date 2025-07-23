@@ -3,7 +3,7 @@ import { Stack, Typography } from '@mui/material'
 import type {
   HabitMateHabitLevel,
   HabitMateLevelInfo,
-} from '../../types/habit-level-types'
+} from '../../types/data/habit-level-types'
 
 interface Props {
   level: HabitMateHabitLevel
@@ -48,7 +48,7 @@ const LevelInfoCard: React.FC<Props> = ({
           <strong>🗓️ 最大継続日数:</strong> {maxConsecutiveDays}日
         </Typography>
         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-          <strong>📍 中間地点間隔:</strong> {levelInfo.milestoneIntervalDays}日
+          <strong>📍 中間地点間隔:</strong> {levelInfo.milestoneIntervalCount}日
         </Typography>
         {rewardMessage && (
           <Typography variant="body1" sx={{ color: 'text.secondary' }}>

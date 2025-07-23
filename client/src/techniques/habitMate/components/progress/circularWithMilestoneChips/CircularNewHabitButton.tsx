@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import React from 'react'
 import { circularWithMilestoneChipsPalette as palette } from '../../../constants/color/progressColor/circular-with-milestone-chips-color'
-import type { HabitMateNewHabitProps } from '../../../types/habit-types'
+import type { HabitMateNewHabitProps } from '../../../types/components/progress-types'
 
 interface CircularNewHabitButtonProps extends HabitMateNewHabitProps {
   backgroundColor?: string

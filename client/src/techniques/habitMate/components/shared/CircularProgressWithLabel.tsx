@@ -72,6 +72,7 @@ const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps> = ({
           left: 0,
           '& circle': {
             strokeLinecap,
+            // transition: 'stroke-dashoffset 0s ease-in-out',
           },
         }}
         size={size}

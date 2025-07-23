@@ -1,7 +1,7 @@
 import type {
   HabitMateHabitLevel,
   HabitMateLevelInfo,
-} from '../../types/habit-level-types'
+} from '../../types/data/habit-level-types'
 import Emergence from '../../../../assets/images/techniques/habit-mate/emergence.png'
 import LushRiverValley from '../../../../assets/images/techniques/habit-mate/lush-river-valley.png'
 import EchoesOfDusk from '../../../../assets/images/techniques/habit-mate/echoes-of-dusk.png'
@@ -11,36 +11,41 @@ import RhoenixReborn from '../../../../assets/images/techniques/habit-mate/rhoen
 export const habitMateLevels: HabitMateLevelInfo[] = [
   {
     level: 1,
+    version: 'v0.1.0',
     name: 'お試しスタート',
-    milestoneIntervalDays: 2,
+    milestoneIntervalCount: 2,
     targetCount: { type: 'fixed', count: 7 },
     startHabitBgSrc: Emergence,
   },
   {
     level: 2,
+    version: 'v0.1.0',
     name: '習慣ビルダー',
-    milestoneIntervalDays: 3,
+    milestoneIntervalCount: 3,
     targetCount: { type: 'fixed', count: 15 },
     startHabitBgSrc: LushRiverValley,
   },
   {
     level: 3,
+    version: 'v0.1.0',
     name: 'マスターチャレンジャー',
-    milestoneIntervalDays: 5,
+    milestoneIntervalCount: 5,
     targetCount: { type: 'fixed', count: 30 },
     startHabitBgSrc: EchoesOfDusk,
   },
   {
     level: 4,
+    version: 'v0.1.0',
     name: 'レジェンド',
-    milestoneIntervalDays: 5,
+    milestoneIntervalCount: 5,
     targetCount: { type: 'fixed', count: 50 },
     startHabitBgSrc: TwilightDreamscape,
   },
   {
     level: 5,
+    version: 'v0.1.0',
     name: 'アルティメット',
-    milestoneIntervalDays: 5,
+    milestoneIntervalCount: 5,
     targetCount: { type: 'unlimited' }, // 無期限の場合
     startHabitBgSrc: RhoenixReborn,
   },

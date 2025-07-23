@@ -1,41 +1,81 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { Stack } from '@mui/material'
-import type { HabitMateProgressProps } from '../types/habit-types'
 import HabitMateHabitProgress from './progress/HabitMateHabitProgress'
 import { useNavigate } from 'react-router-dom'
 import { useHabitMateDataStore } from '../services/stores/useHabitMateDataStore'
 import { getLevelInfo } from '../functions/constantHelpers/habit-level-data-helper'
 import { calculateMilestoneProgress } from '../functions/helper/milestone-helper'
+import type { HabitMateProgressProps } from '../types/components/progress-types'
+import useHabitMateCrudHandler from '../services/hooks/useHabitMateCrudHandler'
+import { toISODate } from '../../../functions/dateTime-utils/time-conversion'
+import type { HabitMateHabitRead } from '../services/documents/habit-mate-habit-document'
 
 interface HabitMateIndexProps {}
 
 const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
   const { habits } = useHabitMateDataStore()
+  const { asyncStates, pushWorkedDate, removeWorkedDate, toggleWorkedDate } =
+    useHabitMateCrudHandler()
+
   const activeHabit = habits.find((habit) => habit.status === 'active') ?? null
-  const levelInfo = activeHabit ? getLevelInfo(activeHabit.level) : null
+  const testHabit = activeHabit
+    ? ({
+        ...activeHabit,
+        workedDate: [
+          '2025-07-05',
+          '2025-07-05',
+          '2025-07-05',
+          ...activeHabit.workedDate,
+        ],
+      } as HabitMateHabitRead)
+    : null
+
+  const levelInfo = testHabit ? getLevelInfo(testHabit.level) : null
   const milestoneProgress =
-    activeHabit && levelInfo
-      ? calculateMilestoneProgress(levelInfo, {
-          ...activeHabit,
-          workedDate: ['2025-11-30', '2025-11-30', '2025-11-30'],
-        })
-      : { nextMilestoneCount: 0, milestonesAchieved: 0, milestonesTotal: 0 }
+    testHabit && levelInfo
+      ? calculateMilestoneProgress(levelInfo, testHabit)
+      : {
+          nextMilestoneCount: 0,
+          nextMilestoneAbsoluteCount: 0,
+          milestonesAchieved: 0,
+          milestonesTotal: 0,
+        }
 
-  console.log(milestoneProgress)
+  const targetCount = levelInfo
+    ? levelInfo.targetCount.type === 'fixed'
+      ? levelInfo.targetCount.count
+      : 'unlimited'
+    : 0
 
-  const [completed, setCompleted] = useState(false)
   const navigate = useNavigate()
 
+  const handleWorkDate = (action: 'add' | 'remove' | 'toggle') => {
+    if (!activeHabit) return
+    const habitId = activeHabit.docId
+    switch (action) {
+      case 'add':
+        pushWorkedDate(habitId)
+        break
+      case 'remove':
+        removeWorkedDate(habitId)
+        break
+      case 'toggle':
+        toggleWorkedDate(habitId)
+        break
+    }
+  }
+
   const progressProps: HabitMateProgressProps = {
-    taskName: activeHabit?.habit ?? '',
-    currentCount:
-      (levelInfo?.milestoneIntervalDays ?? 0) -
-      milestoneProgress.nextMilestoneCount,
-    isCompletedToday: completed,
+    taskName: testHabit?.habit ?? '',
+    currentCount: testHabit?.workedDate.length ?? 0,
+    targetCount: targetCount,
+    isCompletedToday: testHabit
+      ? testHabit.workedDate.includes(toISODate(new Date()))
+      : false,
     ...milestoneProgress,
-    onToggleCompletion: () => setCompleted((prev) => !prev),
-    onCompleted: () => setCompleted(true),
-    onCancelComplete: () => setCompleted(false),
+    onToggleCompletion: () => handleWorkDate('toggle'),
+    onCompleted: () => handleWorkDate('add'),
+    onCancelComplete: () => handleWorkDate('remove'),
   }
 
   const newHabitButtonProps = {

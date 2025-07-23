@@ -7,7 +7,7 @@ import {
   getLevelInfo,
 } from '../../functions/constantHelpers/habit-level-data-helper'
 import useFormState from '../../../../hooks/forms/base/useFormState'
-import type { HabitMateHabitLevel } from '../../types/habit-level-types'
+import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
 
 import LevelInfoCard from './LevelInfoCard'
 import HabitInputForm from './HabitInputForm'

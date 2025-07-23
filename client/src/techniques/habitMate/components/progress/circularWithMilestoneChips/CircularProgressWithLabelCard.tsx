@@ -7,6 +7,7 @@ interface CircularProgressWithLabelCardProps {
   value: number
   taskName: string
   currentCount: number
+  differenceFromTargetCount: number | 'unlimited'
   maxCount: number
   bottomLabel: string
   onClick?: () => void
@@ -14,7 +15,15 @@ interface CircularProgressWithLabelCardProps {
 
 export const CircularProgressWithLabelCard: React.FC<
   CircularProgressWithLabelCardProps
-> = ({ value, taskName, currentCount, maxCount, bottomLabel, onClick }) => {
+> = ({
+  value,
+  taskName,
+  currentCount,
+  differenceFromTargetCount,
+  maxCount,
+  bottomLabel,
+  onClick,
+}) => {
   return (
     <CircularProgressWithLabel
       value={value}
@@ -46,7 +55,10 @@ export const CircularProgressWithLabelCard: React.FC<
               right: -25,
             }}
           >
-            +5
+            +
+            {differenceFromTargetCount === 'unlimited'
+              ? '∞'
+              : differenceFromTargetCount}
           </Typography>
         </Box>
         <Typography

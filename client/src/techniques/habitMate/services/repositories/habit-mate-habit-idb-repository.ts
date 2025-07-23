@@ -5,7 +5,7 @@ import type {
 } from '../documents/habit-mate-habit-document'
 
 /**
- * documentPath: [uid, taskId]
+ * documentPath: [uid, habitId]
  */
 export class HabitMateHabitIDBRepository extends IndexedDBService<
   HabitMateHabitRead,
@@ -33,11 +33,13 @@ export class HabitMateHabitIDBRepository extends IndexedDBService<
     : Partial<HabitMateHabitWrite> {
     const {
       level,
+      levelVersion,
       habit,
       isExecutable,
       timing,
       startedAt,
       workedDate,
+      nextTargetCount,
       isFailed,
       status,
       resetCount,
@@ -45,11 +47,13 @@ export class HabitMateHabitIDBRepository extends IndexedDBService<
 
     return {
       level,
+      levelVersion,
       habit,
       isExecutable,
       timing,
       startedAt,
       workedDate,
+      nextTargetCount,
       isFailed,
       status,
       resetCount,

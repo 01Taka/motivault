@@ -1,24 +1,72 @@
 import type { BaseDocumentRead } from '../../types/db/db-service-document-types'
 import type { IDBService } from '../../types/db/db-service-interface'
 
-export type ValueFromMap<T extends Record<string, string>> = T[keyof T]
+/**
+ * Extracts all possible string literal values from the 'dataKey' properties within a given Config object.
+ * This creates a union type of all data keys.
+ */
+export type ValueFromConfig<
+  T extends Record<string, { repo: any; dataKey: string }>,
+> = T[keyof T]['dataKey']
 
-// --- 変更点: GeneratedStore のデータ配列部分の型定義を調整 ---
-export type GeneratedStore<
-  R extends Record<string, new (uid: string) => IDBService<any, any>>,
-  // D はデータ配列のキーのユニオン型 (例: 'tasks' | 'templates')
+/**
+ * Defines the structure for a single repository configuration entry.
+ * @template R The constructor type of the IDBService repository.
+ * @template D The string literal type for the data key associated with this repository.
+ */
+export type RepoConfigEntry<
+  R extends new (uid: string) => IDBService<any, any>,
   D extends string,
-  // T はデータ配列の具体的な要素型をキーに持つオブジェクト
+> = {
+  repo: R
+  dataKey: D
+  subscriptionType: 'collection' | 'singleton' // コレクションかシングルトンか
+}
+
+/**
+ * Represents the overall configuration object for the IDB repository store.
+ * Keys are arbitrary names for the repositories (e.g., 'idbTask'), and values are RepoConfigEntry objects.
+ */
+export type RepoStoreConfig = Record<string, RepoConfigEntry<any, any>>
+
+/**
+ * Helper type to get the subscriptionType for a specific dataKey from the Config.
+ * This is crucial for correctly inferring whether a dataKey corresponds to a collection or a singleton.
+ */
+type GetSubscriptionTypeForDataKey<
+  C extends RepoStoreConfig,
+  DK extends string,
+> = {
+  [K in keyof C]: C[K]['dataKey'] extends DK ? C[K]['subscriptionType'] : never
+}[keyof C]
+
+/**
+ * Defines the generated Zustand store type, incorporating repository instances,
+ * data arrays, and utility functions.
+ * @template Config The type of the configuration object passed to createIDBRepoStore.
+ * @template D The union type of all data keys extracted from the Config.
+ * @template T A map from data keys (D) to their specific BaseDocumentRead types.
+ */
+export type GeneratedStore<
+  Config extends RepoStoreConfig,
+  D extends ValueFromConfig<Config>,
   T extends { [K in D]: BaseDocumentRead },
 > = {
-  [K in keyof R]: InstanceType<R[K]> | null // リポジトリインスタンスの型
+  // Dynamically adds repository instances (e.g., idbTask: IDBService<TaskRead, any> | null)
+  [K in keyof Config]: InstanceType<Config[K]['repo']> | null
 } & {
-  // ここで、D の各キー K に対して、T[K] (例: TaskPressTaskRead) の配列型を直接適用
-  [K in D]: T[K][] // BaseDocumentRead[] へのフォールバックを削除
+  // Dynamically adds data arrays (e.g., tasks: TaskRead[]) または単一ドキュメント (e.g., userSettings: UserSettingsRead | null)
+  [K in D]: GetSubscriptionTypeForDataKey<Config, K> extends 'singleton'
+    ? T[K] | null // dataKeyがsingletonタイプの場合、単一のRead型またはnull
+    : T[K][] // それ以外（collectionタイプ）の場合、Read型の配列
 } & {
+  // Utility methods for managing repositories and listeners
   setRepositories: (uid: string) => void
   clearRepositories: () => void
-  initializeListeners: (uid: string) => (() => void) | undefined
+  initializeListeners: (
+    uid: string,
+    dataKeysToListen?: D[]
+  ) => (() => void) | undefined
   clearData: () => void
 }
 
@@ -26,115 +74,172 @@ export type GeneratedStore<
  * Creates utility functions for managing IndexedDB repositories in a Zustand store.
  * This automatically creates repository instances, data arrays, and related actions.
  *
- * @param repoClasses An object where keys are store property names (e.g., 'idbTask'),
- * and values は the repository class constructors.
- * @param dataMap An object mapping repository keys to their corresponding data array keys
- * (e.g., `{ idbTask: 'tasks', 'idbTemplate': 'templates' }`).
- * @param _dataTypes An object mapping data keys to their specific *single* read types
+ * @param config An object where keysはストアプロパティ名 (e.g., 'idbTask'),
+ * and valuesはリポジトリクラスコンストラクタ (`repo`),
+ * それに対応するデータ配列キー (`dataKey`), と購読タイプ (`subscriptionType`) を含むオブジェクトです。
+ * @param _dataTypes データキーを特定の *単一* の読み取りタイプにマッピングするオブジェクトです
  * (e.g., `{ tasks: TaskPressTaskRead, templates: TaskPressTemplateRead }`).
- * @returns A partial store object that can be directly passed to Zustand's `create` function.
+ * @returns Zustandの `create` 関数に直接渡すことができる部分的なストアオブジェクトです。
  */
 export const createIDBRepoStore = <
-  // R は repoClasses オブジェクトの実際の型
-  R extends Record<string, new (uid: string) => IDBService<any, any>>,
-  // DataMap は dataMap オブジェクトの型
-  DataMap extends { [K in keyof R]: string },
-  // D は DataMap の値から推論されるデータキーのユニオン型
-  D extends ValueFromMap<DataMap>,
-  // T はデータキーから具体的な Read 型へのマッピング
+  Config extends RepoStoreConfig,
+  D extends ValueFromConfig<Config>,
   T extends { [K in D]: BaseDocumentRead },
 >(
-  repoClasses: R,
-  dataMap: DataMap,
-  _dataTypes: T
+  config: Config,
+  _dataTypes: T // このパラメータは型推論のために使用され、ランタイムロジックでは直接使用されません
 ) => {
+  // リポジトリはnull、データは空の配列またはnullで初期状態を定義します
   const initialState: { [key: string]: any } = {}
-  const dataKeys = Object.values(dataMap) as D[]
+  const dataKeys: D[] = [] // 全てのユニークなデータキーを収集します
 
-  // Initialize repository instances to null
-  for (const key in repoClasses) {
-    if (Object.prototype.hasOwnProperty.call(repoClasses, key)) {
-      initialState[key] = null
+  // リポジトリの初期状態を設定し、データキーを収集します
+  for (const key in config) {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      initialState[key] = null // リポジトリインスタンス
+      const dataKey = config[key].dataKey as D
+      if (!dataKeys.includes(dataKey)) {
+        dataKeys.push(dataKey)
+      }
     }
   }
 
-  // Initialize data arrays to empty arrays (type will be inferred from _dataTypes)
+  // 購読タイプに基づいてデータ配列または単一ドキュメントの初期状態を設定します
   dataKeys.forEach((dataKey) => {
-    initialState[dataKey] = []
+    // このdataKeyを使用する最初のconfigエントリを見つけて、その購読タイプを決定します
+    const configEntry = Object.values(config).find(
+      (entry) => entry.dataKey === dataKey
+    )
+    if (configEntry?.subscriptionType === 'singleton') {
+      initialState[dataKey] = null // 単一ドキュメントの場合はnullで初期化
+    } else {
+      initialState[dataKey] = [] // コレクションの場合は空の配列で初期化
+    }
   })
 
+  // Zustandストアのアクションと状態を定義します
   const storeDefinition = (set: any, get: any) => ({
     ...initialState,
 
+    /**
+     * 指定されたユーザーIDでリポジトリインスタンスを初期化します。
+     * 各リポジトリインスタンスはZustandストアに保存されます。
+     * @param uid リポジトリを初期化するためのユーザーID。
+     */
     setRepositories: (uid: string) => {
       const newRepos: { [key: string]: any } = {}
-      for (const key in repoClasses) {
-        if (Object.prototype.hasOwnProperty.call(repoClasses, key)) {
-          newRepos[key] = new repoClasses[key](uid)
+      for (const key in config) {
+        if (Object.prototype.hasOwnProperty.call(config, key)) {
+          // リポジトリクラスの新しいインスタンスを作成します
+          newRepos[key] = new config[key].repo(uid)
         }
       }
-      set(newRepos)
+      set(newRepos) // 新しいリポジトリインスタンスでストアを更新します
     },
 
+    /**
+     * ストアからすべてのリポジトリインスタンスをnullに設定してクリアします。
+     */
     clearRepositories: () => {
       const clearedRepos: { [key: string]: any } = {}
-      for (const key in repoClasses) {
-        if (Object.prototype.hasOwnProperty.call(repoClasses, key)) {
-          clearedRepos[key] = null
+      for (const key in config) {
+        if (Object.prototype.hasOwnProperty.call(config, key)) {
+          clearedRepos[key] = null // リポジトリインスタンスをnullに設定
         }
       }
-      set(clearedRepos)
+      set(clearedRepos) // クリアされたリポジトリインスタンスでストアを更新します
     },
 
-    initializeListeners: (uid: string) => {
+    /**
+     * 指定されたデータキーのリスナーを初期化します。
+     * IndexedDBでデータが変更されると、ストア内の対応するデータ配列またはドキュメントが更新されます。
+     * @param uid ユーザーID。
+     * @param dataKeysToListen リッスンするデータキーのオプション配列。指定しない場合、すべてのデータキーがリッスンされます。
+     * @returns すべてのリスナーを解除するためのクリーンアップ関数、またはリポジトリが初期化されていない場合は`undefined`。
+     */
+    initializeListeners: (uid: string, dataKeysToListen?: D[]) => {
       const unsubscribeFunctions: (() => void)[] = []
-      let allReposInitialized = true
+      const repos = get() // リポジトリインスタンスにアクセスするために現在の状態を取得します
 
-      for (const key in repoClasses) {
-        if (Object.prototype.hasOwnProperty.call(repoClasses, key)) {
-          const repo = get()[key]
-          if (!repo) {
-            allReposInitialized = false
-            break
-          }
+      // リッスンするデータキーに対応するリポジトリキーを決定します
+      const keysToProcess = Object.keys(config).filter((repoKey) => {
+        const dataKey = config[repoKey].dataKey as D
+        return !dataKeysToListen || dataKeysToListen.includes(dataKey)
+      })
 
-          const dataKey = dataMap[key as keyof DataMap]
-
-          // Get the specific Read type for this dataKey from T
-          type SpecificReadType = T[typeof dataKey & keyof T]
-
-          // Cast repo to IDBService with the specific ReadType
-          const { unsubscribe } = (
-            repo as IDBService<SpecificReadType, any>
-          ).addCollectionSnapshotListener(
-            (data: SpecificReadType[]) => {
-              // Data is an array of SpecificReadType
-              set({ [dataKey]: data })
-            },
-            [uid]
-          )
-          unsubscribeFunctions.push(unsubscribe)
-        }
-      }
-
-      if (!allReposInitialized) {
+      // 続行する前に、必要なすべてのリポジトリが初期化されているか確認します
+      if (!keysToProcess.every((key) => repos[key])) {
+        console.warn(
+          '1つ以上のリポジトリが初期化されていません。リスナーを設定できません。'
+        )
         return undefined
       }
 
+      // 選択された各リポジトリのリスナーを設定します
+      for (const key of keysToProcess) {
+        const repo = repos[key]
+        const { dataKey, subscriptionType } = config[key] // subscriptionTypeを取得
+
+        // データキーの特定の読み取りタイプを推論します
+        type SpecificReadType = T[typeof dataKey & keyof T]
+
+        let unsubscribe: () => void
+
+        if (subscriptionType === 'collection') {
+          // コレクション購読の場合
+          ;({ unsubscribe } = (
+            repo as IDBService<SpecificReadType, any>
+          ).addCollectionSnapshotListener(
+            (data: SpecificReadType[]) => {
+              // Zustandストアの対応するデータ配列を更新します
+              set({ [dataKey]: data })
+            },
+            [uid] // リスナーの依存関係としてuidを渡します
+          ))
+        } else if (subscriptionType === 'singleton') {
+          // シングルトンドキュメント購読の場合
+          ;({ unsubscribe } = (
+            repo as IDBService<SpecificReadType, any>
+          ).addDocumentSnapshotListener(
+            (data: SpecificReadType | null) => {
+              // リスナーコールバックはReadType | nullを期待します
+              set({ [dataKey]: data })
+            },
+            [uid] // リスナーの依存関係としてuidを渡します (コンテキスト/セキュリティルールに必要な場合)
+          ))
+        } else {
+          console.warn(`${key}の不明な購読タイプ: ${subscriptionType}`)
+          continue // 無効な購読タイプの場合はスキップ
+        }
+        unsubscribeFunctions.push(unsubscribe) // クリーンアップのために解除関数を保存
+      }
+
+      // すべてのリスナーを解除する単一のクリーンアップ関数を返します
       return () => {
         unsubscribeFunctions.forEach((unsub) => unsub())
+        console.log('すべてのIDBリスナーが解除されました。')
       }
     },
 
+    /**
+     * ストア内のすべてのデータ配列を空の配列に、または単一ドキュメントをnullに設定してクリアします。
+     */
     clearData: () => {
       const clearedData: { [key: string]: any } = {}
       dataKeys.forEach((dataKey) => {
-        clearedData[dataKey] = []
+        const configEntry = Object.values(config).find(
+          (entry) => entry.dataKey === dataKey
+        )
+        if (configEntry?.subscriptionType === 'singleton') {
+          clearedData[dataKey] = null // 単一ドキュメントの場合はnullに設定
+        } else {
+          clearedData[dataKey] = [] // コレクションの場合は空の配列に設定
+        }
       })
-      set(clearedData)
+      set(clearedData) // クリアされたデータでストアを更新します
     },
   })
 
-  // Return the store definition with the correct GeneratedStore type
-  return storeDefinition as (set: any, get: any) => GeneratedStore<R, D, T>
+  // 型安全のためにストア定義を生成されたストアタイプにキャストします
+  return storeDefinition as (set: any, get: any) => GeneratedStore<Config, D, T>
 }
