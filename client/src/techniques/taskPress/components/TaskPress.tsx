@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import TaskPressTaskList from './list/TaskPressTaskList'
 import { mergeTasksWithTemplates } from '../functions/task-press-merge-task'
-import useBatchedDebouncedCallback from '../../../hooks/components/useDebouncedCallback'
 import useTaskPressCrudHandler from '../services/hooks/useTaskPressCrudHandler'
-import { useTaskPressStore } from '../services/stores/useTaskPressStore'
 import Popup from '../../../components/utils/Popup'
 import TaskDetailScreen from './detail/TaskDetailScreen'
 import { MINUTES_IN_MS } from '../../../constants/datetime-constants'
+import useBatchedDebouncedCallback from '../../../hooks/components/useDebouncedCallback'
+import { useTaskPressDataStore } from '../services/stores/useTaskPressDataStore'
 
 interface TaskPressProps {}
 
@@ -31,7 +31,7 @@ function separateByCompletionStatus(data: Record<string, boolean>): {
 }
 
 const TaskPress: React.FC<TaskPressProps> = ({}) => {
-  const { tasks, templates } = useTaskPressStore()
+  const { tasks, templates } = useTaskPressDataStore()
   const mergedTasks = useMemo(() => {
     const result = mergeTasksWithTemplates(tasks, templates)
     return result.successfulMerges

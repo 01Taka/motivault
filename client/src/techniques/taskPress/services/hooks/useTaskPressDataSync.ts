@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { useTaskPressStore } from '../stores/useTaskPressStore'
+import { useTaskPressDataStore } from '../stores/useTaskPressDataStore'
 
 export const useTaskPressDataSync = () => {
   const { setRepositories, clearRepositories, initializeListeners, clearData } =
-    useTaskPressStore()
+    useTaskPressDataStore()
 
   useEffect(() => {
     let cleanupListeners: (() => void) | undefined

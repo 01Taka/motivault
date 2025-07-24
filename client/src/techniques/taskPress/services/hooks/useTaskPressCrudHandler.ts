@@ -15,11 +15,11 @@ import {
   formatTaskFromFormState,
   formatTemplateFromFormState,
 } from '../../functions/task-press-format-form-state'
-import { useTaskPressStore } from '../stores/useTaskPressStore'
+import { useTaskPressDataStore } from '../stores/useTaskPressDataStore'
 
 const useTaskPressCrudHandler = () => {
   const { uid } = useCurrentUserStore()
-  const { idbTask, idbTemplate } = useTaskPressStore()
+  const { idbTask, idbTemplate } = useTaskPressDataStore()
 
   const asyncKeys = [
     'submit',
