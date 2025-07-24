@@ -58,6 +58,22 @@ export const createHabitMateHabit = async (
   return result
 }
 
+export const updateHabitMateHabitBaseData = async (
+  habitRepo: HabitMateHabitRepository,
+  uid: string,
+  habitId: string,
+  data: Partial<
+    Pick<
+      HabitMateHabitWrite,
+      'level' | 'habit' | 'isExecutable' | 'timing' | 'status' | 'isFailed'
+    >
+  >
+) => {
+  const { level, habit, isExecutable, timing, status, isFailed } = data
+  const filterData = { level, habit, isExecutable, timing, status, isFailed }
+  return await habitRepo.update(filterData, [uid, habitId])
+}
+
 const updateHabitMateHabitWorkedDate = async (
   repo: HabitMateHabitRepository,
   uid: string,

@@ -33,9 +33,9 @@ const Popup: FC<PopupProps> = ({
     <Modal
       open={open}
       onClose={() => {
-        console.log('Modal closed')
         onClose?.()
       }}
+      closeAfterTransition
       sx={{
         display: 'flex',
         justifyContent: 'center',
@@ -46,6 +46,7 @@ const Popup: FC<PopupProps> = ({
       <Slide
         direction="up"
         in={open}
+        appear
         mountOnEnter
         unmountOnExit
         timeout={{ enter: 300, exit: 100 }}

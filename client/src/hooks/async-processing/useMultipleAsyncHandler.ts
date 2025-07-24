@@ -135,7 +135,7 @@ const useMultipleAsyncHandler = <StateTypes extends Record<string, any>>(
       func: (...args: A) => Promise<StateTypes[K]>,
       args: A,
       onFailedMessage?: string
-    ): Promise<Awaited<StateTypes[K]> | null> => {
+    ): Promise<{ success: boolean; result: Awaited<StateTypes[K]> | null }> => {
       setAsyncStatesMemo((prev) => {
         if (!prev[key]) {
           return { ...prev, [key]: initializeState() }
@@ -146,10 +146,10 @@ const useMultipleAsyncHandler = <StateTypes extends Record<string, any>>(
       try {
         const result = await func(...args)
         setDataOnSuccess(key, result)
-        return result
+        return { success: true, result }
       } catch (error) {
         logError(key, error, onFailedMessage)
-        return null
+        return { success: false, result: null }
       }
     },
     [

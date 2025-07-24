@@ -9,11 +9,13 @@ import {
   pushHabitMateHabitWorkedDate,
   removeHabitMateHabitWorkedDate,
   toggleHabitMateHabitWorkedDate,
+  updateHabitMateHabitBaseData,
   updateHabitMateHabitNextTargetCount,
 } from '../functions/habit-mate-habit-crud'
 import { useHabitMateDataStore } from '../stores/useHabitMateDataStore'
 import { createMetadataIfNeed } from '../functions/habit-mate-metadata-crud'
 import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
+import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
 
 const useHabitMateCrudHandler = () => {
   const { uid } = useCurrentUserStore()
@@ -21,6 +23,7 @@ const useHabitMateCrudHandler = () => {
   const asyncKeys = [
     'createMetadata',
     'createSubmit',
+    'updateHabit',
     'pushWorkedDate',
     'removeWorkedDate',
     'toggleWorkedDate',
@@ -124,10 +127,24 @@ const useHabitMateCrudHandler = () => {
     ])
   }
 
-  const updateNextTargetCount = (habitId: string) => {
+  const updateNextTargetCount = async (
+    habitId: string,
+    updateData?: HabitMateContinueHabitFormState
+  ) => {
     if (!idbHabit || !uid) {
       console.error('初期化未完了')
       return
+    }
+
+    if (updateData) {
+      const { success } = await callAsyncFunction(
+        'updateHabit',
+        updateHabitMateHabitBaseData,
+        [idbHabit, uid, habitId, { ...updateData }]
+      )
+      if (!success) {
+        return
+      }
     }
 
     callAsyncFunction(

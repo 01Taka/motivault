@@ -1,83 +1,41 @@
 import React from 'react'
 import { Skeleton, Stack } from '@mui/material'
 import HabitMateHabitProgress from './progress/HabitMateHabitProgress'
+import Confetti from 'react-confetti'
 import { useNavigate } from 'react-router-dom'
-import { useHabitMateDataStore } from '../services/stores/useHabitMateDataStore'
-import { getLevelInfo } from '../functions/constantHelpers/habit-level-data-helper'
-import { calculateMilestoneProgress } from '../functions/helper/milestone-helper'
-import type { HabitMateProgressProps } from '../types/components/progress-types'
-import useHabitMateCrudHandler from '../services/hooks/useHabitMateCrudHandler'
-import { toISODate } from '../../../functions/dateTime-utils/time-conversion'
-import type { HabitMateHabitRead } from '../services/documents/habit-mate-habit-document'
+import useWindowSize from '../../../hooks/system/useWindowSize'
+import { useActiveHabitData } from '../hooks/useActiveHabitData'
+import { useHabitProgressHandler } from '../hooks/useHabitProgressHandler'
+import { DecisionModalContent } from './main/DecisionModalContent'
+import Popup from '../../../components/utils/Popup'
+import type { HabitMateContinueHabitFormState } from '../types/form/habit-continue-form'
+import useQueuedDelayedState from '../../../hooks/components/useQueuedDelayedState'
 
-interface HabitMateIndexProps {}
+const HabitMateIndex: React.FC = () => {
+  const [tryOpenContinueForm, setTryOpenContinueForm] =
+    useQueuedDelayedState(true)
 
-const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
-  const { metadata, habits } = useHabitMateDataStore()
-  const { asyncStates, pushWorkedDate, removeWorkedDate, toggleWorkedDate } =
-    useHabitMateCrudHandler()
-
-  const activeHabit = habits.find((habit) => habit.status === 'active') ?? null
-
-  const testHabit = activeHabit
-    ? ({
-        ...activeHabit,
-        workedDate: ['2025-07-05', ...activeHabit.workedDate],
-      } as HabitMateHabitRead)
-    : null
-
-  const levelInfo = testHabit ? getLevelInfo(testHabit.level) : null
-  const milestoneProgress =
-    testHabit && levelInfo
-      ? calculateMilestoneProgress(levelInfo, testHabit)
-      : {
-          nextMilestoneCount: 0,
-          nextMilestoneAbsoluteCount: 0,
-          milestonesAchieved: 0,
-          milestonesTotal: 0,
-        }
-
-  const targetCount = levelInfo
-    ? levelInfo.targetCount.type === 'fixed'
-      ? levelInfo.targetCount.count
-      : 'unlimited'
-    : 0
-
+  const { metadata, activeHabit, progressDataProps, isCompletedToday } =
+    useActiveHabitData()
+  const { width, height } = useWindowSize()
+  const { progressActionProps, updateNextTargetCount } =
+    useHabitProgressHandler(activeHabit?.docId, isCompletedToday, () =>
+      setTryOpenContinueForm(true, 800)
+    )
   const navigate = useNavigate()
-
-  const handleWorkDate = (action: 'add' | 'remove' | 'toggle') => {
-    if (!activeHabit) return
-    const habitId = activeHabit.docId
-    switch (action) {
-      case 'add':
-        pushWorkedDate(habitId)
-        break
-      case 'remove':
-        removeWorkedDate(habitId)
-        break
-      case 'toggle':
-        toggleWorkedDate(habitId)
-        break
-    }
-  }
-
-  const progressProps: HabitMateProgressProps = {
-    taskName: testHabit?.habit ?? '',
-    currentCount: testHabit?.workedDate.length ?? 0,
-    targetCount: targetCount,
-    isCompletedToday: testHabit
-      ? testHabit.workedDate.includes(toISODate(new Date()))
-      : false,
-    ...milestoneProgress,
-    nextMilestoneAbsoluteCount: activeHabit?.nextTargetCount ?? 0,
-    onToggleCompletion: () => handleWorkDate('toggle'),
-    onCompleted: () => handleWorkDate('add'),
-    onCancelComplete: () => handleWorkDate('remove'),
-  }
 
   const newHabitButtonProps = {
     text: '新しい習慣を始める',
     onCreate: () => navigate('start-habit'),
+  }
+
+  const handleContinueHabit = (
+    formState: HabitMateContinueHabitFormState | undefined
+  ) => {
+    if (activeHabit) {
+      updateNextTargetCount(activeHabit.docId, formState)
+      setTryOpenContinueForm(false)
+    }
   }
 
   return (
@@ -86,13 +44,43 @@ const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
         <HabitMateHabitProgress
           componentId="circularWithMilestoneChips"
           hasProgressHabit={!!activeHabit}
-          progressProps={progressProps}
+          progressProps={{
+            ...progressDataProps,
+            ...progressActionProps,
+          }}
           newHabitButtonProps={newHabitButtonProps}
         />
       ) : (
         <Skeleton
           variant="circular"
           sx={{ width: '90vw', height: '90vw', bgcolor: '#c3cacd' }}
+        />
+      )}
+      <Popup
+        open={
+          tryOpenContinueForm &&
+          !!activeHabit &&
+          progressDataProps.currentCount ===
+            progressDataProps.nextMilestoneAbsoluteCount
+        }
+        hideCloseButton
+      >
+        {activeHabit && (
+          <DecisionModalContent
+            habitData={activeHabit}
+            continuedCount={progressDataProps.currentCount}
+            onStartNewHabit={() => {}}
+            onContinue={(formState) => handleContinueHabit(formState)}
+          />
+        )}
+      </Popup>
+      {isCompletedToday && (
+        <Confetti
+          width={width}
+          height={height}
+          numberOfPieces={200}
+          gravity={0.1}
+          recycle={false}
         />
       )}
     </Stack>
