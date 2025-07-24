@@ -24,7 +24,7 @@ export class FeynmanKnowledgeGapIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
+  private filterData<
     T extends FeynmanKnowledgeGapWrite | Partial<FeynmanKnowledgeGapWrite>,
   >(
     data: T
@@ -39,5 +39,17 @@ export class FeynmanKnowledgeGapIDBRepository extends IndexedDBService<
       state,
       answer,
     } as any
+  }
+
+  protected filterWriteData(
+    data: FeynmanKnowledgeGapWrite
+  ): FeynmanKnowledgeGapWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<FeynmanKnowledgeGapWrite>
+  ): Partial<FeynmanKnowledgeGapWrite> {
+    return this.filterData(data)
   }
 }

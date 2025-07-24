@@ -61,9 +61,11 @@ abstract class FirestoreService<
    * サブクラスで実装してください。
    * @param data 書き込むデータ
    */
-  protected abstract filterWriteData<T extends Write | Partial<Write>>(
-    data: T
-  ): T extends Write ? Document : Partial<Document>
+  protected abstract filterWriteData(data: Write): Document
+
+  protected abstract filterPartialWriteData(
+    data: Partial<Write>
+  ): Partial<Document>
 
   protected abstract getCreatorUid(): string
 
@@ -111,7 +113,7 @@ abstract class FirestoreService<
   }
 
   private organizeUpdateData(data: Partial<Write>): Partial<Document> {
-    const filterData = this.filterWriteData(data)
+    const filterData = this.filterPartialWriteData(data)
     const formatData = this.removeUndefined(filterData)
     return { ...formatData, updatedAt: serverTimestamp() }
   }

@@ -1,7 +1,9 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
-import type {
-  HabitMateHabitRead,
-  HabitMateHabitWrite,
+import {
+  HabitMateHabitWriteSchema,
+  PartialHabitMateHabitWriteSchema,
+  type HabitMateHabitRead,
+  type HabitMateHabitWrite,
 } from '../documents/habit-mate-habit-document'
 
 /**
@@ -24,41 +26,13 @@ export class HabitMateHabitIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
-    T extends HabitMateHabitWrite | Partial<HabitMateHabitWrite>,
-  >(
-    data: T
-  ): T extends HabitMateHabitWrite
-    ? HabitMateHabitWrite
-    : Partial<HabitMateHabitWrite> {
-    const {
-      level,
-      levelVersion,
-      habit,
-      isExecutable,
-      timing,
-      startedAt,
-      workedDate,
-      nextTargetCount,
-      isFailed,
-      status,
-      resetCount,
-    } = data
+  protected filterWriteData(data: HabitMateHabitWrite): HabitMateHabitWrite {
+    return HabitMateHabitWriteSchema.parse(data)
+  }
 
-    return {
-      level,
-      levelVersion,
-      habit,
-      isExecutable,
-      timing,
-      startedAt,
-      workedDate,
-      nextTargetCount,
-      isFailed,
-      status,
-      resetCount,
-    } as T extends HabitMateHabitWrite
-      ? HabitMateHabitWrite
-      : Partial<HabitMateHabitWrite>
+  protected filterPartialWriteData(
+    data: Partial<HabitMateHabitWrite>
+  ): Partial<HabitMateHabitWrite> {
+    return PartialHabitMateHabitWriteSchema.parse(data)
   }
 }

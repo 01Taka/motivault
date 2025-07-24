@@ -21,9 +21,7 @@ export class FeynmanNoteHistoryIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
-    T extends FeynmanNoteWrite | Partial<FeynmanNoteWrite>,
-  >(
+  private filterData<T extends FeynmanNoteWrite | Partial<FeynmanNoteWrite>>(
     data: T
   ): T extends FeynmanNoteWrite ? FeynmanNoteWrite : Partial<FeynmanNoteWrite> {
     // resolvedGapIds は意図的に削除中
@@ -32,6 +30,18 @@ export class FeynmanNoteHistoryIDBRepository extends IndexedDBService<
       title,
       rewriteCount,
       contents,
-    } as any
+    } as T extends FeynmanNoteWrite
+      ? FeynmanNoteWrite
+      : Partial<FeynmanNoteWrite>
+  }
+
+  protected filterWriteData(data: FeynmanNoteWrite): FeynmanNoteWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<FeynmanNoteWrite>
+  ): Partial<FeynmanNoteWrite> {
+    return this.filterData(data)
   }
 }

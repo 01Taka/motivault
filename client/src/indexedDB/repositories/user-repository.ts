@@ -16,7 +16,7 @@ export class UserIDBRepository extends IndexedDBService<UserRead, UserWrite> {
     return this.uid
   }
 
-  protected filterWriteData<T extends UserWrite | Partial<UserWrite>>(
+  private filterData<T extends UserWrite | Partial<UserWrite>>(
     data: T
   ): T extends UserWrite ? UserWrite : Partial<UserWrite> {
     const { displayName, birthdate, gender } = data
@@ -25,5 +25,15 @@ export class UserIDBRepository extends IndexedDBService<UserRead, UserWrite> {
       birthdate,
       gender,
     } as any
+  }
+
+  protected filterWriteData(data: UserWrite): UserWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<UserWrite>
+  ): Partial<UserWrite> {
+    return this.filterData(data)
   }
 }

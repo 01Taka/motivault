@@ -24,7 +24,7 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
+  private filterData<
     T extends TaskPressTemplateWrite | Partial<TaskPressTemplateWrite>,
   >(
     data: T
@@ -61,5 +61,17 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
     return { title, subject } as T extends TaskPressTemplateWrite
       ? TaskPressTemplateWrite
       : Partial<TaskPressTemplateWrite>
+  }
+
+  protected filterWriteData(
+    data: TaskPressTemplateWrite
+  ): TaskPressTemplateWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<TaskPressTemplateWrite>
+  ): Partial<TaskPressTemplateWrite> {
+    return this.filterData(data)
   }
 }

@@ -17,3 +17,8 @@ export const UserTechniqueSessionExpGainEventSchema = z.object({
   amount: z.number(),
   reason: z.string(),
 })
+
+export const UserTechniqueUnlockAchievementEventSchema = z.object({
+  // achievementId = docId
+  timestamp: z.number(),
+})

@@ -19,9 +19,7 @@ export class TimeBlockingIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
-    T extends TimeBlockingWrite | Partial<TimeBlockingWrite>,
-  >(
+  private filterData<T extends TimeBlockingWrite | Partial<TimeBlockingWrite>>(
     data: T
   ): T extends TimeBlockingWrite
     ? TimeBlockingWrite
@@ -29,6 +27,18 @@ export class TimeBlockingIDBRepository extends IndexedDBService<
     const { tags } = data
     return {
       tags,
-    } as any
+    } as T extends TimeBlockingWrite
+      ? TimeBlockingWrite
+      : Partial<TimeBlockingWrite>
+  }
+
+  protected filterWriteData(data: TimeBlockingWrite): TimeBlockingWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<TimeBlockingWrite>
+  ): Partial<TimeBlockingWrite> {
+    return this.filterData(data)
   }
 }

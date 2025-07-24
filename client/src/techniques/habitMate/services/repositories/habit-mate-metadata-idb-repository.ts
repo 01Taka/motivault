@@ -1,7 +1,9 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
-import type {
-  HabitMateMetadataRead,
-  HabitMateMetadataWrite,
+import {
+  HabitMateMetadataWriteSchema,
+  PartialHabitMateMetadataWriteSchema,
+  type HabitMateMetadataRead,
+  type HabitMateMetadataWrite,
 } from '../documents/habit-mate-metadata-document'
 
 /**
@@ -24,20 +26,15 @@ export class HabitMateMetadataIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
-    T extends HabitMateMetadataWrite | Partial<HabitMateMetadataWrite>,
-  >(
-    data: T
-  ): T extends HabitMateMetadataWrite
-    ? HabitMateMetadataWrite
-    : Partial<HabitMateMetadataWrite> {
-    const { maxConcurrentHabits, activeHabitIds } = data
+  protected filterWriteData(
+    data: HabitMateMetadataWrite
+  ): HabitMateMetadataWrite {
+    return HabitMateMetadataWriteSchema.parse(data)
+  }
 
-    return {
-      maxConcurrentHabits,
-      activeHabitIds,
-    } as T extends HabitMateMetadataWrite
-      ? HabitMateMetadataWrite
-      : Partial<HabitMateMetadataWrite>
+  protected filterPartialWriteData(
+    data: Partial<HabitMateMetadataWrite>
+  ): Partial<HabitMateMetadataWrite> {
+    return PartialHabitMateMetadataWriteSchema.parse(data)
   }
 }

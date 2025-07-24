@@ -258,9 +258,11 @@ export abstract class IndexedDBService<
   }
 
   // サブクラスが不要なフィールドを除外した書き込みデータを返します。
-  protected abstract filterWriteData<T extends Write | Partial<Write>>(
-    data: T
-  ): T extends Write ? Document : Partial<Document>
+  protected abstract filterWriteData(data: Write): Document
+
+  protected abstract filterPartialWriteData(
+    data: Partial<Write>
+  ): Partial<Document>
 
   // サブクラスが作成者のUIDを取得するためのフック
   protected abstract getCreatorUid(): string
@@ -486,7 +488,7 @@ export abstract class IndexedDBService<
       Object.entries(data).filter(([_, data]) => data !== undefined)
     ) as Partial<Write>
     const mergedData = { ...existing, ...removeUndefinedData } as Partial<Write> // Write型にキャストしてfilterWriteDataに渡す
-    const filteredUpdates = this.filterWriteData(mergedData) // マージされたデータ全体をフィルタリング
+    const filteredUpdates = this.filterPartialWriteData(mergedData) // マージされたデータ全体をフィルタリング
 
     const updated = this.updateRecord(existing, filteredUpdates as Document) // 既存のレコードを更新データで上書きし、updatedAtを更新
 
@@ -531,7 +533,7 @@ export abstract class IndexedDBService<
       Object.entries(updateFields).filter(([_, data]) => data !== undefined)
     ) as Partial<Write>
     const mergedData = { ...existing, ...removeUndefinedData } as Partial<Write>
-    const filteredUpdates = this.filterWriteData(mergedData)
+    const filteredUpdates = this.filterPartialWriteData(mergedData)
 
     const updated = this.updateRecord(existing, filteredUpdates)
     updated.isActive = false
@@ -793,7 +795,10 @@ export abstract class IndexedDBService<
           const existing = await objectStore.get(fullLogicalPath)
           if (!existing)
             throw new Error('Document not found in transaction for update')
-          const rec = this.updateRecord(existing, this.filterWriteData(data))
+          const rec = this.updateRecord(
+            existing,
+            this.filterPartialWriteData(data)
+          )
           await objectStore.put(rec)
           affectedPathsInTransaction.add(fullLogicalPath) // Record affected path
         },

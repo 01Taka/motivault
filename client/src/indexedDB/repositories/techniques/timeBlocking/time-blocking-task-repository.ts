@@ -19,22 +19,36 @@ export class TimeBlockingTaskIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  protected filterWriteData<
+  private filterData<
     T extends TimeBlockingTaskWrite | Partial<TimeBlockingTaskWrite>,
   >(
     data: T
   ): T extends TimeBlockingTaskWrite
     ? TimeBlockingTaskWrite
     : Partial<TimeBlockingTaskWrite> {
-    const { id, title, startTime, duration, tagId, completed, repeat } = data
+    const { title, startTime, duration, tagId, completed, repeat } = data
+
     return {
-      id,
       title,
       startTime,
       duration,
       tagId,
       completed,
       repeat,
-    } as any
+    } as T extends TimeBlockingTaskWrite
+      ? TimeBlockingTaskWrite
+      : Partial<TimeBlockingTaskWrite>
+  }
+
+  protected filterWriteData(
+    data: TimeBlockingTaskWrite
+  ): TimeBlockingTaskWrite {
+    return this.filterData(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<TimeBlockingTaskWrite>
+  ): Partial<TimeBlockingTaskWrite> {
+    return this.filterData(data)
   }
 }

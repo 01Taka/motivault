@@ -35,3 +35,15 @@ export const useTechniqueXPStore = create<TechniqueXpStore>((set, get) => ({
     set({ xpMap: updatedXpMap, levelInfoMap })
   },
 }))
+
+interface LevelUpModal {
+  techniqueId: string
+  levelUpAt: number
+  prevExp: number
+  newExp: number
+  unlockedAchievementIds: string[]
+}
+
+interface LevelInfoMapStore {
+  modalQueue: LevelUpModal[]
+}

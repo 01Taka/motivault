@@ -32,13 +32,17 @@ export const HabitMateHabitSchema = z.object({
   resetCount: z.number().int().nonnegative(),
 })
 
-export const habitMateHabitReadSchema = HabitMateHabitSchema.extend(
+export const HabitMateHabitReadSchema = HabitMateHabitSchema.extend(
   documentReadSchema.shape
 )
-
-export const habitMateHabitWriteSchema = HabitMateHabitSchema.extend(
+export const HabitMateHabitWriteSchema = HabitMateHabitSchema.extend(
   documentWriteSchema.shape
 )
 
-export type HabitMateHabitRead = z.infer<typeof habitMateHabitReadSchema>
-export type HabitMateHabitWrite = z.infer<typeof habitMateHabitWriteSchema>
+export const PartialHabitMateHabitReadSchema =
+  HabitMateHabitWriteSchema.partial()
+export const PartialHabitMateHabitWriteSchema =
+  HabitMateHabitWriteSchema.partial()
+
+export type HabitMateHabitRead = z.infer<typeof HabitMateHabitReadSchema>
+export type HabitMateHabitWrite = z.infer<typeof HabitMateHabitWriteSchema>
