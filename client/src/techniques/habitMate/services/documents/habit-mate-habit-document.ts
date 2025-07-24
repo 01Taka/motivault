@@ -3,11 +3,10 @@ import {
   documentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
 import { z } from 'zod'
-import { versionSchema } from '../../../../types/utils/version-schema'
-import { isoDateSchema } from '../../../../types/utils/datetime-schema'
+import { versionSchema } from '../../../../types/utils/services/version-schema'
+import { ISODateSchema } from '../../../../types/utils/datetime-schema'
 
-// 'HabitMateHabitLevel' をZodで表現
-const habitMateHabitLevelSchema = z.union([
+const HabitMateHabitLevelSchema = z.union([
   z.literal(1),
   z.literal(2),
   z.literal(3),
@@ -15,15 +14,14 @@ const habitMateHabitLevelSchema = z.union([
   z.literal(5),
 ])
 
-// 'HabitMateHabit' のコアスキーマ
-export const habitMateHabitSchema = z.object({
-  level: habitMateHabitLevelSchema,
+export const HabitMateHabitSchema = z.object({
+  level: HabitMateHabitLevelSchema,
   levelVersion: versionSchema,
   habit: z.string(),
   isExecutable: z.boolean(),
   timing: z.string(),
   startedAt: z.number(),
-  workedDate: z.array(isoDateSchema),
+  workedDate: z.array(ISODateSchema),
   nextTargetCount: z.number().int().nonnegative(),
   isFailed: z.boolean(),
   status: z.union([
@@ -34,14 +32,13 @@ export const habitMateHabitSchema = z.object({
   resetCount: z.number().int().nonnegative(),
 })
 
-export const habitMateHabitReadSchema = habitMateHabitSchema.extend(
+export const habitMateHabitReadSchema = HabitMateHabitSchema.extend(
   documentReadSchema.shape
 )
 
-export const habitMateHabitWriteSchema = habitMateHabitSchema.extend(
+export const habitMateHabitWriteSchema = HabitMateHabitSchema.extend(
   documentWriteSchema.shape
 )
 
-// ZodのスキーマからTypeScriptの型を推論
 export type HabitMateHabitRead = z.infer<typeof habitMateHabitReadSchema>
 export type HabitMateHabitWrite = z.infer<typeof habitMateHabitWriteSchema>

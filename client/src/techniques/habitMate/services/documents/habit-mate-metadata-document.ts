@@ -4,21 +4,20 @@ import {
   documentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
 
-export const habitMateMetadataSchema = z.object({
+export const HabitMateMetadataSchema = z.object({
   maxConcurrentHabits: z.number(),
   activeHabitIds: z.array(z.string()),
 })
 
-export const habitMateMetadataReadSchema = habitMateMetadataSchema.extend(
+export const HabitMateMetadataReadSchema = HabitMateMetadataSchema.extend(
   documentReadSchema.shape
 )
 
-export const habitMateMetadataWriteSchema = habitMateMetadataSchema.extend(
+export const HabitMateMetadataWriteSchema = HabitMateMetadataSchema.extend(
   documentWriteSchema.shape
 )
 
-// ZodのスキーマからTypeScriptの型を推論
-export type HabitMateMetadataRead = z.infer<typeof habitMateMetadataReadSchema>
+export type HabitMateMetadataRead = z.infer<typeof HabitMateMetadataReadSchema>
 export type HabitMateMetadataWrite = z.infer<
-  typeof habitMateMetadataWriteSchema
+  typeof HabitMateMetadataWriteSchema
 >

@@ -5,11 +5,12 @@ import NotFound from './components/pages/error/NotFound'
 import HomePage from './components/pages/home/HomePage'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
-import { useSyncCurrentUser } from './hooks/initialization/useSyncCurrentUser'
 import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
 import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCreateHabit'
+import useAbstractDataSync from './hooks/services/useAbstractDataSync'
+import { useUserDataStore } from './features/user/services/stores/useUserDataStore'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
@@ -64,7 +65,8 @@ const CreateTaskPress = lazy(
 )
 
 function App() {
-  useSyncCurrentUser()
+  const userData = useUserDataStore()
+  useAbstractDataSync({ ...userData, pathSegments: [] })
   useTechniqueXPSetup()
 
   return (

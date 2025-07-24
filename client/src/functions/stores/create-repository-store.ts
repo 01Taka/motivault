@@ -61,10 +61,11 @@ export type GeneratedStore<
     : T[K][] // それ以外（collectionタイプ）の場合、Read型の配列
 } & {
   // Utility methods for managing repositories and listeners
+  dependentUid: string
   setRepositories: (uid: string) => void
   clearRepositories: () => void
   initializeListeners: (
-    uid: string,
+    pathSegments: string[],
     dataKeysToListen?: D[]
   ) => (() => void) | undefined
   clearData: () => void
@@ -135,6 +136,7 @@ export const createIDBRepoStore = <
         }
       }
       set(newRepos) // 新しいリポジトリインスタンスでストアを更新します
+      set({ dependentUid: uid })
     },
 
     /**
@@ -157,7 +159,7 @@ export const createIDBRepoStore = <
      * @param dataKeysToListen リッスンするデータキーのオプション配列。指定しない場合、すべてのデータキーがリッスンされます。
      * @returns すべてのリスナーを解除するためのクリーンアップ関数、またはリポジトリが初期化されていない場合は`undefined`。
      */
-    initializeListeners: (uid: string, dataKeysToListen?: D[]) => {
+    initializeListeners: (pathSegments: string[], dataKeysToListen?: D[]) => {
       const unsubscribeFunctions: (() => void)[] = []
       const repos = get() // リポジトリインスタンスにアクセスするために現在の状態を取得します
 
@@ -189,24 +191,18 @@ export const createIDBRepoStore = <
           // コレクション購読の場合
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
-          ).addCollectionSnapshotListener(
-            (data: SpecificReadType[]) => {
-              // Zustandストアの対応するデータ配列を更新します
-              set({ [dataKey]: data })
-            },
-            [uid] // リスナーの依存関係としてuidを渡します
-          ))
+          ).addCollectionSnapshotListener((data: SpecificReadType[]) => {
+            // Zustandストアの対応するデータ配列を更新します
+            set({ [dataKey]: data })
+          }, pathSegments))
         } else if (subscriptionType === 'singleton') {
           // シングルトンドキュメント購読の場合
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
-          ).addDocumentSnapshotListener(
-            (data: SpecificReadType | null) => {
-              // リスナーコールバックはReadType | nullを期待します
-              set({ [dataKey]: data })
-            },
-            [uid] // リスナーの依存関係としてuidを渡します (コンテキスト/セキュリティルールに必要な場合)
-          ))
+          ).addDocumentSnapshotListener((data: SpecificReadType | null) => {
+            // リスナーコールバックはReadType | nullを期待します
+            set({ [dataKey]: data })
+          }, pathSegments))
         } else {
           console.warn(`${key}の不明な購読タイプ: ${subscriptionType}`)
           continue // 無効な購読タイプの場合はスキップ

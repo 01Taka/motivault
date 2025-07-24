@@ -5,7 +5,6 @@ import {
   updateTaskPressTask,
   updateTaskPressTemplate,
 } from '../functions/task-press-crud'
-import { useCurrentUserStore } from '../../../../stores/user/currentUserStore'
 import type {
   TaskPressCreateFormState,
   TaskPressUpdateFormState,
@@ -18,8 +17,7 @@ import {
 import { useTaskPressDataStore } from '../stores/useTaskPressDataStore'
 
 const useTaskPressCrudHandler = () => {
-  const { uid } = useCurrentUserStore()
-  const { idbTask, idbTemplate } = useTaskPressDataStore()
+  const { dependentUid: uid, idbTask, idbTemplate } = useTaskPressDataStore()
 
   const asyncKeys = [
     'submit',

@@ -2,12 +2,13 @@ import React from 'react'
 import CreateFab from '../../../components/atoms/navigation/CreateFab'
 import { matchPath, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { createTaskPressPath } from '../constants/path-constants'
-import { useTaskPressDataSync } from '../services/hooks/useTaskPressDataSync'
+import useAbstractDataSync from '../../../hooks/services/useAbstractDataSync'
+import { useTaskPressDataStore } from '../services/stores/useTaskPressDataStore'
 
 interface TaskPressLayoutProps {}
 
 const TaskPressLayout: React.FC<TaskPressLayoutProps> = ({}) => {
-  useTaskPressDataSync()
+  useAbstractDataSync(useTaskPressDataStore())
 
   const navigate = useNavigate()
   const location = useLocation()

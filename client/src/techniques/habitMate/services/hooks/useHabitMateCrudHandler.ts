@@ -1,5 +1,4 @@
 import useMultipleAsyncHandler from '../../../../hooks/async-processing/useMultipleAsyncHandler'
-import { useCurrentUserStore } from '../../../../stores/user/currentUserStore'
 import { getLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
 import type { HabitMateCreateHabitFormState } from '../../types/form/habit-create-form'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
@@ -18,8 +17,7 @@ import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-do
 import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
 
 const useHabitMateCrudHandler = () => {
-  const { uid } = useCurrentUserStore()
-  const { idbMetadata, idbHabit } = useHabitMateDataStore()
+  const { dependentUid: uid, idbMetadata, idbHabit } = useHabitMateDataStore()
   const asyncKeys = [
     'createMetadata',
     'createSubmit',

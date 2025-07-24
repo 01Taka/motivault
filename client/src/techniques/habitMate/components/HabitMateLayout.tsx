@@ -1,12 +1,13 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import { Outlet } from 'react-router-dom'
-import useHabitMateDataSync from '../services/hooks/useHabitMateDataSync'
+import useAbstractDataSync from '../../../hooks/services/useAbstractDataSync'
+import { useHabitMateDataStore } from '../services/stores/useHabitMateDataStore'
 
 interface HabitMateLayoutProps {}
 
 const HabitMateLayout: React.FC<HabitMateLayoutProps> = ({}) => {
-  useHabitMateDataSync()
+  useAbstractDataSync(useHabitMateDataStore())
 
   return (
     <Box>
