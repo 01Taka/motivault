@@ -1,4 +1,4 @@
-import type { HabitMateHabit } from '../../services/documents/habit-mate-habit-document'
+import type { HabitMateHabitRead } from '../../services/documents/habit-mate-habit-document'
 import type { HabitMateLevelInfo } from '../../types/data/habit-level-types'
 
 interface MilestoneCalculations {
@@ -10,7 +10,7 @@ interface MilestoneCalculations {
 
 export function calculateMilestoneProgress(
   levelInfo: HabitMateLevelInfo,
-  habit: HabitMateHabit
+  habit: HabitMateHabitRead
 ): MilestoneCalculations {
   const workedDaysCount = habit.workedDate.length
 

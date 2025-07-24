@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material'
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   getProgressComponent,
   getNewHabitButton,
@@ -9,7 +9,6 @@ import type {
   HabitMateProgressProps,
   HabitMateNewHabitProps,
 } from '../../types/components/progress-types'
-import { useDelayedState } from '../../../../hooks/components/useDelayedState'
 
 interface HabitMateHabitProgressProps {
   componentId: ProgressComponentId
@@ -26,24 +25,10 @@ const HabitMateHabitProgress: React.FC<HabitMateHabitProgressProps> = ({
 }) => {
   const Progress = getProgressComponent(componentId)
   const NewHabitButton = getNewHabitButton(componentId)
-  const [delayedProgress, setDelayedProgress] =
-    useDelayedState<HabitMateProgressProps | null>(progressProps, {
-      defaultDelay: 1000,
-    })
-
-  useEffect(() => {
-    setDelayedProgress(progressProps)
-  }, [progressProps])
-
-  useEffect(() => {
-    if (progressProps?.taskName && !delayedProgress?.taskName) {
-      setDelayedProgress(progressProps, { delay: 0 })
-    }
-  }, [progressProps, delayedProgress])
 
   return (
     <Stack alignItems="center" justifyContent="center" spacing={2}>
-      {hasProgressHabit && delayedProgress ? (
+      {hasProgressHabit && progressProps ? (
         <Progress {...progressProps} />
       ) : (
         <NewHabitButton {...newHabitButtonProps} />

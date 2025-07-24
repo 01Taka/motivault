@@ -1,10 +1,10 @@
 import CircularNewHabitButton from '../../components/progress/circularWithMilestoneChips/CircularNewHabitButton'
 import CircularWithMilestoneChipsProgress from '../../components/progress/circularWithMilestoneChips/CircularWithMilestoneChipsProgress'
 import type {
-  HabitMateNewHabitProps,
-  HabitMateProgressProps,
   ProgressComponentId,
-} from '../../types/habit-types'
+  HabitMateProgressProps,
+  HabitMateNewHabitProps,
+} from '../../types/components/progress-types'
 
 export const getProgressComponent = (
   id: ProgressComponentId

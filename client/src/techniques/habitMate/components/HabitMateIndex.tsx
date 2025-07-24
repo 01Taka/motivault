@@ -1,5 +1,5 @@
 import React from 'react'
-import { Stack } from '@mui/material'
+import { Skeleton, Stack } from '@mui/material'
 import HabitMateHabitProgress from './progress/HabitMateHabitProgress'
 import { useNavigate } from 'react-router-dom'
 import { useHabitMateDataStore } from '../services/stores/useHabitMateDataStore'
@@ -13,20 +13,16 @@ import type { HabitMateHabitRead } from '../services/documents/habit-mate-habit-
 interface HabitMateIndexProps {}
 
 const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
-  const { habits } = useHabitMateDataStore()
+  const { metadata, habits } = useHabitMateDataStore()
   const { asyncStates, pushWorkedDate, removeWorkedDate, toggleWorkedDate } =
     useHabitMateCrudHandler()
 
   const activeHabit = habits.find((habit) => habit.status === 'active') ?? null
+
   const testHabit = activeHabit
     ? ({
         ...activeHabit,
-        workedDate: [
-          '2025-07-05',
-          '2025-07-05',
-          '2025-07-05',
-          ...activeHabit.workedDate,
-        ],
+        workedDate: ['2025-07-05', ...activeHabit.workedDate],
       } as HabitMateHabitRead)
     : null
 
@@ -73,6 +69,7 @@ const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
       ? testHabit.workedDate.includes(toISODate(new Date()))
       : false,
     ...milestoneProgress,
+    nextMilestoneAbsoluteCount: activeHabit?.nextTargetCount ?? 0,
     onToggleCompletion: () => handleWorkDate('toggle'),
     onCompleted: () => handleWorkDate('add'),
     onCancelComplete: () => handleWorkDate('remove'),
@@ -85,12 +82,19 @@ const HabitMateIndex: React.FC<HabitMateIndexProps> = ({}) => {
 
   return (
     <Stack alignItems="center" justifyContent="center" spacing={2}>
-      <HabitMateHabitProgress
-        componentId="circularWithMilestoneChips"
-        hasProgressHabit={!!activeHabit}
-        progressProps={progressProps}
-        newHabitButtonProps={newHabitButtonProps}
-      />
+      {metadata ? (
+        <HabitMateHabitProgress
+          componentId="circularWithMilestoneChips"
+          hasProgressHabit={!!activeHabit}
+          progressProps={progressProps}
+          newHabitButtonProps={newHabitButtonProps}
+        />
+      ) : (
+        <Skeleton
+          variant="circular"
+          sx={{ width: '90vw', height: '90vw', bgcolor: '#c3cacd' }}
+        />
+      )}
     </Stack>
   )
 }
