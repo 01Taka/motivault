@@ -15,13 +15,13 @@ import type { TaskPressTemplateRead } from '../documents/task-press-template-doc
 const storeConfig: RepoStoreConfig = {
   idbTask: {
     repo: TaskPressTaskIDBRepository,
-    dataKey: 'tasks',
+    dataKey: 'tasks' as const,
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
   },
   idbTemplate: {
     repo: TaskPressTemplateIDBRepository,
-    dataKey: 'templates',
+    dataKey: 'templates' as const,
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
   },

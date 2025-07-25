@@ -1,11 +1,14 @@
-import { type Unsubscribe, type SetOptions } from 'firebase/firestore'
+import { type Unsubscribe } from 'firebase/firestore'
 import FirestoreService from './firestore-service'
 import type {
   BaseDocumentRead,
   BaseDocumentWrite,
   BaseDocument,
 } from '../../../types/db/db-service-document-types'
-import type { DBWriteTarget } from '../../../types/db/db-service-interface'
+import type {
+  CreateWithIdOptions,
+  DBWriteTarget,
+} from '../../../types/db/db-service-interface'
 
 class NamedDocumentService<
   Read extends BaseDocumentRead,
@@ -41,7 +44,7 @@ class NamedDocumentService<
   async create(
     data: Write,
     basePath: string[],
-    options?: SetOptions
+    options?: CreateWithIdOptions
   ): Promise<DBWriteTarget> {
     return this.baseService.createWithId(data, this.getPath(basePath), options)
   }

@@ -1,8 +1,8 @@
 import React from 'react'
-import { habitLevels } from '../constants/sample-data'
 import HabitLevelNavigator from './startHabit/HabitLevelNavigator'
 import { useNavigate } from 'react-router-dom'
 import { habitMateCreatePath } from '../constants/path-constants'
+import { habitMateLevels } from '../constants/data/habit-level-data'
 
 interface HabitMateStartHabitProps {}
 
@@ -11,10 +11,11 @@ const HabitMateStartHabit: React.FC<HabitMateStartHabitProps> = ({}) => {
   return (
     <div>
       <HabitLevelNavigator
-        habitLevels={habitLevels.map((level) => ({
+        habitLevels={habitMateLevels.map((level) => ({
           ...level,
-          src: level.bgSrc,
+          src: level.startHabitBgSrc,
         }))}
+        unlockedLevels={[]} // TODO
         onStartHabit={(level) =>
           navigate(`${habitMateCreatePath}/${level.level}`)
         }

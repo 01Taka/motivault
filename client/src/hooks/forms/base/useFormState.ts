@@ -6,6 +6,8 @@ import type {
   ElementChangeEventMap,
   OnChangeHandlersMap,
   CheckOptions,
+  CreateInputProps,
+  CreateInputPropsInArray,
 } from '../../../types/form/formState-types'
 
 /**
@@ -590,12 +592,12 @@ const useFormState = <
     onChangeFormState,
     onChangeArrayField,
     resetFormState,
-    createInputProps,
-    createInputPropsInArray,
+    createInputProps: createInputProps as CreateInputProps,
+    createInputPropsInArray: createInputPropsInArray as CreateInputPropsInArray,
     checkHasEmptyInput,
     getFormDiff,
     hasFormDiff,
-    updateInitialState, // 追加
+    updateInitialState,
   }
 }
 

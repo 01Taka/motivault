@@ -17,6 +17,7 @@ export class HabitMateMetadataIDBRepository extends IndexedDBService<
 
   constructor(uid: string) {
     super(['users', 'techniquesMetadata'], {
+      users: uid,
       techniquesMetadata: 'habitMate',
     })
     this.uid = uid

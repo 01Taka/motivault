@@ -2,18 +2,23 @@
 import React, { useState, useRef } from 'react'
 import { Box } from '@mui/material'
 import HabitLevelStepper from './HabitLevelStepper'
-import type { LevelInfo } from '../../types/habit-types'
 import StartHabitButtonCardList, {
   type StartHabitCardListHandle,
 } from './StartHabitButtonCardList'
+import type {
+  HabitMateHabitLevel,
+  HabitMateLevelInfo,
+} from '../../types/data/habit-level-types'
 
 interface HabitLevelNavigatorProps {
-  habitLevels: (LevelInfo & { src: string })[]
-  onStartHabit: (level: LevelInfo) => void
+  habitLevels: (HabitMateLevelInfo & { src: string })[]
+  unlockedLevels: HabitMateHabitLevel[]
+  onStartHabit: (level: HabitMateLevelInfo) => void
 }
 
 const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
   habitLevels,
+  unlockedLevels,
   onStartHabit,
 }) => {
   const [activeStep, setActiveStep] = useState(0)
@@ -34,7 +39,7 @@ const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
 
   const stepperLevels = habitLevels.map((level) => ({
     label: `Lv.${level.level}`,
-    isUnlocked: level.isUnlocked,
+    isUnlocked: unlockedLevels.includes(level.level),
     description: level.name,
   }))
 

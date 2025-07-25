@@ -1,6 +1,5 @@
 // src/utils/japaneseTextConverters.ts
 import { toHiragana, toKatakana } from 'wanakana'
-import { createFilterOptions as muiCreateFilterOptions } from '@mui/material'
 
 /**
  * 日本語文字列をひらがなとカタカナに変換したペアを返します。
@@ -41,7 +40,7 @@ export const containsJapaneseForms = (
 export const createJapaneseFilterOptions = <T>(searchKeys: Array<keyof T>) => {
   // MUIのcreateFilterOptionsをベースにすることで、デフォルトの挙動（大文字小文字の区別など）も考慮できる
   // 現在は直接使用していませんが、必要に応じてカスタムロジックと組み合わせることができます。
-  const defaultFilter = muiCreateFilterOptions<T>()
+  // const defaultFilter = muiCreateFilterOptions<T>()
 
   return (options: T[], { inputValue }: { inputValue: string }) => {
     // 入力値をひらがなとカタカナの形式に変換

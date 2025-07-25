@@ -31,14 +31,13 @@ export class TaskPressTaskIDBRepository extends IndexedDBService<
   ): T extends TaskPressTaskWrite
     ? TaskPressTaskWrite
     : Partial<TaskPressTaskWrite> {
-    const {
-      templateId,
-      deadline,
-      type,
-      pages,
-      completedPages,
-      completedStepOrders,
-    } = data
+    const { templateId, deadline, type } = data
+
+    const pages = type === 'problemSet' ? data.pages : undefined
+    const completedPages =
+      type === 'problemSet' ? data.completedPages : undefined
+    const completedStepOrders =
+      type === 'report' ? data.completedStepOrders : undefined
 
     if (
       type === 'problemSet' ||

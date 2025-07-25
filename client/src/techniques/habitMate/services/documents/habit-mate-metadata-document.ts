@@ -3,8 +3,9 @@ import {
   DocumentReadSchema,
   DocumentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
+import { TechniqueMetadataBaseSchema } from '../../../../features/technique/metadata/services/documents/technique-metadata-base-document'
 
-export const HabitMateMetadataSchema = z.object({
+export const HabitMateMetadataSchema = TechniqueMetadataBaseSchema.extend({
   maxConcurrentHabits: z.number(),
   activeHabitIds: z.array(z.string()),
 })

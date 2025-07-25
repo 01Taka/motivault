@@ -31,7 +31,10 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
   ): T extends TaskPressTemplateWrite
     ? TaskPressTemplateWrite
     : Partial<TaskPressTemplateWrite> {
-    const { title, subject, type, timePerPage, steps } = data
+    const { title, subject, type } = data
+
+    const timePerPage = type === 'problemSet' ? data.timePerPage : undefined
+    const steps = type === 'report' ? data.steps : undefined
 
     if (
       type === 'problemSet' ||

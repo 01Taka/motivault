@@ -7,15 +7,15 @@ import React, {
   useImperativeHandle,
 } from 'react'
 import StartHabitButtonCard from './StartHabitButtonCard'
-import type { LevelInfo } from '../../types/habit-types'
+import type { HabitMateLevelInfo } from '../../types/data/habit-level-types'
 
 export interface StartHabitCardListHandle {
   scrollToLevel: (levelIndex: number) => void
 }
 
 interface StartHabitButtonCardListProps {
-  habitLevels: (LevelInfo & { src: string })[]
-  onStartHabit: (level: LevelInfo) => void
+  habitLevels: (HabitMateLevelInfo & { src: string })[]
+  onStartHabit: (level: HabitMateLevelInfo) => void
 }
 
 const StartHabitButtonCardList = forwardRef<
@@ -59,6 +59,7 @@ const StartHabitButtonCardList = forwardRef<
             >
               <StartHabitButtonCard
                 src={levelInfo.src}
+                unlockedLevels={[]}
                 levelInfo={levelInfo}
                 onStartHabit={() => onStartHabit(levelInfo)}
               />

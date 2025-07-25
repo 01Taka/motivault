@@ -68,7 +68,6 @@ function App() {
   const userData = useUserDataStore()
   useAbstractDataSync({
     ...userData,
-    repositoryArgsType: 'indexedDB',
     pathSegments: [],
   })
   useTechniqueXPSetup()

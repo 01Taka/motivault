@@ -1,10 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth, firestore } from '../../firebase/firebase'
-import type {
-  RepositoryArgsBaseMap,
-  RepositoryType,
-} from '../../types/db/db-service-repository-types'
+import type { RepositoryArgsBaseMap } from '../../types/db/db-service-repository-types'
 import { functions } from '../../firebase/firebase-admin'
 
 /**
@@ -31,7 +28,6 @@ import { functions } from '../../firebase/firebase-admin'
  * @param {DataSyncActions<T>} dataSyncActions - An object containing functions and configuration for data synchronization.
  */
 const useAbstractDataSync = <T extends string>(dataSyncActions: {
-  repositoryArgsMap: Record<string, RepositoryType>
   setRepositories: (repositoryArgsMap: RepositoryArgsBaseMap) => void
   clearRepositories: () => void
   initializeListeners: (

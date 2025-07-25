@@ -35,7 +35,7 @@ const UserSetupForm = ({ onSubmit }: UserSetupFormProps) => {
           { value: 'female', label: '女性' },
           { value: 'other', label: 'その他' },
         ]}
-        {...createInputProps('gender')}
+        {...createInputProps('gender', 'muiSelect')}
       />
       <Button
         variant="contained"

@@ -1,14 +1,13 @@
 import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
-import type { HabitMateMetadataIDBRepository } from '../repositories/habit-mate-metadata-idb-repository'
+import type { HabitMateMetadataRepository } from '../repositories/habit-mate-repositories'
 
 export const createMetadataIfNeed = async (
-  repo: HabitMateMetadataIDBRepository,
-  uid: string,
+  repo: HabitMateMetadataRepository,
   data: HabitMateMetadataWrite
 ) => {
-  const metadata = await repo.read([uid])
+  const metadata = await repo.read([])
   if (!metadata) {
-    return await repo.create(data, [uid])
+    return await repo.create(data, [])
   }
   return null
 }

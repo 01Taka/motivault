@@ -11,18 +11,20 @@ import { HabitMateMetadataIDBRepository } from '../repositories/habit-mate-metad
 import type { HabitMateMetadataRead } from '../documents/habit-mate-metadata-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
-const habitMateConfig = {
+const storeConfig = {
   idbHabit: {
     repo: HabitMateHabitIDBRepository,
-    dataKey: 'habits',
+    dataKey: 'habits' as const,
     subscriptionType: 'collection',
+    repositoryType: 'indexedDB',
   },
   idbMetadata: {
     repo: HabitMateMetadataIDBRepository,
-    dataKey: 'metadata',
+    dataKey: 'metadata' as const,
     subscriptionType: 'singleton',
+    repositoryType: 'indexedDB',
   },
-} as const // `as const` を追加して、リテラル型を厳密に推論させる
+} as const
 
 // 2. 具体的なデータ要素型を定義
 type AppDataTypes = {
@@ -32,18 +34,16 @@ type AppDataTypes = {
 
 // 3. createIDBRepoStore を使ってストア定義を取得
 // 新しいconfigオブジェクトを渡す
-const habitMateStoreDefinition = createIDBRepoStore(
-  habitMateConfig,
+const storeDefinition = createIDBRepoStore(
+  storeConfig,
   {} as AppDataTypes // _dataTypesは型推論のために必要
 )
 
 // 生成されるストアの最終的な型を明示的に定義
-type HabitMateStoreState = GeneratedStore<
-  typeof habitMateConfig, // Config: `as const` により、より具体的なリテラル型が推論される
-  ValueFromConfig<typeof habitMateConfig>, // D: `ValueFromConfig` を使ってdataKeyのユニオン型を抽出
-  AppDataTypes // T: 具体的なRead型がマップされたオブジェクト
+type StoreState = GeneratedStore<
+  typeof storeConfig,
+  ValueFromConfig<typeof storeConfig>,
+  AppDataTypes
 >
 
-export const useHabitMateDataStore = create<HabitMateStoreState>(
-  habitMateStoreDefinition
-)
+export const useHabitMateDataStore = create<StoreState>(storeDefinition)

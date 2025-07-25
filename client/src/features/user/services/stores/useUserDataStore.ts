@@ -13,7 +13,7 @@ import type { UserRead } from '../documents/user-document'
 const storeConfig: RepoStoreConfig = {
   idbUser: {
     repo: UserIDBRepository,
-    dataKey: 'users',
+    dataKey: 'users' as const,
     subscriptionType: 'singleton',
     repositoryType: 'indexedDB',
   },

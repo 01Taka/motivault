@@ -5,37 +5,23 @@ import type { ISODate } from '../../../../types/utils/datetime-types'
 import { getLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
 import type { HabitMateHabitWrite } from '../documents/habit-mate-habit-document'
-import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
-import type { HabitMateMetadataIDBRepository } from '../repositories/habit-mate-metadata-idb-repository'
-import type { HabitMateHabitRepository } from '../repositories/habit-mate-repositories'
-import { createMetadataIfNeed } from './habit-mate-metadata-crud'
+import type {
+  HabitMateHabitRepository,
+  HabitMateMetadataRepository,
+} from '../repositories/habit-mate-repositories'
 
 const readLevelInfo = (level: HabitMateHabitLevel) => {
   return getLevelInfo(level)
 }
 
 export const createHabitMateHabit = async (
-  metadataRepo: HabitMateMetadataIDBRepository,
+  metadataRepo: HabitMateMetadataRepository,
   habitRepo: HabitMateHabitRepository,
-  uid: string,
-  data: HabitMateHabitWrite,
-  tryCreateMetadata:
-    | { try: false }
-    | { try: true; metadata: HabitMateMetadataWrite } = { try: false }
+  data: HabitMateHabitWrite
 ): Promise<DBWriteTarget> => {
-  let metadata = await metadataRepo.read([uid])
+  let metadata = await metadataRepo.read([])
   if (!metadata) {
-    if (tryCreateMetadata.try) {
-      await createMetadataIfNeed(metadataRepo, uid, tryCreateMetadata.metadata)
-      const result = await metadataRepo.read([uid])
-
-      if (!result) {
-        throw new Error('メタデータを初期化に失敗しました。')
-      }
-      metadata = result
-    } else {
-      throw new Error('メタデータを初期化してください')
-    }
+    throw new Error('メタデータを初期化してください')
   }
 
   if (
@@ -47,12 +33,12 @@ export const createHabitMateHabit = async (
     )
   }
 
-  const result = await habitRepo.create(data, [uid])
+  const result = await habitRepo.create(data, [])
   await metadataRepo.update(
     {
       activeHabitIds: [...metadata.activeHabitIds, result.id],
     },
-    [uid]
+    []
   )
 
   return result
@@ -60,7 +46,6 @@ export const createHabitMateHabit = async (
 
 export const updateHabitMateHabitBaseData = async (
   habitRepo: HabitMateHabitRepository,
-  uid: string,
   habitId: string,
   data: Partial<
     Pick<
@@ -71,18 +56,17 @@ export const updateHabitMateHabitBaseData = async (
 ) => {
   const { level, habit, isExecutable, timing, status, isFailed } = data
   const filterData = { level, habit, isExecutable, timing, status, isFailed }
-  return await habitRepo.update(filterData, [uid, habitId])
+  return await habitRepo.update(filterData, [habitId])
 }
 
 const updateHabitMateHabitWorkedDate = async (
   repo: HabitMateHabitRepository,
-  uid: string,
   habitId: string,
   date: ISODate,
   action: 'add' | 'remove' | 'toggle'
 ) => {
   // 1. データの読み込み
-  const data = await repo.read([uid, habitId])
+  const data = await repo.read([habitId])
 
   if (!data) {
     throw new Error(`習慣データが見つかりません。`)
@@ -107,54 +91,38 @@ const updateHabitMateHabitWorkedDate = async (
   }
 
   // 更新処理を実行
-  return await repo.update({ workedDate: workedDate }, [uid, habitId])
+  return await repo.update({ workedDate: workedDate }, [habitId])
 }
 
 export const pushHabitMateHabitWorkedDate = async (
   repo: HabitMateHabitRepository,
-  uid: string,
   habitId: string,
   date: ISODate = toISODate(new Date())
 ): Promise<DBWriteTarget | null> => {
-  return await updateHabitMateHabitWorkedDate(repo, uid, habitId, date, 'add')
+  return await updateHabitMateHabitWorkedDate(repo, habitId, date, 'add')
 }
 
 export const removeHabitMateHabitWorkedDate = async (
   repo: HabitMateHabitRepository,
-  uid: string,
   habitId: string,
   date: ISODate = toISODate(new Date())
 ): Promise<DBWriteTarget | null> => {
-  return await updateHabitMateHabitWorkedDate(
-    repo,
-    uid,
-    habitId,
-    date,
-    'remove'
-  )
+  return await updateHabitMateHabitWorkedDate(repo, habitId, date, 'remove')
 }
 
 export const toggleHabitMateHabitWorkedDate = async (
   repo: HabitMateHabitRepository,
-  uid: string,
   habitId: string,
   date: ISODate = toISODate(new Date())
 ): Promise<DBWriteTarget | null> => {
-  return await updateHabitMateHabitWorkedDate(
-    repo,
-    uid,
-    habitId,
-    date,
-    'toggle'
-  )
+  return await updateHabitMateHabitWorkedDate(repo, habitId, date, 'toggle')
 }
 
 export const updateHabitMateHabitNextTargetCount = async (
   repo: HabitMateHabitRepository,
-  uid: string,
   habitId: string
 ) => {
-  const habitKey = [uid, habitId]
+  const habitKey = [habitId]
   const habitData = await repo.read(habitKey)
 
   if (!habitData) {

@@ -11,13 +11,13 @@ import {
   updateHabitMateHabitBaseData,
   updateHabitMateHabitNextTargetCount,
 } from '../functions/habit-mate-habit-crud'
-import { useHabitMateDataStore } from '../stores/useHabitMateDataStore'
 import { createMetadataIfNeed } from '../functions/habit-mate-metadata-crud'
 import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
 import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
+import { useHabitMateDataStore } from '../stores/useHabitMateDataStore'
 
 const useHabitMateCrudHandler = () => {
-  const { dependentUid: uid, idbMetadata, idbHabit } = useHabitMateDataStore()
+  const { idbMetadata, idbHabit } = useHabitMateDataStore()
   const asyncKeys = [
     'createMetadata',
     'createSubmit',
@@ -30,19 +30,23 @@ const useHabitMateCrudHandler = () => {
   const { asyncStates, callAsyncFunction } = useMultipleAsyncHandler(asyncKeys)
 
   const createMetadata = () => {
-    if (!idbMetadata || !uid) {
+    if (!idbMetadata) {
       console.error('初期化未完了')
       return
     }
 
     const metadata: HabitMateMetadataWrite = {
+      techniqueVersion: 'v0.1.0',
+      installedAt: Date.now(),
+      lastUsedAt: Date.now(),
+      totalGainedExp: 0,
+      unlockedAchievementIds: [],
       maxConcurrentHabits: 1,
       activeHabitIds: [],
     }
 
     callAsyncFunction('createMetadata', createMetadataIfNeed, [
       idbMetadata,
-      uid,
       metadata,
     ])
   }
@@ -52,7 +56,7 @@ const useHabitMateCrudHandler = () => {
     formState: HabitMateCreateHabitFormState,
     startedAt = Date.now()
   ) => {
-    if (!idbMetadata || !idbHabit || !uid) {
+    if (!idbMetadata || !idbHabit) {
       console.error('初期化未完了')
       return
     }
@@ -74,53 +78,42 @@ const useHabitMateCrudHandler = () => {
     callAsyncFunction('createSubmit', createHabitMateHabit, [
       idbMetadata,
       idbHabit,
-      uid,
       data,
-      {
-        try: true,
-        metadata: {
-          maxConcurrentHabits: 1,
-          activeHabitIds: [],
-        },
-      },
     ])
   }
 
   const pushWorkedDate = (habitId: string) => {
-    if (!idbHabit || !uid) {
+    if (!idbHabit) {
       console.error('初期化未完了')
       return
     }
 
     callAsyncFunction('pushWorkedDate', pushHabitMateHabitWorkedDate, [
       idbHabit,
-      uid,
       habitId,
     ])
   }
 
   const removeWorkedDate = (habitId: string) => {
-    if (!idbHabit || !uid) {
+    if (!idbHabit) {
       console.error('初期化未完了')
       return
     }
 
     callAsyncFunction('removeWorkedDate', removeHabitMateHabitWorkedDate, [
       idbHabit,
-      uid,
       habitId,
     ])
   }
 
   const toggleWorkedDate = (habitId: string) => {
-    if (!idbHabit || !uid) {
+    if (!idbHabit) {
       console.error('初期化未完了')
       return
     }
 
     callAsyncFunction('toggleWorkedDate', toggleHabitMateHabitWorkedDate, [
       idbHabit,
-      uid,
       habitId,
     ])
   }
@@ -129,7 +122,7 @@ const useHabitMateCrudHandler = () => {
     habitId: string,
     updateData?: HabitMateContinueHabitFormState
   ) => {
-    if (!idbHabit || !uid) {
+    if (!idbHabit) {
       console.error('初期化未完了')
       return
     }
@@ -138,7 +131,7 @@ const useHabitMateCrudHandler = () => {
       const { success } = await callAsyncFunction(
         'updateHabit',
         updateHabitMateHabitBaseData,
-        [idbHabit, uid, habitId, { ...updateData }]
+        [idbHabit, habitId, { ...updateData }]
       )
       if (!success) {
         return
@@ -148,7 +141,7 @@ const useHabitMateCrudHandler = () => {
     callAsyncFunction(
       'updateNextTargetCount',
       updateHabitMateHabitNextTargetCount,
-      [idbHabit, uid, habitId]
+      [idbHabit, habitId]
     )
   }
 

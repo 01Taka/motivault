@@ -1,5 +1,5 @@
 import z from 'zod'
-import { VersionSchema } from '../../../../types/utils/version-schema'
+import { VersionSchema } from '../../../../types/utils/services/version-schema'
 
 export const HabitMateHabitLevelSchema = z.union([
   z.literal(1),

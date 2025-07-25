@@ -1,24 +1,33 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
 import React from 'react'
 import { GrayscaleImage } from '../../../../components/image/GrayscaleImage'
-import type { LevelInfo } from '../../types/habit-types'
 import {
   levelThemes,
   defaultLevelTheme,
 } from '../../constants/color/start-habit-theme'
+import type {
+  HabitMateHabitLevel,
+  HabitMateLevelInfo,
+} from '../../types/data/habit-level-types'
+import { getHabitRewards } from '../../functions/constantHelpers/habit-level-data-helper'
 
 interface StartHabitButtonCardProps {
-  levelInfo: LevelInfo
+  levelInfo: HabitMateLevelInfo
+  unlockedLevels: HabitMateHabitLevel[]
   src: string
   onStartHabit: (level: number) => void
 }
 
 const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
   levelInfo,
+  unlockedLevels,
   src,
   onStartHabit,
 }) => {
-  const buttonText = levelInfo.isUnlocked ? '始める' : levelInfo.unlockCondition
+  const isUnlocked = unlockedLevels.includes(levelInfo.level)
+  const unlockCondition = `${levelInfo.level - 1}クリアで解放`
+  const buttonText = isUnlocked ? '始める' : unlockCondition
+  const reward = getHabitRewards(levelInfo.level)
 
   // 現在のレベルのテーマカラーを取得
   const currentTheme = levelThemes[levelInfo.level] || defaultLevelTheme
@@ -41,7 +50,7 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
       {/* 背景画像（最背面） */}
       <GrayscaleImage
         src={src}
-        grayscale={levelInfo.isUnlocked ? 0 : 0.9}
+        grayscale={isUnlocked ? 0 : 0.9}
         style={{
           position: 'absolute',
           top: 0,
@@ -92,20 +101,23 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
 
         <Stack alignItems="center" sx={{ height: 80 }}>
           <Typography variant="body2">
-            Interval: {levelInfo.interval}
+            Interval: {levelInfo.milestoneIntervalCount}
           </Typography>
           <Typography variant="body2">
-            Max Days: {levelInfo.targetCount}
+            Max Days:{' '}
+            {levelInfo.targetCount.type === 'fixed'
+              ? levelInfo.targetCount.count
+              : '∞'}
           </Typography>
-          {levelInfo.reward && (
-            <Typography variant="body2">Reward: {levelInfo.reward}</Typography>
+          {reward.message && (
+            <Typography variant="body2">Reward: {reward.message}</Typography>
           )}
         </Stack>
 
         <Button
           variant="contained"
           onClick={() => onStartHabit(levelInfo.level)}
-          disabled={!levelInfo.isUnlocked}
+          disabled={!isUnlocked}
           sx={{
             mt: 3,
             borderRadius: '50px',
