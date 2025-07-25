@@ -12,13 +12,13 @@ import type {
 
 interface HabitLevelNavigatorProps {
   habitLevels: (HabitMateLevelInfo & { src: string })[]
-  unlockedLevels: HabitMateHabitLevel[]
+  currentHabitLevel: HabitMateHabitLevel
   onStartHabit: (level: HabitMateLevelInfo) => void
 }
 
 const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
   habitLevels,
-  unlockedLevels,
+  currentHabitLevel,
   onStartHabit,
 }) => {
   const [activeStep, setActiveStep] = useState(0)
@@ -39,7 +39,7 @@ const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
 
   const stepperLevels = habitLevels.map((level) => ({
     label: `Lv.${level.level}`,
-    isUnlocked: unlockedLevels.includes(level.level),
+    isUnlocked: level.level <= currentHabitLevel,
     description: level.name,
   }))
 
@@ -52,6 +52,7 @@ const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
       />
       <StartHabitButtonCardList
         ref={cardListRef}
+        currentHabitLevel={currentHabitLevel}
         habitLevels={habitLevels}
         onStartHabit={onStartHabit}
       />

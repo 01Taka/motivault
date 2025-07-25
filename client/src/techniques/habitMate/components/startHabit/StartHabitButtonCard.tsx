@@ -13,18 +13,18 @@ import { getHabitRewards } from '../../functions/constantHelpers/habit-level-dat
 
 interface StartHabitButtonCardProps {
   levelInfo: HabitMateLevelInfo
-  unlockedLevels: HabitMateHabitLevel[]
+  currentHabitLevel: HabitMateHabitLevel
   src: string
   onStartHabit: (level: number) => void
 }
 
 const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
   levelInfo,
-  unlockedLevels,
+  currentHabitLevel,
   src,
   onStartHabit,
 }) => {
-  const isUnlocked = unlockedLevels.includes(levelInfo.level)
+  const isUnlocked = currentHabitLevel >= levelInfo.level
   const unlockCondition = `${levelInfo.level - 1}クリアで解放`
   const buttonText = isUnlocked ? '始める' : unlockCondition
   const reward = getHabitRewards(levelInfo.level)

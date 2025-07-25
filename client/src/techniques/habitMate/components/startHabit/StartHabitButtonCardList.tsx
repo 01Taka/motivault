@@ -7,7 +7,10 @@ import React, {
   useImperativeHandle,
 } from 'react'
 import StartHabitButtonCard from './StartHabitButtonCard'
-import type { HabitMateLevelInfo } from '../../types/data/habit-level-types'
+import type {
+  HabitMateHabitLevel,
+  HabitMateLevelInfo,
+} from '../../types/data/habit-level-types'
 
 export interface StartHabitCardListHandle {
   scrollToLevel: (levelIndex: number) => void
@@ -15,13 +18,14 @@ export interface StartHabitCardListHandle {
 
 interface StartHabitButtonCardListProps {
   habitLevels: (HabitMateLevelInfo & { src: string })[]
+  currentHabitLevel: HabitMateHabitLevel
   onStartHabit: (level: HabitMateLevelInfo) => void
 }
 
 const StartHabitButtonCardList = forwardRef<
   StartHabitCardListHandle,
   StartHabitButtonCardListProps
->(({ habitLevels, onStartHabit }, ref) => {
+>(({ habitLevels, currentHabitLevel, onStartHabit }, ref) => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useImperativeHandle(ref, () => ({
@@ -59,7 +63,7 @@ const StartHabitButtonCardList = forwardRef<
             >
               <StartHabitButtonCard
                 src={levelInfo.src}
-                unlockedLevels={[]}
+                currentHabitLevel={currentHabitLevel}
                 levelInfo={levelInfo}
                 onStartHabit={() => onStartHabit(levelInfo)}
               />

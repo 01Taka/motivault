@@ -8,43 +8,40 @@ import type { TaskPressTemplateWrite } from '../documents/task-press-template-do
 export const createNewTaskPressTask = async (
   taskRepo: TaskPressTaskRepository,
   templateRepo: TaskPressTemplateRepository,
-  uid: string,
   task: TaskPressTaskWrite,
   template: TaskPressTemplateWrite
 ): Promise<void> => {
   const templateExists =
-    task.templateId && (await isExistTemplate(uid, templateRepo))
+    task.templateId && (await isExistTemplate(templateRepo))
 
   if (templateExists) {
-    await taskRepo.create(task, [uid])
+    await taskRepo.create(task, [])
   } else {
-    const createdTemplate = await templateRepo.create(template, [uid])
+    const createdTemplate = await templateRepo.create(template, [])
     if (!createdTemplate?.id) {
       throw new Error('テンプレートの作成に失敗しました')
     }
-    await taskRepo.create({ ...task, templateId: createdTemplate.id }, [uid])
+    await taskRepo.create({ ...task, templateId: createdTemplate.id }, [])
   }
 }
 
 const isExistTemplate = async (
-  uid: string,
   templateRepo: TaskPressTemplateRepository
 ): Promise<boolean> => {
-  const data = await templateRepo.read([uid])
+  const data = await templateRepo.read([])
   return Boolean(data && data.isActive)
 }
 
 export const taskPressUpdateProblemSetPages = async (
   taskRepo: TaskPressTaskRepository,
-  uid: string,
   taskId: string,
   pagesToComplete: number[] = [],
   pagesToUncomplete: number[] = [] // New parameter for pages to uncomplete
 ): Promise<boolean> => {
-  const task = await taskRepo.read([uid, taskId])
+  const task = await taskRepo.read([taskId])
 
   if (!task) {
-    throw new Error(`タスクが見つかりません: uid=${uid}, taskId=${taskId}`)
+    throw new Error(`タスクが見つかりません, taskId=${taskId}`)
   }
 
   if (task.type !== 'problemSet') {
@@ -66,22 +63,21 @@ export const taskPressUpdateProblemSetPages = async (
     (a, b) => a - b
   )
 
-  await taskRepo.update({ completedPages: newCompletedPages }, [uid, taskId])
+  await taskRepo.update({ completedPages: newCompletedPages }, [taskId])
 
   return true
 }
 
 export const taskPressUpdateReportStepOrders = async (
   taskRepo: TaskPressTaskRepository,
-  uid: string,
   taskId: string,
   stepOrdersToComplete: number[] = [],
   stepOrdersToUncomplete: number[] = [] // New parameter for step orders to uncomplete
 ): Promise<boolean> => {
-  const task = await taskRepo.read([uid, taskId])
+  const task = await taskRepo.read([taskId])
 
   if (!task) {
-    throw new Error(`タスクが見つかりません: uid=${uid}, taskId=${taskId}`)
+    throw new Error(`タスクが見つかりません: taskId=${taskId}`)
   }
 
   if (task.type !== 'report') {
@@ -104,7 +100,6 @@ export const taskPressUpdateReportStepOrders = async (
   )
 
   await taskRepo.update({ completedStepOrders: newCompletedStepOrders }, [
-    uid,
     taskId,
   ])
 
@@ -113,18 +108,16 @@ export const taskPressUpdateReportStepOrders = async (
 
 export const updateTaskPressTask = async (
   taskRepo: TaskPressTaskRepository,
-  uid: string,
   taskId: string,
   data: Partial<TaskPressTaskWrite>
 ) => {
-  await taskRepo.update(data, [uid, taskId])
+  await taskRepo.update(data, [taskId])
 }
 
 export const updateTaskPressTemplate = async (
   templateRepo: TaskPressTemplateRepository,
-  uid: string,
   taskId: string,
   data: Partial<TaskPressTemplateWrite>
 ) => {
-  await templateRepo.update(data, [uid, taskId])
+  await templateRepo.update(data, [taskId])
 }

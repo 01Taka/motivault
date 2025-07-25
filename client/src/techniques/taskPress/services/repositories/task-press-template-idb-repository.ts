@@ -15,6 +15,7 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
 
   constructor(uid: string) {
     super(['users', 'techniques', 'templates'], {
+      users: uid,
       techniques: 'taskPress',
     })
     this.uid = uid

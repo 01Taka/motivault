@@ -47,7 +47,7 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
     dataKeysToListen,
   } = dataSyncActions
 
-  const memoPathSegments = useMemo(() => pathSegments ?? ['uid'], [])
+  const memoPathSegments = useMemo(() => pathSegments ?? [], [])
   const memoDataKeysToListen = useMemo(() => dataKeysToListen, [])
 
   useEffect(() => {

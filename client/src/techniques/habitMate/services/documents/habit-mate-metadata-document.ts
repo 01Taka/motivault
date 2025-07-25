@@ -4,8 +4,10 @@ import {
   DocumentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
 import { TechniqueMetadataBaseSchema } from '../../../../features/technique/metadata/services/documents/technique-metadata-base-document'
+import { HabitMateHabitLevelSchema } from '../../types/data/habit-level-schema'
 
 export const HabitMateMetadataSchema = TechniqueMetadataBaseSchema.extend({
+  currentHabitLevel: HabitMateHabitLevelSchema,
   maxConcurrentHabits: z.number(),
   activeHabitIds: z.array(z.string()),
 })

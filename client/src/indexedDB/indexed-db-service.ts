@@ -331,6 +331,12 @@ export abstract class IndexedDBService<
     return createFirestoreId()
   }
 
+  countPathMatchesInFixedPaths(path: string): number {
+    return Object.keys(this.fixedPath).filter((pathKey) =>
+      path.includes(pathKey)
+    ).length
+  }
+
   /**
    * Snapshot Listener: Notifies relevant document and collection listeners after a data change.
    * This should be called after any successful write operation (put, delete).
@@ -340,14 +346,16 @@ export abstract class IndexedDBService<
   private async _handleWriteSuccess(
     affectedLogicalPath: string
   ): Promise<void> {
+    const fixedCount = this.countPathMatchesInFixedPaths(affectedLogicalPath)
     // 1. Notify Document Listeners for the specific affected path
     if (this.documentListeners.has(affectedLogicalPath)) {
       // Extract dynamic segments for getFromDB
       const segments = affectedLogicalPath
         .split('/')
         .filter((_, i) => i % 2 !== 0)
+
       const data = await this.getFromDB(
-        this.singletonDocumentId ? segments.slice(0, -1) : segments
+        fixedCount > 0 ? segments.slice(0, -fixedCount) : segments
       )
       const currentDataString = JSON.stringify(data)
 
@@ -372,11 +380,15 @@ export abstract class IndexedDBService<
       // Check if the affected document path starts with the collection's logical path prefix
       if (affectedLogicalPath.startsWith(collectionPathPrefix)) {
         // Re-fetch the entire collection
-        const collectionSegments = collectionPathPrefix
-          .split('/')
-          .filter((s) => s)
+        const collectionPath = collectionPathPrefix.split('/').filter((s) => s)
+        const collectionFullSegments = collectionPath.filter(
+          (_, i) => i % 2 !== 0
+        )
+
         const collectionData = await this.getAll(
-          collectionSegments.filter((_, i) => i % 2 !== 0).slice(0, -1)
+          fixedCount > 0
+            ? collectionFullSegments.slice(0, -fixedCount)
+            : collectionFullSegments
         )
 
         const currentCollectionDataString = JSON.stringify(collectionData)

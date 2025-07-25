@@ -17,7 +17,7 @@ import {
 import { useTaskPressDataStore } from '../stores/useTaskPressDataStore'
 
 const useTaskPressCrudHandler = () => {
-  const { dependentUid: uid, idbTask, idbTemplate } = useTaskPressDataStore()
+  const { idbTask, idbTemplate } = useTaskPressDataStore()
 
   const asyncKeys = [
     'submit',
@@ -43,14 +43,6 @@ const useTaskPressCrudHandler = () => {
     operationName: (typeof asyncKeys)[number],
     requiresTemplateIdb: boolean = false
   ): boolean => {
-    if (!uid) {
-      logError(
-        operationName,
-        'ユーザーID（uid）が未定義です。操作を続行できません。'
-      )
-      return false
-    }
-
     if (!idbTask) {
       logError(
         operationName,
@@ -81,7 +73,6 @@ const useTaskPressCrudHandler = () => {
     callAsyncFunction('submit', createNewTaskPressTask, [
       idbTask!, // Assert non-null after validation
       idbTemplate!, // Assert non-null after validation
-      uid!, // Assert non-null after validation
       task,
       template,
     ])
@@ -95,7 +86,6 @@ const useTaskPressCrudHandler = () => {
     if (validateCrudPrerequisites('updateTask')) {
       callAsyncFunction('updateTask', updateTaskPressTask, [
         idbTask!,
-        uid!,
         taskId,
         updateFormState,
       ])
@@ -104,7 +94,6 @@ const useTaskPressCrudHandler = () => {
     if (validateCrudPrerequisites('updateTemplate', true)) {
       callAsyncFunction('updateTemplate', updateTaskPressTemplate, [
         idbTemplate!,
-        uid!,
         templateId,
         updateFormState,
       ])
@@ -122,7 +111,6 @@ const useTaskPressCrudHandler = () => {
 
     callAsyncFunction('updateCompletedPages', taskPressUpdateProblemSetPages, [
       idbTask!,
-      uid!,
       taskId,
       pagesToComplete,
       pagesToUncomplete,
@@ -141,7 +129,7 @@ const useTaskPressCrudHandler = () => {
     callAsyncFunction(
       'updateCompletedStepOrders',
       taskPressUpdateReportStepOrders,
-      [idbTask!, uid!, taskId, stepOrdersToComplete, stepOrdersToUncomplete]
+      [idbTask!, taskId, stepOrdersToComplete, stepOrdersToUncomplete]
     )
   }
 
