@@ -11,6 +11,7 @@ export const TechniqueMetadataBaseSchema = z.object({
   lastUsedAt: z.number(),
   totalGainedExp: z.number(),
   unlockedAchievementIds: z.array(z.string()),
+  isVisible: z.boolean(),
   // unlockedTipIds: z.array(z.string()),
 })
 

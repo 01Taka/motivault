@@ -4,7 +4,6 @@ import { Route, Routes } from 'react-router-dom'
 import NotFound from './components/pages/error/NotFound'
 import HomePage from './components/pages/home/HomePage'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
-import useTechniqueXPSetup from './features/achievementsSystem/hooks/useTechniqueXPSetup'
 import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
@@ -12,6 +11,8 @@ import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCre
 import useAbstractDataSync from './hooks/services/useAbstractDataSync'
 import { useUserDataStore } from './features/user/services/stores/useUserDataStore'
 import { useTechniqueDataStore } from './features/technique/services/stores/useTechniqueDataStore'
+import useTechniqueSessionManager from './features/technique/services/hooks/useTechniqueSessionManager'
+import useIdleTimeout from './hooks/system/useIdleTimeout'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
@@ -72,7 +73,8 @@ function App() {
     dataKeysToListen: ['metadata'],
   })
 
-  useTechniqueXPSetup()
+  useTechniqueSessionManager()
+  // useTechniqueXPSetup()
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

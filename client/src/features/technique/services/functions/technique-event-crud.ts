@@ -1,9 +1,4 @@
-import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
 import type { TechniqueId } from '../../types/data/technique-id-types'
-import type {
-  TechniqueMetadataBaseRead,
-  TechniqueMetadataBaseWrite,
-} from '../documents/technique-metadata-base-document'
 import type {
   TechniqueExpGainEventRepository,
   TechniqueMetadataBaseRepository,
@@ -46,23 +41,7 @@ const fetchMetadataAndSession = async (
   return { metadata, session }
 }
 
-export const initializeMetadataRepositoryIfNeed = async (
-  metadataRepo: TechniqueMetadataBaseRepository,
-  techniqueId: TechniqueId,
-  metadata: TechniqueMetadataBaseWrite
-): Promise<{
-  isInitialized: boolean
-  result: DBWriteTarget | TechniqueMetadataBaseRead
-}> => {
-  const data = await metadataRepo.read([techniqueId])
-  if (!data) {
-    const result = await metadataRepo.createWithId(metadata, [techniqueId])
-    return { isInitialized: true, result }
-  }
-  return { isInitialized: false, result: data }
-}
-
-export const gainExp = async (
+export const gainTechniqueExp = async (
   metadataRepo: TechniqueMetadataBaseRepository,
   sessionRepo: TechniqueSessionRepository,
   expEventRepo: TechniqueExpGainEventRepository,
@@ -110,7 +89,7 @@ export const gainExp = async (
   }
 }
 
-export const unlockAchievement = async (
+export const unlockTechniqueAchievement = async (
   metadataRepo: TechniqueMetadataBaseRepository,
   sessionRepo: TechniqueSessionRepository,
   achievementEventRepo: TechniqueUnlockAchievementsEventRepository,
@@ -157,10 +136,4 @@ export const unlockAchievement = async (
       ERROR_MESSAGES.experienceGainFailed(techniqueId, sessionId, error)
     )
   }
-}
-
-export const getAllMetadata = async (
-  metadataRepo: TechniqueMetadataBaseRepository
-) => {
-  return await metadataRepo.getAll()
 }

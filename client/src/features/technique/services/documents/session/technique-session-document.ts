@@ -9,6 +9,10 @@ export const TechniqueSessionEndReasonSchema = z.union([
   z.literal('linkMoved'),
 ])
 
+export type TechniqueSessionEndReason = z.infer<
+  typeof TechniqueSessionEndReasonSchema
+>
+
 export const TechniqueSessionSchema = z.object({
   startedAt: z.number(),
   endedAt: z.number().nullable(),

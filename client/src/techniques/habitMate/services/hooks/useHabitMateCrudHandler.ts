@@ -57,6 +57,7 @@ const useHabitMateCrudHandler = () => {
           unlockedAchievementIds: [],
           maxConcurrentHabits: 1,
           activeHabitIds: [],
+          isVisible: true,
         }
         return await createMetadataIfNeed(idbMetadata!, metadata)
       },

@@ -3,17 +3,16 @@ import { create } from 'zustand'
 import {
   createIDBRepoStore,
   type GeneratedStore,
-  type RepoStoreConfig,
-  type ValueFromConfig, // ValueFromMap から ValueFromConfig に変更
+  type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
 import { UserIDBRepository } from '../repositories/user-idb-repository'
 import type { UserRead } from '../documents/user-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
-const storeConfig: RepoStoreConfig = {
+const storeConfig = {
   idbUser: {
     repo: UserIDBRepository,
-    dataKey: 'users' as const,
+    dataKey: 'user' as const,
     subscriptionType: 'singleton',
     repositoryType: 'indexedDB',
   },
@@ -21,7 +20,7 @@ const storeConfig: RepoStoreConfig = {
 
 // 2. 具体的なデータ要素型を定義
 type AppDataTypes = {
-  users: UserRead
+  user: UserRead
 }
 
 // 3. createIDBRepoStore を使ってストア定義を取得

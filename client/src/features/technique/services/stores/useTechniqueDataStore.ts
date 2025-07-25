@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import {
   createIDBRepoStore,
   type GeneratedStore,
-  type RepoStoreConfig,
   type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
 import { TechniqueMetadataBaseIDBRepository } from '../repositories/idb/technique-metadata-base-idb-repository'
@@ -15,7 +14,7 @@ import type { TechniqueSessionRead } from '../documents/session/technique-sessio
 import type { TechniqueExpGainEventRead } from '../documents/session/exp-gain-event-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
-const storeConfig: RepoStoreConfig = {
+const storeConfig = {
   idbMetadata: {
     repo: TechniqueMetadataBaseIDBRepository,
     dataKey: 'metadata' as const,

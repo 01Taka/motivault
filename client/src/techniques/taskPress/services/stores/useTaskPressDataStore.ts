@@ -1,10 +1,8 @@
 import { create } from 'zustand'
-
 import {
   createIDBRepoStore,
   type GeneratedStore,
-  type RepoStoreConfig,
-  type ValueFromConfig, // ValueFromMap から ValueFromConfig に変更
+  type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
 import { TaskPressTemplateIDBRepository } from '../repositories/task-press-template-idb-repository'
 import { TaskPressTaskIDBRepository } from '../repositories/task-press-task-idb-repository'
@@ -12,7 +10,7 @@ import type { TaskPressTaskRead } from '../documents/task-press-task-document'
 import type { TaskPressTemplateRead } from '../documents/task-press-template-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
-const storeConfig: RepoStoreConfig = {
+const storeConfig = {
   idbTask: {
     repo: TaskPressTaskIDBRepository,
     dataKey: 'tasks' as const,
