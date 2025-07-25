@@ -2,7 +2,7 @@ import z from 'zod'
 import {
   DocumentReadSchema,
   DocumentWriteSchema,
-} from '../../../../../../types/db/db-service-document-schema'
+} from '../../../../../types/db/db-service-document-schema'
 
 export const TechniqueUnlockAchievementEventSchema = z.object({
   // achievementId = docId

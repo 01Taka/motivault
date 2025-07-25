@@ -11,6 +11,7 @@ import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStar
 import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCreateHabit'
 import useAbstractDataSync from './hooks/services/useAbstractDataSync'
 import { useUserDataStore } from './features/user/services/stores/useUserDataStore'
+import { useTechniqueDataStore } from './features/technique/services/stores/useTechniqueDataStore'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
@@ -65,11 +66,12 @@ const CreateTaskPress = lazy(
 )
 
 function App() {
-  const userData = useUserDataStore()
+  useAbstractDataSync(useUserDataStore())
   useAbstractDataSync({
-    ...userData,
-    pathSegments: [],
+    ...useTechniqueDataStore(),
+    dataKeysToListen: ['metadata'],
   })
+
   useTechniqueXPSetup()
 
   return (

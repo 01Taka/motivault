@@ -1,9 +1,9 @@
 import z from 'zod'
-import { VersionSchema } from '../../../../../types/utils/services/version-schema'
 import {
   DocumentReadSchema,
   DocumentWriteSchema,
-} from '../../../../../types/db/db-service-document-schema'
+} from '../../../../types/db/db-service-document-schema'
+import { VersionSchema } from '../../../../types/utils/services/version-schema'
 
 export const TechniqueMetadataBaseSchema = z.object({
   techniqueVersion: VersionSchema,

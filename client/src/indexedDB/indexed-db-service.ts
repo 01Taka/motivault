@@ -186,6 +186,13 @@ export abstract class IndexedDBService<
     dynamicDocIds: string[],
     refType: 'collection' | 'doc'
   ): string {
+    // console.log(
+    //   this.collectionPathComposition,
+    //   dynamicDocIds,
+    //   refType,
+    //   this.fixedPath
+    // )
+
     return CollectionManager.composePath(
       this.collectionPathComposition,
       dynamicDocIds,

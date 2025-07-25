@@ -1,4 +1,4 @@
-import { IndexedDBService } from '../../../../../../indexedDB/indexed-db-service'
+import { IndexedDBService } from '../../../../../indexedDB/indexed-db-service'
 import {
   PartialTechniqueExpGainEventWriteSchema,
   TechniqueExpGainEventSchema,

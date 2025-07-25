@@ -1,5 +1,5 @@
-import type { DBWriteTarget } from '../../../../../types/db/db-service-interface'
-import type { TechniqueId } from '../../../types/data/technique-id-types'
+import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
+import type { TechniqueId } from '../../types/data/technique-id-types'
 import type {
   TechniqueMetadataBaseRead,
   TechniqueMetadataBaseWrite,

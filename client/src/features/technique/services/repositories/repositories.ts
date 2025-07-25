@@ -1,4 +1,4 @@
-import type { IDBService } from '../../../../../types/db/db-service-interface'
+import type { IDBService } from '../../../../types/db/db-service-interface'
 import type {
   TechniqueExpGainEventRead,
   TechniqueExpGainEventWrite,

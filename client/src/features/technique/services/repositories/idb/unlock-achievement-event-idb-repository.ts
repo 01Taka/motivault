@@ -1,4 +1,4 @@
-import { IndexedDBService } from '../../../../../../indexedDB/indexed-db-service'
+import { IndexedDBService } from '../../../../../indexedDB/indexed-db-service'
 import {
   PartialTechniqueUnlockAchievementEventWriteSchema,
   TechniqueUnlockAchievementEventSchema,
@@ -9,7 +9,7 @@ import {
 /**
  * documentPath: [techniqueId, sessionId]
  */
-export class UnlockIDBRepository extends IndexedDBService<
+export class UnlockAchievementEventIDBRepository extends IndexedDBService<
   TechniqueUnlockAchievementEventRead,
   TechniqueUnlockAchievementEventWrite
 > {

@@ -1,19 +1,23 @@
-import { IndexedDBService } from '../../../../../../indexedDB/indexed-db-service'
+import type { Firestore } from 'firebase/firestore'
+import FirestoreService from '../../../../firebase/firestore/handler/firestore-service'
 import {
   PartialTechniqueMetadataBaseWriteSchema,
   TechniqueMetadataBaseSchema,
   type TechniqueMetadataBaseRead,
   type TechniqueMetadataBaseWrite,
-} from '../../documents/technique-metadata-base-document'
+} from '../documents/technique-metadata-base-document'
 
-export class TechniqueMetadataBaseIDBRepository extends IndexedDBService<
+/**
+ * documentPath: [uid, habitId]
+ */
+export class TechniqueMetadataBaseFirestoreRepository extends FirestoreService<
   TechniqueMetadataBaseRead,
   TechniqueMetadataBaseWrite
 > {
   private uid: string
 
-  constructor(uid: string) {
-    super(['users', 'techniquesMetadata'], { users: uid })
+  constructor(firestore: Firestore, uid: string) {
+    super(firestore, ['users', 'techniquesMetadata'], { users: uid })
     this.uid = uid
   }
 
