@@ -7,6 +7,7 @@ import type {
 } from '../types/db/db-service-document-types'
 import type { TransactionalService } from './indexed-db-types'
 import type {
+  CreateWithIdOptions,
   DBWriteTarget,
   IDBService,
   IndexedDBQueryConstraints,
@@ -289,7 +290,7 @@ export abstract class IndexedDBService<
    * @returns システムフィールドが追加されたレコード
    */
   private createRecord(
-    data: Document,
+    data: Document | Partial<Document>,
     fullLogicalPath: string,
     id: string
   ): any {
@@ -414,11 +415,7 @@ export abstract class IndexedDBService<
       'doc'
     ) // IndexedDBのkeyPathとなる完全パス
     const filtered = this.filterWriteData(data)
-    const record = this.createRecord(
-      filtered as Document,
-      fullLogicalPath,
-      newDocIdSegment
-    ) // レコードを作成
+    const record = this.createRecord(filtered, fullLogicalPath, newDocIdSegment) // レコードを作成
 
     const db = await this.dbPromise
 
@@ -429,15 +426,38 @@ export abstract class IndexedDBService<
   }
 
   /**
+   * オブジェクトから特定のキーのフィールドを抽出して新しいオブジェクトを作成します。
+   *
+   * @param data - 元のオブジェクト。
+   * @param keysToExtract - 抽出したいキーの配列（文字列の配列）。
+   * @returns 抽出されたフィールドを持つ新しいオブジェクト。
+   */
+  extractFields<T extends Record<string, any>>(
+    data: T,
+    keysToExtract: string[] // ここを string[] に変更
+  ): Partial<T> {
+    const newObject: Partial<T> = {}
+    for (const key of keysToExtract) {
+      // TypeScriptの型チェックを回避するため、keyを型アサーションで keyof T にキャストします
+      // ただし、keyがdataに存在しない場合は undefined になる可能性があるので注意が必要です
+      if (data.hasOwnProperty(key)) {
+        newObject[key as keyof T] = data[key]
+      }
+    }
+    return newObject
+  }
+
+  /**
    * 指定されたIDで新しいドキュメントを作成します。
    *
    * @param data 書き込みデータ
    * @param documentPathSegments ドキュメントパスの動的IDセグメント（最後の要素が指定IDとなる）
    * @returns 作成されたドキュメントのID（最後のセグメントID）と完全な論理パス
    */
-  public async createWithId(
-    data: Write,
-    documentPathSegments: string[]
+  public async createWithId<O extends CreateWithIdOptions = { merge: false }>(
+    data: O extends { allowPartial: true } ? Partial<Write> : Write,
+    documentPathSegments: string[],
+    options?: O
   ): Promise<DBWriteTarget> {
     if (this.singletonDocumentId) {
       throw new Error(
@@ -445,10 +465,36 @@ export abstract class IndexedDBService<
       )
     }
 
+    const isPartialMergeAndNotArrowPartial =
+      options?.merge &&
+      !options?.allowPartial &&
+      options.mergeFields !== undefined
+
+    if (options?.merge) {
+      const prevData = await this.read(documentPathSegments)
+      if (isPartialMergeAndNotArrowPartial && !prevData) {
+        throw new Error(
+          `Document not found for partial merge at path: ${documentPathSegments.join('/')}`
+        )
+      }
+
+      const newData = options.mergeFields
+        ? this.extractFields(data, options.mergeFields)
+        : data
+
+      if (prevData) {
+        return this.update(newData, documentPathSegments)
+      }
+    }
+
+    const filtered =
+      options?.allowPartial || isPartialMergeAndNotArrowPartial
+        ? this.filterPartialWriteData(data)
+        : this.filterWriteData(data)
+
     const { path: fullLogicalPath, id } =
       this.getPathAndId(documentPathSegments) // 完全パスとIDを取得
-    const filtered = this.filterWriteData(data)
-    const record = this.createRecord(filtered as Document, fullLogicalPath, id) // レコードを作成
+    const record = this.createRecord(filtered, fullLogicalPath, id) // レコードを作成
 
     const db = await this.dbPromise
     await db.put(IndexedDBService.storeName, record)
@@ -490,7 +536,7 @@ export abstract class IndexedDBService<
     const mergedData = { ...existing, ...removeUndefinedData } as Partial<Write> // Write型にキャストしてfilterWriteDataに渡す
     const filteredUpdates = this.filterPartialWriteData(mergedData) // マージされたデータ全体をフィルタリング
 
-    const updated = this.updateRecord(existing, filteredUpdates as Document) // 既存のレコードを更新データで上書きし、updatedAtを更新
+    const updated = this.updateRecord(existing, filteredUpdates) // 既存のレコードを更新データで上書きし、updatedAtを更新
 
     const { path: fullLogicalPath, id } =
       this.getPathAndId(documentPathSegments)
@@ -781,7 +827,7 @@ export abstract class IndexedDBService<
           ) // IndexedDBのkeyPathとなる完全パス
 
           const rec = this.createRecord(
-            this.filterWriteData(data) as Document,
+            this.filterWriteData(data),
             fullLogicalPath,
             newDocIdSegment
           )

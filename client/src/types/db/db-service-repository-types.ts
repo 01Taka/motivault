@@ -1,11 +1,12 @@
-import type { Firestore } from 'firebase/firestore'
-import * as admin from 'firebase-admin';
-admin.initializeApp();
+import type { Firestore } from 'firebase/firestore' // Client SDK の Firestore
+import { type Functions } from 'firebase/functions'
 
-type RepositoryType = 'indexedDB' | 'firestore' | 'functions'
+export type RepositoryType = 'indexedDB' | 'firestore' | 'functions'
 
-interface BaseRepositoryConstructorArgs {
-  indexedDB: [uid: string],
-  firestore: [firestore: Firestore, uid: string],
-  functions: 
-} 
+export interface RepositoryArgsBaseMap {
+  indexedDB: [uid: string]
+  firestore: [firestore: Firestore, uid: string]
+  functions: [functions: Functions]
+}
+
+export type RepositoryArgsBase = RepositoryArgsBaseMap[RepositoryType]

@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 
 // Firestoreの初期化とキャッシュ設定
-const db = initializeFirestore(app, {
+const firestore = initializeFirestore(app, {
   localCache: persistentLocalCache(), // IndexedDBキャッシュの有効化
 })
 
@@ -35,4 +35,4 @@ if (await isSupported()) {
 
 const googleProvider = new GoogleAuthProvider()
 
-export { db, auth, googleProvider, storage, messaging }
+export { firestore, auth, googleProvider, storage, messaging }

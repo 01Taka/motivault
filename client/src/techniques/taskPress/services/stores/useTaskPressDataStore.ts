@@ -17,11 +17,13 @@ const storeConfig: RepoStoreConfig = {
     repo: TaskPressTaskIDBRepository,
     dataKey: 'tasks',
     subscriptionType: 'collection',
+    repositoryType: 'indexedDB',
   },
   idbTemplate: {
     repo: TaskPressTemplateIDBRepository,
     dataKey: 'templates',
     subscriptionType: 'collection',
+    repositoryType: 'indexedDB',
   },
 } as const
 

@@ -15,6 +15,7 @@ const storeConfig: RepoStoreConfig = {
     repo: UserIDBRepository,
     dataKey: 'users',
     subscriptionType: 'singleton',
+    repositoryType: 'indexedDB',
   },
 } as const
 

@@ -1,6 +1,11 @@
 import { useEffect, useMemo } from 'react'
 import { onAuthStateChanged, type User } from 'firebase/auth'
-import { auth } from '../../firebase/firebase'
+import { auth, firestore } from '../../firebase/firebase'
+import type {
+  RepositoryArgsBaseMap,
+  RepositoryType,
+} from '../../types/db/db-service-repository-types'
+import { functions } from '../../firebase/firebase-admin'
 
 /**
  * @template T - A union type representing the possible keys or identifiers for specific data listeners (e.g., 'habits', 'routines'). These are typically used to subscribe to subsets of data within a user's repository.
@@ -26,14 +31,14 @@ import { auth } from '../../firebase/firebase'
  * @param {DataSyncActions<T>} dataSyncActions - An object containing functions and configuration for data synchronization.
  */
 const useAbstractDataSync = <T extends string>(dataSyncActions: {
-  setRepositories: (...constructorArgs: RepoConstructorArgs) => void
+  repositoryArgsMap: Record<string, RepositoryType>
+  setRepositories: (repositoryArgsMap: RepositoryArgsBaseMap) => void
   clearRepositories: () => void
   initializeListeners: (
     pathSegments: string[],
     dataKeysToListen?: T[] | undefined
   ) => (() => void) | undefined
   clearData: () => void
-  repoConstructorArgs: RepoConstructorArgs
   pathSegments?: ('uid' | string)[] // Added optional pathSegments
   dataKeysToListen?: T[] | undefined // Added optional dataKeysToListen
 }) => {
@@ -42,15 +47,10 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
     clearRepositories,
     initializeListeners,
     clearData,
-    repoConstructorArgs,
     pathSegments,
     dataKeysToListen,
   } = dataSyncActions
 
-  const memoRepoConstructorArgs = useMemo(
-    () => repoConstructorArgs ?? ['uid'],
-    []
-  ) as any[]
   const memoPathSegments = useMemo(() => pathSegments ?? ['uid'], [])
   const memoDataKeysToListen = useMemo(() => dataKeysToListen, [])
 
@@ -59,10 +59,13 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
-        const resolvedConstructorArgs = memoPathSegments.map((arg) =>
-          arg === 'uid' ? user.uid : arg
-        )
-        setRepositories(resolvedConstructorArgs)
+        const repositoryArgsMap: RepositoryArgsBaseMap = {
+          indexedDB: [user.uid],
+          firestore: [firestore, user.uid],
+          functions: [functions],
+        }
+
+        setRepositories(repositoryArgsMap)
         // Construct the full path segments, replacing 'uid' with the actual user ID
         const resolvedPathSegments = memoPathSegments.map((segment) =>
           segment === 'uid' ? user.uid : segment
@@ -89,7 +92,6 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
     clearRepositories,
     initializeListeners,
     clearData,
-    memoRepoConstructorArgs,
     memoPathSegments, // Add pathSegments to dependencies
     memoDataKeysToListen, // Add dataKeysToListen to dependencies
   ])

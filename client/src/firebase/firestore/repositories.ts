@@ -1,5 +1,5 @@
 import type { Firestore } from 'firebase/firestore'
-import { db } from '../firebase'
+import { firestore } from '../firebase'
 import { UserRepository } from './repositories/users/user-repository'
 import type { IDBRepositories } from '../../types/db/db-service-interface'
 
@@ -7,17 +7,17 @@ interface FirestoreRepositories extends IDBRepositories {
   users: UserRepository
 }
 
-type RepositoryFactory = (db: Firestore) => FirestoreRepositories
+type RepositoryFactory = (firestore: Firestore) => FirestoreRepositories
 
-export const createRepositories: RepositoryFactory = (db) => ({
-  users: new UserRepository(db),
+export const createRepositories: RepositoryFactory = (firestore) => ({
+  users: new UserRepository(firestore),
 })
 
 let repositories: FirestoreRepositories | null = null
 
 export const getRepositories = (): FirestoreRepositories => {
   if (!repositories) {
-    repositories = createRepositories(db)
+    repositories = createRepositories(firestore)
   }
   return repositories
 }

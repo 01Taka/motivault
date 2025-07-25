@@ -1,5 +1,10 @@
 import type { BaseDocumentRead } from '../../types/db/db-service-document-types'
 import type { IDBService } from '../../types/db/db-service-interface'
+import type {
+  RepositoryArgsBase,
+  RepositoryArgsBaseMap,
+  RepositoryType,
+} from '../../types/db/db-service-repository-types'
 
 /**
  * Extracts all possible string literal values from the 'dataKey' properties within a given Config object.
@@ -15,12 +20,13 @@ export type ValueFromConfig<
  * @template D The string literal type for the data key associated with this repository.
  */
 export type RepoConfigEntry<
-  R extends new (...args: any) => IDBService<any, any>,
+  R extends new (...args: RepositoryArgsBase) => IDBService<any, any>,
   D extends string,
 > = {
   repo: R
   dataKey: D
   subscriptionType: 'collection' | 'singleton' // コレクションかシングルトンか
+  repositoryType: RepositoryType
 }
 
 /**
@@ -61,7 +67,7 @@ export type GeneratedStore<
     : T[K][] // それ以外（collectionタイプ）の場合、Read型の配列
 } & {
   // Utility methods for managing repositories and listeners
-  setRepositories: (uid: string) => void
+  setRepositories: (argsMap: RepositoryArgsBaseMap) => void
   clearRepositories: () => void
   initializeListeners: (
     pathSegments: string[],
@@ -126,11 +132,12 @@ export const createIDBRepoStore = <
      * 各リポジトリインスタンスはZustandストアに保存されます。
      * @param uid リポジトリを初期化するためのユーザーID。
      */
-    setRepositories: (...repoArgs: any) => {
+    setRepositories: (repoArgsMap: RepositoryArgsBaseMap) => {
       const newRepos: { [key: string]: any } = {}
       for (const key in config) {
         if (Object.prototype.hasOwnProperty.call(config, key)) {
           // リポジトリクラスの新しいインスタンスを作成します
+          const repoArgs = repoArgsMap[config[key].repositoryType]
           newRepos[key] = new config[key].repo(...repoArgs)
         }
       }

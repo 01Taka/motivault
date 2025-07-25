@@ -26,6 +26,7 @@ import type {
   BaseMetadata,
 } from '../../../types/db/db-service-document-types'
 import type {
+  CreateWithIdOptions,
   DBWriteTarget,
   FirestoreQueryConstraints,
   IDBService,
@@ -180,18 +181,39 @@ abstract class FirestoreService<
     return { id: docRef.id, path: docRef.path }
   }
 
-  async createWithId(
-    data: Write,
+  async createWithId<O extends CreateWithIdOptions = { merge: false }>(
+    data: O extends { allowPartial: true } ? Partial<Write> : Write,
     documentPath: string[],
-    options?: SetOptions
+    options?: O
   ): Promise<DBWriteTarget> {
     console.log('called createWithId')
     const docRef = this.getReference(documentPath, 'doc')
-    await CRUDHandler.createWithId(
-      docRef,
-      this.organizeCreateData(data),
-      options
-    )
+    const setOptions: SetOptions | undefined = options
+      ? options.merge
+        ? options.mergeFields !== undefined
+          ? { mergeFields: options.mergeFields }
+          : { merge: true }
+        : { merge: false }
+      : undefined
+
+    const isPartialMergeAndNotArrowPartial =
+      options?.merge &&
+      !options?.allowPartial &&
+      options.mergeFields !== undefined
+    // 部分的データが許されていない && 一部のフィールドしかマージされない場合、既存のデータがあるかを確認する
+    if (isPartialMergeAndNotArrowPartial) {
+      const isExist = await this.read(documentPath)
+      if (!isExist) {
+        throw new Error(`Document not found at path: ${documentPath.join('/')}`)
+      }
+    }
+
+    const organizedData =
+      options?.allowPartial || isPartialMergeAndNotArrowPartial
+        ? this.organizeUpdateData(data)
+        : this.organizeCreateData(data)
+
+    await CRUDHandler.createWithId(docRef, organizedData, setOptions)
     return { id: docRef.id, path: docRef.path }
   }
 

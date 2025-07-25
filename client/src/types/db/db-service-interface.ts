@@ -10,12 +10,20 @@ export interface DBWriteTarget {
   path: string
 }
 
+export type CreateWithIdOptions =
+  | { merge: true; mergeFields?: string[]; allowPartial?: boolean }
+  | { merge: false; allowPartial?: boolean }
+
 export interface IDBService<
   Read extends BaseDocumentRead,
   Write extends BaseDocumentWrite,
 > {
   create(data: Write, collectionPath?: string[]): Promise<DBWriteTarget>
-  createWithId(data: Write, documentPath: string[]): Promise<DBWriteTarget>
+  createWithId(
+    data: Write,
+    documentPath: string[],
+    options?: CreateWithIdOptions
+  ): Promise<DBWriteTarget>
   read(documentPath: string[]): Promise<Read | null>
   update(data: Partial<Write>, documentPath: string[]): Promise<DBWriteTarget>
   hardDelete(documentPath: string[]): Promise<void>

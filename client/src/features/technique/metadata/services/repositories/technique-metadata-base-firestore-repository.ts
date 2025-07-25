@@ -5,7 +5,7 @@ import {
   TechniqueMetadataBaseSchema,
   type TechniqueMetadataBaseRead,
   type TechniqueMetadataBaseWrite,
-} from '../documents/user-technique-metadata-base-document'
+} from '../documents/technique-metadata-base-document'
 
 /**
  * documentPath: [uid, habitId]

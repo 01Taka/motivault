@@ -1,14 +1,11 @@
-import { IndexedDBService } from '../../../../../indexedDB/indexed-db-service'
+import { IndexedDBService } from '../../../../../../indexedDB/indexed-db-service'
 import {
   PartialTechniqueMetadataBaseWriteSchema,
   TechniqueMetadataBaseSchema,
   type TechniqueMetadataBaseRead,
   type TechniqueMetadataBaseWrite,
-} from '../documents/user-technique-metadata-base-document'
+} from '../../documents/technique-metadata-base-document'
 
-/**
- * documentPath: [uid, habitId]
- */
 export class TechniqueMetadataBaseIDBRepository extends IndexedDBService<
   TechniqueMetadataBaseRead,
   TechniqueMetadataBaseWrite
@@ -16,7 +13,7 @@ export class TechniqueMetadataBaseIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniquesMetadata'])
+    super(['users', 'techniquesMetadata'], { users: uid })
     this.uid = uid
   }
 

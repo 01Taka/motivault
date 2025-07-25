@@ -66,7 +66,11 @@ const CreateTaskPress = lazy(
 
 function App() {
   const userData = useUserDataStore()
-  useAbstractDataSync({ ...userData, pathSegments: [] })
+  useAbstractDataSync({
+    ...userData,
+    repositoryArgsType: 'indexedDB',
+    pathSegments: [],
+  })
   useTechniqueXPSetup()
 
   return (
