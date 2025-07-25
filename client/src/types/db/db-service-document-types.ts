@@ -1,21 +1,17 @@
 import { type DocumentData } from 'firebase/firestore'
+import type z from 'zod'
+import type {
+  BaseMetadataSchema,
+  DocumentReadSchema,
+  DocumentWriteSchema,
+} from './db-service-document-schema'
 
 // すべての動的Firestoreドキュメントに存在するべきフィールド
-export type BaseDocumentWrite = DocumentData
+export type BaseDocumentWrite = z.infer<typeof DocumentWriteSchema>
 
-export interface BaseMetadata {
-  createdById: string // 作成者のUserId
-  createdAt: number // 作成日時
-  updatedAt: number // 更新日時
-  deletedAt?: number // 削除日時
-  isActive: boolean // 論理的削除の状態
-}
+export type BaseMetadata = z.infer<typeof BaseMetadataSchema>
 
-export interface BaseDocumentRead extends DocumentData, BaseMetadata {
-  docId: string // ドキュメントId
-  path: string
-  parentId: string | null
-}
+export type BaseDocumentRead = z.infer<typeof DocumentReadSchema>
 
 export type BaseDocument = DocumentData
 

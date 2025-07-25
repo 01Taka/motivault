@@ -1,7 +1,7 @@
 import z from 'zod'
-import { versionSchema } from '../../../../types/utils/version-schema'
+import { VersionSchema } from '../../../../types/utils/version-schema'
 
-export const habitMateHabitLevelSchema = z.union([
+export const HabitMateHabitLevelSchema = z.union([
   z.literal(1),
   z.literal(2),
   z.literal(3),
@@ -9,7 +9,7 @@ export const habitMateHabitLevelSchema = z.union([
   z.literal(5),
 ])
 
-export const habitMateTargetSchema = z.union([
+export const HabitMateTargetSchema = z.union([
   z.object({
     type: z.literal('fixed'),
     count: z.number().int().nonnegative(),
@@ -19,11 +19,11 @@ export const habitMateTargetSchema = z.union([
   }),
 ])
 
-export const habitMateLevelInfoSchema = z.object({
-  level: habitMateHabitLevelSchema,
-  version: versionSchema,
+export const HabitMateLevelInfoSchema = z.object({
+  level: HabitMateHabitLevelSchema,
+  version: VersionSchema,
   name: z.string(),
   milestoneIntervalCount: z.number().int().positive(),
-  targetCount: habitMateTargetSchema,
+  targetCount: HabitMateTargetSchema,
   startHabitBgSrc: z.string().url(),
 })

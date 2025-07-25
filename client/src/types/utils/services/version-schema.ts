@@ -14,7 +14,7 @@ const semverRegex =
  * 一般的なバージョン文字列（v1.2.3, 1.2.3など）を検証するZodスキーマ。
  * セマンティックバージョニングのルールに従います。
  */
-export const versionSchema = z
+export const VersionSchema = z
   .string()
   .regex(
     semverRegex,

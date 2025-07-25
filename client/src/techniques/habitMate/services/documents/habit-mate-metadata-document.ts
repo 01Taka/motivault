@@ -1,7 +1,7 @@
 import z from 'zod'
 import {
-  documentReadSchema,
-  documentWriteSchema,
+  DocumentReadSchema,
+  DocumentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
 
 export const HabitMateMetadataSchema = z.object({
@@ -10,10 +10,10 @@ export const HabitMateMetadataSchema = z.object({
 })
 
 export const HabitMateMetadataReadSchema = HabitMateMetadataSchema.extend(
-  documentReadSchema.shape
+  DocumentReadSchema.shape
 )
 export const HabitMateMetadataWriteSchema = HabitMateMetadataSchema.extend(
-  documentWriteSchema.shape
+  DocumentWriteSchema.shape
 )
 
 export const PartialHabitMateMetadataReadSchema =

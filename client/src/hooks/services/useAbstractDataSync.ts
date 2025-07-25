@@ -26,13 +26,14 @@ import { auth } from '../../firebase/firebase'
  * @param {DataSyncActions<T>} dataSyncActions - An object containing functions and configuration for data synchronization.
  */
 const useAbstractDataSync = <T extends string>(dataSyncActions: {
-  setRepositories: (uid: string) => void
+  setRepositories: (...constructorArgs: RepoConstructorArgs) => void
   clearRepositories: () => void
   initializeListeners: (
     pathSegments: string[],
     dataKeysToListen?: T[] | undefined
   ) => (() => void) | undefined
   clearData: () => void
+  repoConstructorArgs: RepoConstructorArgs
   pathSegments?: ('uid' | string)[] // Added optional pathSegments
   dataKeysToListen?: T[] | undefined // Added optional dataKeysToListen
 }) => {
@@ -41,10 +42,15 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
     clearRepositories,
     initializeListeners,
     clearData,
+    repoConstructorArgs,
     pathSegments,
     dataKeysToListen,
   } = dataSyncActions
 
+  const memoRepoConstructorArgs = useMemo(
+    () => repoConstructorArgs ?? ['uid'],
+    []
+  ) as any[]
   const memoPathSegments = useMemo(() => pathSegments ?? ['uid'], [])
   const memoDataKeysToListen = useMemo(() => dataKeysToListen, [])
 
@@ -53,7 +59,10 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
-        setRepositories(user.uid)
+        const resolvedConstructorArgs = memoPathSegments.map((arg) =>
+          arg === 'uid' ? user.uid : arg
+        )
+        setRepositories(resolvedConstructorArgs)
         // Construct the full path segments, replacing 'uid' with the actual user ID
         const resolvedPathSegments = memoPathSegments.map((segment) =>
           segment === 'uid' ? user.uid : segment
@@ -80,6 +89,7 @@ const useAbstractDataSync = <T extends string>(dataSyncActions: {
     clearRepositories,
     initializeListeners,
     clearData,
+    memoRepoConstructorArgs,
     memoPathSegments, // Add pathSegments to dependencies
     memoDataKeysToListen, // Add dataKeysToListen to dependencies
   ])

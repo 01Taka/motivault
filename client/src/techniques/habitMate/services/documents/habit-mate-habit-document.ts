@@ -1,9 +1,9 @@
 import {
-  documentReadSchema,
-  documentWriteSchema,
+  DocumentReadSchema,
+  DocumentWriteSchema,
 } from '../../../../types/db/db-service-document-schema'
 import { z } from 'zod'
-import { versionSchema } from '../../../../types/utils/services/version-schema'
+import { VersionSchema } from '../../../../types/utils/services/version-schema'
 import { ISODateSchema } from '../../../../types/utils/datetime-schema'
 
 const HabitMateHabitLevelSchema = z.union([
@@ -16,7 +16,7 @@ const HabitMateHabitLevelSchema = z.union([
 
 export const HabitMateHabitSchema = z.object({
   level: HabitMateHabitLevelSchema,
-  levelVersion: versionSchema,
+  levelVersion: VersionSchema,
   habit: z.string(),
   isExecutable: z.boolean(),
   timing: z.string(),
@@ -33,10 +33,10 @@ export const HabitMateHabitSchema = z.object({
 })
 
 export const HabitMateHabitReadSchema = HabitMateHabitSchema.extend(
-  documentReadSchema.shape
+  DocumentReadSchema.shape
 )
 export const HabitMateHabitWriteSchema = HabitMateHabitSchema.extend(
-  documentWriteSchema.shape
+  DocumentWriteSchema.shape
 )
 
 export const PartialHabitMateHabitReadSchema =

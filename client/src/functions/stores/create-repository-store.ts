@@ -15,7 +15,7 @@ export type ValueFromConfig<
  * @template D The string literal type for the data key associated with this repository.
  */
 export type RepoConfigEntry<
-  R extends new (uid: string) => IDBService<any, any>,
+  R extends new (...args: any) => IDBService<any, any>,
   D extends string,
 > = {
   repo: R
@@ -61,7 +61,6 @@ export type GeneratedStore<
     : T[K][] // それ以外（collectionタイプ）の場合、Read型の配列
 } & {
   // Utility methods for managing repositories and listeners
-  dependentUid: string
   setRepositories: (uid: string) => void
   clearRepositories: () => void
   initializeListeners: (
@@ -127,16 +126,15 @@ export const createIDBRepoStore = <
      * 各リポジトリインスタンスはZustandストアに保存されます。
      * @param uid リポジトリを初期化するためのユーザーID。
      */
-    setRepositories: (uid: string) => {
+    setRepositories: (...repoArgs: any) => {
       const newRepos: { [key: string]: any } = {}
       for (const key in config) {
         if (Object.prototype.hasOwnProperty.call(config, key)) {
           // リポジトリクラスの新しいインスタンスを作成します
-          newRepos[key] = new config[key].repo(uid)
+          newRepos[key] = new config[key].repo(...repoArgs)
         }
       }
       set(newRepos) // 新しいリポジトリインスタンスでストアを更新します
-      set({ dependentUid: uid })
     },
 
     /**

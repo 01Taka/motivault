@@ -1,5 +1,10 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
-import type { UserRead, UserWrite } from '../documents/user-document'
+import {
+  PartialUserWriteSchema,
+  UserSchema,
+  type UserRead,
+  type UserWrite,
+} from '../documents/user-document'
 
 /**
  * documentPath: [uid, habitId]
@@ -18,12 +23,13 @@ export class UserIDBRepository extends IndexedDBService<UserRead, UserWrite> {
     return this.uid
   }
 
-  protected filterWriteData<T extends UserWrite | Partial<UserWrite>>(
-    data: T
-  ): T extends UserWrite ? UserWrite : Partial<UserWrite> {
-    const { displayName, birthdate, gender, email } = data
-    return { displayName, birthdate, gender, email } as T extends UserWrite
-      ? UserWrite
-      : Partial<UserWrite>
+  protected filterWriteData(data: UserWrite): UserWrite {
+    return UserSchema.parse(data)
+  }
+
+  protected filterPartialWriteData(
+    data: Partial<UserWrite>
+  ): Partial<UserWrite> {
+    return PartialUserWriteSchema.parse(data)
   }
 }
