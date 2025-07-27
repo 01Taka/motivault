@@ -16,7 +16,7 @@ export class ExpGainEventIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniquesMetadata', 'gainExpEvents'], { users: uid })
+    super(['users', 'techniques', 'gainExpEvents'], { users: uid })
     this.uid = uid
   }
 

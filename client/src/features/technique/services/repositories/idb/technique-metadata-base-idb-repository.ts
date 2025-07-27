@@ -13,7 +13,7 @@ export class TechniqueMetadataBaseIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniquesMetadata'], { users: uid })
+    super(['users', 'techniques'], { users: uid })
     this.uid = uid
   }
 

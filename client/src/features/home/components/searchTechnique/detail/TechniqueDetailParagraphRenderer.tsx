@@ -1,6 +1,6 @@
 import React from 'react'
-import { Typography, Stack } from '@mui/material' // List, ListItemは不要になります
-import type { TechniqueDetailParagraph } from '../../../technique/types/data/technique-static-info-types'
+import { Typography, Stack } from '@mui/material'
+import type { TechniqueDetailParagraph } from '../../../../technique/types/data/technique-static-info-types'
 
 interface TechniqueDetailParagraphProps {
   paragraph: TechniqueDetailParagraph

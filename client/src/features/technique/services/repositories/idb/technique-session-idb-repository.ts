@@ -16,7 +16,7 @@ export class TechniqueSessionIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniquesMetadata', 'sessions'], { users: uid })
+    super(['users', 'techniques', 'sessions'], { users: uid })
     this.uid = uid
   }
 

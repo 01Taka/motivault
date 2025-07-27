@@ -1,8 +1,8 @@
 import { Box, Paper, Stack, type SxProps } from '@mui/material'
-import type { TechniqueStaticInfo } from '../../../technique/types/data/technique-static-info-types'
-import TechniqueDetailParagraphRenderer from './TechniqueDetailParagraphRenderer'
+import type { TechniqueStaticInfo } from '../../../../technique/types/data/technique-static-info-types'
 import TechniqueActions from './TechniqueActions'
 import TechniqueHeader from './TechniqueHeader'
+import TechniqueDetailParagraphRenderer from './TechniqueDetailParagraphRenderer'
 
 interface TechniqueDetailProps {
   technique: TechniqueStaticInfo
