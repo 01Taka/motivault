@@ -8,3 +8,12 @@ export const TechniqueIdSchema = z.enum([
   'feynman',
   'timeBlocking',
 ])
+
+export const TechniquePathIdSchema = z.enum([
+  'habit-mate',
+  'task-press',
+  'tiny-steps',
+  'pomodoro',
+  'feynman',
+  'time-blocking',
+])

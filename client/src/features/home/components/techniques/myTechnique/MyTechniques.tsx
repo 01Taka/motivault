@@ -15,7 +15,7 @@ const MyTechniques: React.FC<MyTechniquesProps> = ({}) => {
       <MyTechniqueList
         techniques={fullTechniquesData}
         onClickMyTechnique={(technique) =>
-          navigate(`/techniques/${getTechniquePathById(technique.docId)}`)
+          navigate(getTechniquePathById(technique.docId))
         }
       />
     </div>

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useTechniqueCrudHandler from './useTechniqueCrudHandler'
-import { TechniqueIdSchema } from '../../types/data/technique-id-schema'
 import useIdleTimeout from '../../../../hooks/system/useIdleTimeout'
 import type { TechniqueId } from '../../types/data/technique-id-types'
+import { TransformedTechniqueIdSchema } from '../../functions/path-helper'
 
 const SESSION_STORAGE_KEY = 'lastActiveTechniqueId'
 const TIMEOUT_LIMIT = 10000
@@ -14,6 +14,43 @@ const useTechniqueSessionManager = () => {
     useTechniqueCrudHandler()
 
   const prevTechniqueIdRef = useRef<string | null>(null)
+
+  // Wrapper function for startSession to allow for logging/debugging
+  const callStartSession = useCallback(
+    (id: TechniqueId) => {
+      console.log('Attempting to start session for ID:', id)
+      startSession(id)
+    },
+    [startSession]
+  )
+
+  // Wrapper function for endSession to allow for logging/debugging
+  const callEndSession = useCallback(
+    (reason: 'timeout' | 'linkMoved', lastInteractionTime?: number) => {
+      console.log(
+        'Attempting to end session for reason:',
+        reason,
+        'lastInteractionTime:',
+        lastInteractionTime
+      )
+      endSession(reason, lastInteractionTime)
+    },
+    [endSession]
+  )
+
+  // Wrapper function for changeSession to allow for logging/debugging
+  const callChangeSession = useCallback(
+    (id: TechniqueId, reason: 'linkMoved') => {
+      console.log(
+        'Attempting to change session to ID:',
+        id,
+        'for reason:',
+        reason
+      )
+      changeSession(id, reason)
+    },
+    [changeSession]
+  )
 
   // セッション開始/終了/変更判定のための関数
   const handleSessionChange = (
@@ -29,34 +66,46 @@ const useTechniqueSessionManager = () => {
       lastActiveIdFromStorage !== null
     ) {
       shouldEndPreviousSession = true
+      console.log(
+        'DEBUG: Scenario 1 - prevTechniqueIdRef is null and lastActiveIdFromStorage exists. Should end previous session.'
+      )
     } else if (
       prevTechniqueIdRef.current !== null &&
       currentTechniqueId &&
       currentTechniqueId !== prevTechniqueIdRef.current
     ) {
       shouldChangeSession = true
+      console.log(
+        'DEBUG: Scenario 2 - prevTechniqueIdRef exists, currentTechniqueId exists and is different. Should change session.'
+      )
     } else if (
       prevTechniqueIdRef.current !== null &&
       currentTechniqueId === null
     ) {
       shouldEndPreviousSession = true
+      console.log(
+        'DEBUG: Scenario 3 - prevTechniqueIdRef exists and currentTechniqueId is null. Should end previous session.'
+      )
     } else if (
       currentTechniqueId !== null &&
       (prevTechniqueIdRef.current === null ||
         currentTechniqueId !== prevTechniqueIdRef.current)
     ) {
       shouldStartNewSession = true
+      console.log(
+        'DEBUG: Scenario 4 - currentTechniqueId exists and (prevTechniqueIdRef is null or different). Should start new session.'
+      )
     }
 
     // 実際にセッションを変更・終了・開始する
     if (shouldChangeSession && currentTechniqueId) {
-      changeSession(currentTechniqueId, 'linkMoved')
+      callChangeSession(currentTechniqueId, 'linkMoved')
     } else if (shouldEndPreviousSession) {
-      endSession('linkMoved')
+      callEndSession('linkMoved')
     }
 
     if (shouldStartNewSession && currentTechniqueId && !shouldChangeSession) {
-      startSession(currentTechniqueId)
+      callStartSession(currentTechniqueId)
     }
 
     prevTechniqueIdRef.current = currentTechniqueId
@@ -65,18 +114,35 @@ const useTechniqueSessionManager = () => {
   // 技術IDを抽出しバリデーションする関数
   const getCurrentTechniqueId = (pathname: string): TechniqueId | null => {
     const match = pathname.match(/^\/techniques\/([^/]+)(?:\/|$)/)
-    const extractedTechniqueId = match ? match[1] : null
+    const extractedPathId = match ? match[1] : null
 
-    const validationResult = TechniqueIdSchema.safeParse(extractedTechniqueId)
-    return validationResult.success ? validationResult.data : null
+    if (!extractedPathId) return null
+
+    // Use the TransformedTechniqueIdSchema here
+    const validationResult =
+      TransformedTechniqueIdSchema.safeParse(extractedPathId)
+
+    if (!validationResult.success) {
+      console.warn(
+        'DEBUG: Extracted path ID is not a valid technique path ID or transformation failed:',
+        extractedPathId,
+        validationResult.error
+      )
+      return null
+    }
+
+    // The data property now contains the camelCase TechniqueId
+    return validationResult.data
   }
 
   // IDをsessionStorageに保存または削除
   const updateSessionStorage = (currentTechniqueId: string | null) => {
     if (currentTechniqueId !== null) {
       sessionStorage.setItem(SESSION_STORAGE_KEY, currentTechniqueId)
+      console.log('DEBUG: sessionStorage updated with ID:', currentTechniqueId)
     } else {
       sessionStorage.removeItem(SESSION_STORAGE_KEY)
+      console.log('DEBUG: sessionStorage cleared.')
     }
   }
 
@@ -84,12 +150,12 @@ const useTechniqueSessionManager = () => {
   useIdleTimeout({
     timeoutLimit: TIMEOUT_LIMIT,
     onTimeout: ({ lastInteractionTime }) => {
-      endSession('timeout', lastInteractionTime)
+      callEndSession('timeout', lastInteractionTime)
     },
     onResume: () => {
       const currentTechniqueId = getCurrentTechniqueId(location.pathname)
       if (currentTechniqueId) {
-        startSession(currentTechniqueId)
+        callStartSession(currentTechniqueId)
       }
     },
   })
@@ -103,7 +169,7 @@ const useTechniqueSessionManager = () => {
 
     // sessionStorageの更新
     updateSessionStorage(currentTechniqueId)
-  }, [location, endSession, startSession, changeSession])
+  }, [location, callEndSession, callStartSession, callChangeSession]) // Dependencies updated to use wrapped functions
 
   // --- テスト用ナビゲーション機能 ---
   const navigate = useNavigate()
