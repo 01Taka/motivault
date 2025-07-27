@@ -3,26 +3,27 @@ import { Route, Routes } from 'react-router-dom'
 
 import NotFound from './components/pages/error/NotFound'
 import HomePage from './components/pages/home/HomePage'
-import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
 import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCreateHabit'
 import useAbstractDataSync from './hooks/services/useAbstractDataSync'
 import { useUserDataStore } from './features/user/services/stores/useUserDataStore'
-import { useTechniqueDataStore } from './features/technique/services/stores/useTechniqueDataStore'
 import useTechniqueSessionManager from './features/technique/services/hooks/useTechniqueSessionManager'
-import useIdleTimeout from './hooks/system/useIdleTimeout'
+import AppStartLayout from './features/start/components/AppStartLayout'
+import AppStartIndex from './features/start/components/AppStartIndex'
+import SelectAuthMethod from './features/start/components/auth/SelectAuthMethod'
+import UserSetup from './features/start/components/userSetup/UserSetup'
+import AppTutorial from './features/start/components/tutorial/AppTutorial'
+import { useTechniqueMetadataDataStore } from './features/technique/services/stores/useTechniqueMetadataDataStore'
+import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 
 // Lazy imports for all pages and technique-related components
 const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
 const LoginPage = lazy(() => import('./components/organisms/Login'))
 const UserSetupPage = lazy(() => import('./components/organisms/UserSetup'))
 const SearchTechnique = lazy(
-  () =>
-    import(
-      './features/home/components/techniques/searchTechnique/SearchTechnique'
-    )
+  () => import('./features/home/components/searchTechnique/SearchTechnique')
 )
 const PomodoroTimer = lazy(
   () => import('./techniques/pomodoro/components/PomodoroTimer')
@@ -68,10 +69,7 @@ const CreateTaskPress = lazy(
 
 function App() {
   useAbstractDataSync(useUserDataStore())
-  useAbstractDataSync({
-    ...useTechniqueDataStore(),
-    dataKeysToListen: ['metadata'],
-  })
+  useAbstractDataSync(useTechniqueMetadataDataStore())
 
   useTechniqueSessionManager()
   // useTechniqueXPSetup()
@@ -88,6 +86,12 @@ function App() {
         {/* Home */}
         <Route path="/" element={<HomePage />}>
           <Route index element={<MyTechniques />} />
+          <Route path="start" element={<AppStartLayout />}>
+            <Route index element={<AppStartIndex />} />
+            <Route path="select-auth-method" element={<SelectAuthMethod />} />
+            <Route path="user-setup" element={<UserSetup />} />
+            <Route path="tutorial" element={<AppTutorial />} />
+          </Route>
           <Route path="search" element={<SearchTechnique />} />
         </Route>
 

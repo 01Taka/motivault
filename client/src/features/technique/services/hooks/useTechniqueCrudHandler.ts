@@ -13,10 +13,12 @@ import {
 } from '../functions/technique-session-crud'
 import type { TechniqueId } from '../../types/data/technique-id-types'
 import type { TechniqueSessionEndReason } from '../documents/session/technique-session-document'
+import { useTechniqueMetadataDataStore } from '../stores/useTechniqueMetadataDataStore'
 
 const useTechniqueCrudHandler = () => {
   const { user, idbUser } = useUserDataStore()
-  const { idbMetadata, idbSessions, idbExpEvent, idbAchievementEvent } =
+  const { idbMetadata } = useTechniqueMetadataDataStore()
+  const { idbSessions, idbExpEvent, idbAchievementEvent } =
     useTechniqueDataStore()
   const asyncKeys = [
     'changeSession',

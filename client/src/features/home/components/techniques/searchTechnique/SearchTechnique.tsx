@@ -2,10 +2,8 @@ import React, { useState } from 'react'
 import TechniqueList from './TechniqueList'
 import Popup from '../../../../../components/utils/Popup'
 import TechniqueDetail from '../techniqueDetail/TechniqueDetail'
-import {
-  getTechniqueById,
-  techniques,
-} from '../../../constants/technique/techniques'
+import { getTechniqueById } from '../../../constants/technique/techniques'
+import { techniquesStaticInfo } from '../../../../technique/constants/data/techniques-static-info-data'
 
 interface SearchTechniqueProps {}
 
@@ -16,9 +14,9 @@ const SearchTechnique: React.FC<SearchTechniqueProps> = ({}) => {
   return (
     <div>
       <TechniqueList
-        techniques={techniques}
-        onClickTechnique={(id) => {
-          setSelectedTechniqueId(id)
+        techniques={techniquesStaticInfo}
+        onClickTechnique={(technique) => {
+          setSelectedTechniqueId(technique.docId)
           setOpenPopup(true)
         }}
       />

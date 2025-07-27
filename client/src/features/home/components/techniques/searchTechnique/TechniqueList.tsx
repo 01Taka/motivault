@@ -1,17 +1,11 @@
 import React from 'react'
 import { Container, Grid2 } from '@mui/material'
 import TechniqueCard from './TechniqueCard'
-
-interface Technique {
-  id: string
-  title: string
-  description: string
-  category: string
-}
+import type { TechniqueStaticInfo } from '../../../../technique/types/data/technique-static-info-types'
 
 interface TechniqueListProps {
-  techniques: Technique[]
-  onClickTechnique: (id: string) => void
+  techniques: TechniqueStaticInfo[]
+  onClickTechnique: (technique: TechniqueStaticInfo) => void
 }
 
 const TechniqueList: React.FC<TechniqueListProps> = ({
@@ -20,9 +14,14 @@ const TechniqueList: React.FC<TechniqueListProps> = ({
 }) => (
   <Container sx={{ py: 4, height: '100%', overflowY: 'auto' }}>
     <Grid2 container spacing={{ xs: 2, sm: 3, md: 4 }} sx={{ mb: 8 }}>
-      {techniques.map((t) => (
-        <Grid2 key={t.id} size={{ xs: 12, sm: 6, md: 4 }}>
-          <TechniqueCard {...t} onClick={() => onClickTechnique?.(t.id)} />
+      {techniques.map((technique) => (
+        <Grid2 key={technique.docId} size={{ xs: 12, sm: 6, md: 4 }}>
+          <TechniqueCard
+            title={technique.title}
+            description={technique.slogan}
+            tags={technique.tags}
+            onClick={() => onClickTechnique?.(technique)}
+          />
         </Grid2>
       ))}
     </Grid2>

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { signInWithGoogle } from '../services/google-auth-service'
+import { signInWithGoogle } from '../functions/google-auth-service'
 
 export const useGoogleLogin = ({
   nextPageOnSuccess,

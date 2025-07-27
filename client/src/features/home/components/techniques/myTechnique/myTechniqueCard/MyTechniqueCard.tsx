@@ -2,33 +2,16 @@ import React from 'react'
 import { Card, CardActionArea, CardContent, Stack } from '@mui/material'
 import MyTechniqueCardContents from './MyTechniqueCardContents'
 import Achievement from './Achievement'
-import type {
-  TechniqueAchievementBadge,
-  TechniqueRank,
-} from '../../../../../achievements/types/achievement-types'
 import { rankStyles } from '../../../../../achievements/constants/rank-styles-constants'
+import type { FullTechniqueData } from '../../../../../technique/types/technique-types'
 
 interface MyTechniqueCardProps {
-  officialName: string
-  title: string
-  category: string
-  level: number
-  experience: number // current XP
-  nextLevelXp: number // XP needed for next level
-  rank: TechniqueRank
-  badges: TechniqueAchievementBadge[] // list of achievement names
+  technique: FullTechniqueData
   onClick: () => void
 }
 
 const MyTechniqueCard: React.FC<MyTechniqueCardProps> = ({
-  officialName,
-  title,
-  category,
-  level,
-  experience,
-  nextLevelXp,
-  rank,
-  badges,
+  technique,
   onClick,
 }) => {
   return (
@@ -36,7 +19,7 @@ const MyTechniqueCard: React.FC<MyTechniqueCardProps> = ({
       sx={{
         borderRadius: 3,
         boxShadow: 2,
-        ...rankStyles[rank],
+        ...rankStyles[technique.rank],
         transition: 'transform 0.15s ease-in-out',
         '&:hover': {
           transform: 'scale(1.015)',
@@ -47,17 +30,17 @@ const MyTechniqueCard: React.FC<MyTechniqueCardProps> = ({
         <CardContent>
           <Stack direction="row" justifyContent="space-between" height="100%">
             <MyTechniqueCardContents
-              officialName={officialName}
-              title={title}
-              category={category}
-              iconColor={rankStyles[rank]?.color ?? 'gray'}
+              officialName={technique.officialName}
+              title={technique.title}
+              tags={technique.tags}
+              iconColor={rankStyles[technique.rank]?.color ?? 'gray'}
             />
             <Achievement
-              level={level}
-              experience={experience}
-              nextLevelXp={nextLevelXp}
-              badges={badges}
-              rank={rank}
+              level={technique.currentLevel}
+              experience={technique.currentLevelXp}
+              nextLevelXp={technique.nextLevelXp}
+              badges={technique.unlockedAchievementIds}
+              rank={technique.rank}
             />
           </Stack>
         </CardContent>

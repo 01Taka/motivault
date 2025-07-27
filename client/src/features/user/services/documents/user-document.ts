@@ -19,7 +19,7 @@ export const UserSchema = z.object({
   displayName: z.string().min(1, 'Display name cannot be empty.'),
   birthdate: ISODateSchema,
   gender: GenderSchema,
-  email: EmailSchema,
+  email: EmailSchema.nullable(),
   activeSessionInfo: ActiveSessionInfoSchema,
 })
 

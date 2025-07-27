@@ -1,7 +1,10 @@
 import z from 'zod'
 
 export const TechniqueIdSchema = z.enum([
-  'habit-mate',
-  'task-press',
-  'tiny-steps',
+  'habitMate',
+  'taskPress',
+  'tinySteps',
+  'pomodoro',
+  'feynman',
+  'timeBlocking',
 ])

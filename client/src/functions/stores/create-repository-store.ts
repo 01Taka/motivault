@@ -49,6 +49,11 @@ type GetSubscriptionTypeForDataKey<
 }[keyof C]
 
 /**
+ * Defines the possible states for the listener.
+ */
+export type ListenerStatus = 'unset' | 'initializing' | 'listening' | 'error'
+
+/**
  * Defines the generated Zustand store type, incorporating repository instances,
  * data arrays, and utility functions.
  * @template Config The type of the configuration object passed to createIDBRepoStore.
@@ -76,6 +81,10 @@ export type GeneratedStore<
     dataKeysToListen?: D[]
   ) => (() => void) | undefined
   clearData: () => void
+  // New: Function to directly set data in the store
+  setData: <K extends D>(dataKey: K, data: T[K][] | T[K] | null) => void
+  // New: Listener status property, now a Record keyed by dataKey
+  listenerStatus: Record<D, ListenerStatus>
 }
 
 /**
@@ -91,6 +100,8 @@ type InitialState<
   [K in D]: GetSubscriptionTypeForDataKey<Config, K> extends 'singleton'
     ? T[K] | null
     : T[K][]
+} & {
+  listenerStatus: Record<D, ListenerStatus>
 }
 
 /**
@@ -118,11 +129,11 @@ export const createIDBRepoStore = <
 
   const dataKeys: D[] = [] // 全てのユニークなデータキーを収集します
 
-  // リポジトリの初期状態を設定し、データキーを収集します
+  // リポジリの初期状態を設定し、データキーを収集します
   for (const key in config) {
     if (Object.prototype.hasOwnProperty.call(config, key)) {
       // tempInitialState は Record<string, any> なので、null の代入は問題ありません。
-      tempInitialState[key] = null // リポジトリインスタンスの初期値はnull
+      tempInitialState[key] = null // リポジリインスタンスの初期値はnull
       const dataKey = config[key].dataKey as D
       if (!dataKeys.includes(dataKey)) {
         dataKeys.push(dataKey)
@@ -143,6 +154,16 @@ export const createIDBRepoStore = <
     }
   })
 
+  // Add initial listenerStatus for each dataKey
+  const initialListenerStatus: Record<D, ListenerStatus> = {} as Record<
+    D,
+    ListenerStatus
+  >
+  dataKeys.forEach((dataKey) => {
+    initialListenerStatus[dataKey] = 'unset'
+  })
+  tempInitialState.listenerStatus = initialListenerStatus
+
   // Zustandストアのアクションと状態を定義します
   type Store = GeneratedStore<Config, D, T>
   // StateCreatorを使用してsetとgetに適切な型を提供します
@@ -152,8 +173,8 @@ export const createIDBRepoStore = <
     ...(tempInitialState as InitialState<Config, D, T>),
 
     /**
-     * 指定されたユーザーIDでリポジトリインスタンスを初期化します。
-     * 各リポジトリインスタンスはZustandストアに保存されます。
+     * 指定されたユーザーIDでリポジリインスタンスを初期化します。
+     * 各リポジリインスタンスはZustandストアに保存されます。
      * @param repoArgsMap リポジリを初期化するための引数マップ。
      */
     setRepositories: (repoArgsMap: RepositoryArgsBaseMap) => {
@@ -162,7 +183,7 @@ export const createIDBRepoStore = <
       } = {}
       for (const key in config) {
         if (Object.prototype.hasOwnProperty.call(config, key)) {
-          // リポジトリクラスの新しいインスタンスを作成します
+          // リポジリクラスの新しいインスタンスを作成します
           const repoArgs = repoArgsMap[config[key].repositoryType]
           newRepos[key] = new config[key].repo(...repoArgs)
         }
@@ -172,17 +193,26 @@ export const createIDBRepoStore = <
     },
 
     /**
-     * ストアからすべてのリポジトリインスタンスをnullに設定してクリアします。
+     * ストアからすべてのリポジリインスタンスをnullに設定してクリアします。
      */
     clearRepositories: () => {
       const clearedRepos: { [K in keyof Config]?: null } = {}
       for (const key in config) {
         if (Object.prototype.hasOwnProperty.call(config, key)) {
-          clearedRepos[key] = null // リポジトリインスタンスをnullに設定
+          clearedRepos[key] = null // リポジリインスタンスをnullに設定
         }
       }
-      // 部分的な更新のために型アサーションを使用します
-      set(clearedRepos as Partial<Store>)
+      const clearedListenerStatus: Record<D, ListenerStatus> = {} as Record<
+        D,
+        ListenerStatus
+      >
+      dataKeys.forEach((dataKey) => {
+        clearedListenerStatus[dataKey] = 'unset'
+      })
+      set({
+        ...(clearedRepos as Partial<Store>),
+        listenerStatus: clearedListenerStatus,
+      } as Partial<Store>)
     },
 
     /**
@@ -190,64 +220,113 @@ export const createIDBRepoStore = <
      * IndexedDBでデータが変更されると、ストア内の対応するデータ配列またはドキュメントが更新されます。
      * @param pathSegments パスセグメントの配列。
      * @param dataKeysToListen リッスンするデータキーのオプション配列。指定しない場合、すべてのデータキーがリッスンされます。
-     * @returns すべてのリスナーを解除するためのクリーンアップ関数、またはリポジトリが初期化されていない場合は`undefined`。
+     * @returns すべてのリスナーを解除するためのクリーンアップ関数、またはリポジリが初期化されていない場合は`undefined`。
      */
     initializeListeners: (pathSegments: string[], dataKeysToListen?: D[]) => {
-      const unsubscribeFunctions: (() => void)[] = []
-      const repos = get() // リポジトリインスタンスにアクセスするために現在の状態を取得します
+      const currentListenerStatus = get().listenerStatus
+      const updates: Partial<Record<D, ListenerStatus>> = {}
 
-      // リッスンするデータキーに対応するリポジトリキーを決定します
       const keysToProcess = Object.keys(config).filter((repoKey) => {
         const dataKey = config[repoKey].dataKey as D
         return !dataKeysToListen || dataKeysToListen.includes(dataKey)
       })
 
-      // 続行する前に、必要なすべてのリポジトリが初期化されているか確認します
+      // Set initial status to 'initializing' for all relevant dataKeys
+      keysToProcess.forEach((key) => {
+        const dataKey = config[key].dataKey as D
+        updates[dataKey] = 'initializing'
+      })
+      set({
+        listenerStatus: { ...currentListenerStatus, ...updates },
+      } as Partial<Store>)
+
+      const unsubscribeFunctions: (() => void)[] = []
+      const repos = get()
+
+      // Check if all required repositories are initialized
       if (!keysToProcess.every((key) => repos[key as keyof Config])) {
-        // 型アサーションを追加
         console.warn(
           '1つ以上のリポジリが初期化されていません。リスナーを設定できません。'
         )
+        keysToProcess.forEach((key) => {
+          const dataKey = config[key].dataKey as D
+          updates[dataKey] = 'error'
+        })
+        set({
+          listenerStatus: { ...get().listenerStatus, ...updates },
+        } as Partial<Store>)
         return undefined
       }
 
-      // 選択された各リポジリのリスナーを設定します
       for (const key of keysToProcess) {
-        const repo = repos[key as keyof Config] // 型アサーションを追加
-        const { dataKey, subscriptionType } = config[key] // subscriptionTypeを取得
+        const repo = repos[key as keyof Config]
+        const { dataKey, subscriptionType } = config[key]
 
-        // データキーの特定の読み取りタイプを推論します
         type SpecificReadType = T[typeof dataKey & keyof T]
 
-        let unsubscribe: () => void
+        let unsubscribe: (() => void) | undefined
 
         if (subscriptionType === 'collection') {
-          // コレクション購読の場合
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
           ).addCollectionSnapshotListener((data: SpecificReadType[]) => {
-            // Zustandストアの対応するデータ配列を更新します
             set({ [dataKey]: data } as Partial<Store>)
           }, pathSegments))
         } else if (subscriptionType === 'singleton') {
-          // シングルトンドキュメント購読の場合
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
           ).addDocumentSnapshotListener((data: SpecificReadType | null) => {
-            // リスナーコールバックはReadType | nullを期待します
             set({ [dataKey]: data } as Partial<Store>)
           }, pathSegments))
         } else {
           console.warn(`${key}の不明な購読タイプ: ${subscriptionType}`)
-          continue // 無効な購読タイプの場合はスキップ
+          set(
+            (state) =>
+              ({
+                listenerStatus: { ...state.listenerStatus, [dataKey]: 'error' },
+              }) as Partial<Store>
+          )
+          continue
         }
-        unsubscribeFunctions.push(unsubscribe) // クリーンアップのために解除関数を保存
+
+        if (unsubscribe) {
+          unsubscribeFunctions.push(unsubscribe)
+          // Set status to listening for this specific dataKey
+          set(
+            (state) =>
+              ({
+                listenerStatus: {
+                  ...state.listenerStatus,
+                  [dataKey]: 'listening',
+                },
+              }) as Partial<Store>
+          )
+        } else {
+          // Fallback for cases where unsubscribe might be undefined (though it shouldn't be with current logic)
+          set(
+            (state) =>
+              ({
+                listenerStatus: { ...state.listenerStatus, [dataKey]: 'error' },
+              }) as Partial<Store>
+          )
+        }
       }
 
-      // すべてのリスナーを解除する単一のクリーンアップ関数を返します
       return () => {
         unsubscribeFunctions.forEach((unsub) => unsub())
         console.log('すべてのIDBリスナーが解除されました。')
+        // Reset status to unset for each dataKey that was listened to
+        const resetUpdates: Partial<Record<D, ListenerStatus>> = {}
+        keysToProcess.forEach((key) => {
+          const dataKey = config[key].dataKey as D
+          resetUpdates[dataKey] = 'unset'
+        })
+        set(
+          (state) =>
+            ({
+              listenerStatus: { ...state.listenerStatus, ...resetUpdates },
+            }) as Partial<Store>
+        )
       }
     },
 
@@ -266,8 +345,26 @@ export const createIDBRepoStore = <
           clearedData[dataKey] = [] // コレクションの場合は空の配列に設定
         }
       })
-      // 部分的な更新のために型アサーションを使用します
-      set(clearedData as Partial<Store>)
+      const clearedListenerStatus: Record<D, ListenerStatus> = {} as Record<
+        D,
+        ListenerStatus
+      >
+      dataKeys.forEach((dataKey) => {
+        clearedListenerStatus[dataKey] = 'unset'
+      })
+      set({
+        ...(clearedData as Partial<Store>),
+        listenerStatus: clearedListenerStatus,
+      } as Partial<Store>)
+    },
+
+    /**
+     * 指定されたデータキーのストアデータを直接設定します。
+     * @param dataKey 設定するデータのキー。
+     * @param data 設定するデータ。コレクションの場合は配列、シングルトンの場合は単一のオブジェクトまたはnull。
+     */
+    setData: <K extends D>(dataKey: K, data: T[K][] | T[K] | null) => {
+      set({ [dataKey]: data } as Partial<Store>)
     },
   })
 

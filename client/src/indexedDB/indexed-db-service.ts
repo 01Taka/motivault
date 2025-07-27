@@ -413,6 +413,10 @@ export abstract class IndexedDBService<
     }
   }
 
+  private getNewDocumentId(): string {
+    return this.singletonDocumentId ?? createFirestoreId()
+  }
+
   /**
    * 新しいドキュメントを作成します。
    *
@@ -424,7 +428,7 @@ export abstract class IndexedDBService<
     data: Write,
     collectionPathSegments: string[] = []
   ): Promise<DBWriteTarget> {
-    const newDocIdSegment = this.singletonDocumentId ?? createFirestoreId() // 新しいドキュメントの最後のIDセグメントを生成
+    const newDocIdSegment = this.getNewDocumentId() // 新しいドキュメントの最後のIDセグメントを生成
     const fullDynamicDocIds = this.singletonDocumentId
       ? collectionPathSegments
       : [...collectionPathSegments, newDocIdSegment] // 完全な動的IDセグメント配列
@@ -838,7 +842,7 @@ export abstract class IndexedDBService<
     try {
       await actions({
         create: async (data, collectionPathSegments = []) => {
-          const newDocIdSegment = createFirestoreId() // 新しいドキュメントの最後のIDセグメントを生成
+          const newDocIdSegment = this.getNewDocumentId() // 新しいドキュメントの最後のIDセグメントを生成
           const fullDynamicDocIds = [...collectionPathSegments, newDocIdSegment] // 完全な動的IDセグメント配列
           const fullLogicalPath = this.composeDocumentLogicalPath(
             fullDynamicDocIds,

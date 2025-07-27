@@ -1,13 +1,11 @@
 import { Box, Paper, Stack, type SxProps } from '@mui/material'
 import TechniqueActions from './TechniqueActions'
-import TechniqueDescription from './TechniqueDescription'
+import type { TechniqueStaticInfo } from '../../../../technique/types/data/technique-static-info-types'
+import TechniqueDetailParagraphRenderer from '../../searchTechnique/TechniqueDetailParagraphRenderer'
 import TechniqueHeader from './TechniqueHeader'
-import TechniqueReferences from './TechniqueReferences'
-import TechniqueSteps from './TechniqueSteps'
-import type { Technique } from '../../../types/technique-types'
 
 interface TechniqueDetailProps {
-  technique: Technique
+  technique: TechniqueStaticInfo
   onTry?: (techniqueId: string) => void
   onClose?: () => void
   sx?: SxProps
@@ -37,19 +35,15 @@ const TechniqueDetail: React.FC<TechniqueDetailProps> = ({
         ...sx,
       }}
     >
-      <Stack spacing={3} sx={{ flexGrow: 1 }}>
-        <TechniqueHeader
-          title={technique.title}
-          category={technique.category}
-          imageUrl={technique.imageUrl}
-        />
-
-        <TechniqueDescription
-          benefits={technique.benefits}
-          reason={technique.reason}
-        />
-        <TechniqueSteps steps={technique.steps} />
-        <TechniqueReferences references={technique.references} />
+      <TechniqueHeader
+        title={technique.title}
+        category={technique.tags[0]}
+        imageUrl={technique.imageUrl}
+      />
+      <Stack spacing={2}>
+        {technique.details.paragraph.map((paragraph, index) => (
+          <TechniqueDetailParagraphRenderer key={index} paragraph={paragraph} />
+        ))}
       </Stack>
 
       <Box
@@ -63,7 +57,7 @@ const TechniqueDetail: React.FC<TechniqueDetailProps> = ({
         }}
       >
         <TechniqueActions
-          techniqueId={technique.id}
+          techniqueId={technique.docId}
           onTry={onTry}
           onClose={onClose}
         />

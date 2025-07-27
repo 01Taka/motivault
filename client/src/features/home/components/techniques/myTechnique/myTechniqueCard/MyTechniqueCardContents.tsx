@@ -5,14 +5,14 @@ import React from 'react'
 interface MyTechniqueCardContentsProps {
   officialName: string
   title: string
-  category: string
+  tags: string[]
   iconColor: string
 }
 
 const MyTechniqueCardContents: React.FC<MyTechniqueCardContentsProps> = ({
   officialName,
   title,
-  category,
+  tags, // Now an array of strings
   iconColor,
 }) => {
   return (
@@ -35,15 +35,24 @@ const MyTechniqueCardContents: React.FC<MyTechniqueCardContentsProps> = ({
         </Stack>
       </Box>
 
-      {/* カテゴリ + 稼働タグ */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Chip
-          label={`#${category}`}
-          size="small"
-          variant="outlined"
-          color="default"
-          sx={{ fontSize: '0.75rem' }}
-        />
+      {/* Tags rendered as Chips */}
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        gap={0.5}
+        justifyContent="flex-start"
+        alignItems="center"
+      >
+        {tags.map((tag) => (
+          <Chip
+            key={tag} // Important for list rendering in React
+            label={`#${tag}`}
+            size="small"
+            variant="outlined"
+            color="default"
+            sx={{ fontSize: '0.75rem' }}
+          />
+        ))}
       </Box>
     </Stack>
   )
