@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import useTechniqueCrudHandler from './useTechniqueCrudHandler'
 import useIdleTimeout from '../../../../hooks/system/useIdleTimeout'
 import type { TechniqueId } from '../../types/data/technique-id-types'
-import { TransformedTechniqueIdSchema } from '../../functions/path-helper'
+import { getCurrentTechniqueIdFromPathname } from '../../functions/path-helper'
 
 const SESSION_STORAGE_KEY = 'lastActiveTechniqueId'
 const TIMEOUT_LIMIT = 10000
@@ -111,30 +111,6 @@ const useTechniqueSessionManager = () => {
     prevTechniqueIdRef.current = currentTechniqueId
   }
 
-  // 技術IDを抽出しバリデーションする関数
-  const getCurrentTechniqueId = (pathname: string): TechniqueId | null => {
-    const match = pathname.match(/^\/techniques\/([^/]+)(?:\/|$)/)
-    const extractedPathId = match ? match[1] : null
-
-    if (!extractedPathId) return null
-
-    // Use the TransformedTechniqueIdSchema here
-    const validationResult =
-      TransformedTechniqueIdSchema.safeParse(extractedPathId)
-
-    if (!validationResult.success) {
-      console.warn(
-        'DEBUG: Extracted path ID is not a valid technique path ID or transformation failed:',
-        extractedPathId,
-        validationResult.error
-      )
-      return null
-    }
-
-    // The data property now contains the camelCase TechniqueId
-    return validationResult.data
-  }
-
   // IDをsessionStorageに保存または削除
   const updateSessionStorage = (currentTechniqueId: string | null) => {
     if (currentTechniqueId !== null) {
@@ -153,7 +129,9 @@ const useTechniqueSessionManager = () => {
       callEndSession('timeout', lastInteractionTime)
     },
     onResume: () => {
-      const currentTechniqueId = getCurrentTechniqueId(location.pathname)
+      const currentTechniqueId = getCurrentTechniqueIdFromPathname(
+        location.pathname
+      )
       if (currentTechniqueId) {
         callStartSession(currentTechniqueId)
       }
@@ -161,7 +139,9 @@ const useTechniqueSessionManager = () => {
   })
 
   useEffect(() => {
-    const currentTechniqueId = getCurrentTechniqueId(location.pathname)
+    const currentTechniqueId = getCurrentTechniqueIdFromPathname(
+      location.pathname
+    )
     const lastActiveIdFromStorage = sessionStorage.getItem(SESSION_STORAGE_KEY)
 
     // セッション変更判定の実行

@@ -8,8 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import GoogleIcon from '@mui/icons-material/Google'
 import AppleIcon from '@mui/icons-material/Apple'
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
-import { createPulseAnimation } from '../../styles/base-animations'
 import { useGoogleLogin } from '../../../auth/services/hooks/useGoogleLogin'
+import { createPulseAnimation } from '../../../../theme/animations'
 
 // --- Styled Components ---
 

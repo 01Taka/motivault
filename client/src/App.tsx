@@ -2,7 +2,6 @@ import { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import NotFound from './components/pages/error/NotFound'
-import HomePage from './components/pages/home/HomePage'
 import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
@@ -17,6 +16,10 @@ import UserSetup from './features/start/components/userSetup/UserSetup'
 import AppTutorial from './features/start/components/tutorial/AppTutorial'
 import { useTechniqueMetadataDataStore } from './features/technique/services/stores/useTechniqueMetadataDataStore'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
+import HomeLayout from './features/home/components/HomeLayout'
+import TechniquesLayout from './features/technique/components/TechniquesLayout'
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import baseTheme from './theme'
 
 // Lazy imports for all pages and technique-related components
 const SearchTechnique = lazy(
@@ -67,55 +70,60 @@ const CreateTaskPress = lazy(
 function App() {
   useAbstractDataSync(useUserDataStore())
   useAbstractDataSync(useTechniqueMetadataDataStore())
-
   useTechniqueSessionManager()
   // useTechniqueXPSetup()
 
+  const currentMode = 'light'
+  const theme = baseTheme(currentMode)
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Routes>
-        {/* Home */}
-        <Route path="/" element={<HomePage />}>
-          <Route index element={<MyTechniques />} />
-          <Route path="start" element={<AppStartLayout />}>
-            <Route index element={<AppStartIndex />} />
-            <Route path="select-auth-method" element={<SelectAuthMethod />} />
-            <Route path="user-setup" element={<UserSetup />} />
-            <Route path="tutorial" element={<AppTutorial />} />
-          </Route>
-          <Route path="search" element={<SearchTechnique />} />
-        </Route>
-
-        {/* Techniques */}
-        <Route path="/techniques">
-          <Route path="pomodoro" element={<PomodoroTimer />} />
-          <Route path="time-blocking" element={<TimeBlocking />} />
-
-          {/* Feynman Technique Layout */}
-          <Route path="feynman" element={<FeynmanTechnique />}>
-            <Route index element={<KnowledgeGap />} />
-            <Route path="notes" element={<FeynmanNotes />} />
-            <Route path="create" element={<NoteEditor />} />
-            <Route path="rewrite/:id" element={<NoteRewriteEditor />} />
-            <Route path="create-answer/:id" element={<GapAnswerEditor />} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          {/* Home */}
+          <Route path="/" element={<HomeLayout />}>
+            <Route index element={<MyTechniques />} />
+            <Route path="start" element={<AppStartLayout />}>
+              <Route index element={<AppStartIndex />} />
+              <Route path="select-auth-method" element={<SelectAuthMethod />} />
+              <Route path="user-setup" element={<UserSetup />} />
+              <Route path="tutorial" element={<AppTutorial />} />
+            </Route>
+            <Route path="search" element={<SearchTechnique />} />
           </Route>
 
-          <Route path="tiny-steps" element={<TinySteps />} />
-          <Route path="task-press" element={<TaskPressLayout />}>
-            <Route index element={<TaskPress />} />
-            <Route path="create" element={<CreateTaskPress />} />
-          </Route>
-          <Route path="habit-mate" element={<HabitMateLayout />}>
-            <Route index element={<HabitMateIndex />} />
-            <Route path="start-habit" element={<HabitMateStartHabit />} />
-            <Route path="create/:level" element={<HabitMateCreateHabit />} />
-          </Route>
-        </Route>
+          {/* Techniques */}
+          <Route path="/techniques" element={<TechniquesLayout />}>
+            <Route path="pomodoro" element={<PomodoroTimer />} />
+            <Route path="time-blocking" element={<TimeBlocking />} />
 
-        {/* Fallback */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+            {/* Feynman Technique Layout */}
+            <Route path="feynman" element={<FeynmanTechnique />}>
+              <Route index element={<KnowledgeGap />} />
+              <Route path="notes" element={<FeynmanNotes />} />
+              <Route path="create" element={<NoteEditor />} />
+              <Route path="rewrite/:id" element={<NoteRewriteEditor />} />
+              <Route path="create-answer/:id" element={<GapAnswerEditor />} />
+            </Route>
+
+            <Route path="tiny-steps" element={<TinySteps />} />
+            <Route path="task-press" element={<TaskPressLayout />}>
+              <Route index element={<TaskPress />} />
+              <Route path="create" element={<CreateTaskPress />} />
+            </Route>
+            <Route path="habit-mate" element={<HabitMateLayout />}>
+              <Route index element={<HabitMateIndex />} />
+              <Route path="start-habit" element={<HabitMateStartHabit />} />
+              <Route path="create/:level" element={<HabitMateCreateHabit />} />
+            </Route>
+          </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </ThemeProvider>
   )
 }
 

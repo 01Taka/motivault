@@ -61,3 +61,25 @@ export const TransformedTechniqueIdSchema = TechniquePathIdSchema.transform(
     return validationResult.data
   }
 )
+
+export const getCurrentTechniqueIdFromPathname = (
+  pathname: string
+): TechniqueId | null => {
+  const match = pathname.match(/^\/techniques\/([^/]+)(?:\/|$)/)
+  const extractedPathId = match ? match[1] : null
+
+  if (!extractedPathId) return null
+
+  const validationResult =
+    TransformedTechniqueIdSchema.safeParse(extractedPathId)
+
+  if (!validationResult.success) {
+    console.warn(
+      'DEBUG: Extracted path ID is not a valid technique path ID or transformation failed:',
+      extractedPathId,
+      validationResult.error
+    )
+    return null
+  }
+  return validationResult.data
+}

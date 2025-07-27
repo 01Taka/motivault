@@ -3,7 +3,7 @@ import React from 'react'
 import { Button, Box, Stack } from '@mui/material'
 import { styled } from '@mui/system'
 import { useNavigate } from 'react-router-dom'
-import { createPulseAnimation } from '../styles/base-animations'
+import { createPulseAnimation } from '../../../theme/animations'
 
 // --- Styled Components ---
 

@@ -2,10 +2,10 @@
 import React from 'react'
 import { Typography, styled, type TypographyProps } from '@mui/material'
 import {
-  gradientAnimation,
-  createFloatAnimation,
   createFadeInFromBottomAnimation,
-} from '../../styles/base-animations' // animations.tsからbase-animations.tsにファイル名変更の可能性があれば調整
+  createFloatAnimation,
+  gradientAnimation,
+} from '../../../../theme/animations'
 
 /**
  * @interface GradientTextProps
