@@ -2,12 +2,13 @@ import React from 'react'
 import { Avatar, Tooltip } from '@mui/material'
 import { EmojiEvents } from '@mui/icons-material'
 import { motion } from 'framer-motion'
-import type { TechniqueAchievementBadge } from '../../../../../achievements/types/achievement-types'
 import { rarityStyles } from '../../../../../achievements/constants/rarity-styles-constants'
 import { epicBadgeMotion } from '../../../../../achievements/constants/rarity-motion-constants'
+import type { AchievementRarity } from '../../../../../achievement/types/data/achievement-data-types'
 
 interface RarityBadgeIconProps {
-  badge: TechniqueAchievementBadge
+  label: string
+  rarity: AchievementRarity
   size?: number
 }
 
@@ -20,12 +21,13 @@ const styleTag = `
 `
 
 const RarityBadgeIcon: React.FC<RarityBadgeIconProps> = ({
-  badge,
+  label,
+  rarity,
   size = 20,
 }) => {
-  const style = rarityStyles[badge.rarity]
-  const isLegendary = badge.rarity === 'legendary'
-  const isEpic = badge.rarity === 'epic'
+  const style = rarityStyles[rarity]
+  const isLegendary = rarity === 'legendary'
+  const isEpic = rarity === 'epic'
 
   const avatar = (
     <Avatar
@@ -49,7 +51,7 @@ const RarityBadgeIcon: React.FC<RarityBadgeIconProps> = ({
   return (
     <>
       {isLegendary && <style>{styleTag}</style>}
-      <Tooltip title={badge.title}>{content}</Tooltip>
+      <Tooltip title={label}>{content}</Tooltip>
     </>
   )
 }

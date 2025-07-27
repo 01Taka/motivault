@@ -19,9 +19,6 @@ import { useTechniqueMetadataDataStore } from './features/technique/services/sto
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 
 // Lazy imports for all pages and technique-related components
-const AuthPage = lazy(() => import('./components/pages/auth/AuthPage'))
-const LoginPage = lazy(() => import('./components/organisms/Login'))
-const UserSetupPage = lazy(() => import('./components/organisms/UserSetup'))
 const SearchTechnique = lazy(
   () => import('./features/home/components/searchTechnique/SearchTechnique')
 )
@@ -77,12 +74,6 @@ function App() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        {/* Auth */}
-        <Route path="/auth" element={<AuthPage />}>
-          <Route path="login" element={<LoginPage />} />
-          <Route path="setup" element={<UserSetupPage />} />
-        </Route>
-
         {/* Home */}
         <Route path="/" element={<HomePage />}>
           <Route index element={<MyTechniques />} />

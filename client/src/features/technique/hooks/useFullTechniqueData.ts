@@ -3,6 +3,7 @@ import { calculateLevelInfo } from '../../level/functions/level-utils'
 import { techniquesStaticInfoMap } from '../functions/constantsHelper/technique-data-helper'
 import type { FullTechniqueData } from '../types/technique-types'
 import { useTechniqueMetadataDataStore } from '../services/stores/useTechniqueMetadataDataStore'
+import { getAchievementsStaticInfoByIds } from '../../achievement/functions/constantsHelper/data/achievement-static-info-helper'
 
 const useFullTechniqueData = () => {
   const { metadata } = useTechniqueMetadataDataStore()
@@ -18,6 +19,9 @@ const useFullTechniqueData = () => {
             ...data,
             ...techniquesStaticInfoMap[data.docId],
             ...calculateLevelInfo(data.totalGainedExp),
+            unlockedAchievementsStaticInfo: getAchievementsStaticInfoByIds([
+              ...data.unlockedAchievementIds,
+            ]),
           }
         }
         return undefined

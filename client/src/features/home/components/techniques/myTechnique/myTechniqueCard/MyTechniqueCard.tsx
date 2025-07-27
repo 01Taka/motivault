@@ -39,7 +39,7 @@ const MyTechniqueCard: React.FC<MyTechniqueCardProps> = ({
               level={technique.currentLevel}
               experience={technique.currentLevelXp}
               nextLevelXp={technique.nextLevelXp}
-              badges={technique.unlockedAchievementIds}
+              achievementsStaticInfo={technique.unlockedAchievementsStaticInfo}
               rank={technique.rank}
             />
           </Stack>

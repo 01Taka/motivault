@@ -1,20 +1,18 @@
 import { Box, LinearProgress, Stack, Typography } from '@mui/material'
 import React from 'react'
 import { motion } from 'framer-motion'
-import type {
-  TechniqueAchievementBadge,
-  TechniqueRank,
-} from '../../../../../achievements/types/achievement-types'
+import type { TechniqueRank } from '../../../../../achievements/types/achievement-types'
 import RarityBadgeIcon from './RarityBadgeIcon'
 import { rankAnimations } from '../../../../../achievements/constants/rank-animations-constants'
 import { rankStyles } from '../../../../../achievements/constants/rank-styles-constants'
+import type { AchievementStaticInfo } from '../../../../../achievement/types/data/achievement-data-types'
 
 interface AchievementProps {
   level: number
   experience: number
   nextLevelXp: number
   rank: TechniqueRank
-  badges: TechniqueAchievementBadge[]
+  achievementsStaticInfo: AchievementStaticInfo[]
 }
 
 const Achievement: React.FC<AchievementProps> = ({
@@ -22,7 +20,7 @@ const Achievement: React.FC<AchievementProps> = ({
   experience,
   nextLevelXp,
   rank,
-  badges,
+  achievementsStaticInfo,
 }) => {
   const progress = Math.min((experience / nextLevelXp) * 100, 100)
   const style = rankStyles[rank]
@@ -69,11 +67,13 @@ const Achievement: React.FC<AchievementProps> = ({
       </Stack>
 
       <Stack direction="row" spacing={0.5} mt={0.5}>
-        {badges.slice(0, 2).map((badge, idx) => (
-          <RarityBadgeIcon badge={badge} key={idx} />
+        {achievementsStaticInfo.slice(0, 2).map((info, idx) => (
+          <RarityBadgeIcon label={info.name} rarity={info.rarity} key={idx} />
         ))}
-        {badges.length > 2 && (
-          <Typography variant="caption">+{badges.length - 2}</Typography>
+        {achievementsStaticInfo.length > 2 && (
+          <Typography variant="caption">
+            +{achievementsStaticInfo.length - 2}
+          </Typography>
         )}
       </Stack>
     </Stack>

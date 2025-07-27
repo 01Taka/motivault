@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useCurrentUserStore } from '../../../stores/user/currentUserStore'
-import { timeBlockingService } from '../services/timeBlockingService'
 import type {
   TimeBlockingTaskRead,
   TimeBlockingTaskWrite,
@@ -12,8 +11,8 @@ import type {
 
 const useTimeBlockingTask = () => {
   const { uid } = useCurrentUserStore()
-  const [tasks, setTasks] = useState<TimeBlockingTaskRead[]>([])
-  const [doc, setDoc] = useState<TimeBlockingRead | null>(null)
+  const [tasks, _setTasks] = useState<TimeBlockingTaskRead[]>([])
+  const [doc, _setDoc] = useState<TimeBlockingRead | null>(null)
   const [loading, setLoading] = useState(true)
 
   const reloadTasks = useCallback(async () => {
@@ -24,10 +23,10 @@ const useTimeBlockingTask = () => {
 
     setLoading(true)
     try {
-      const doc = await timeBlockingService.initDocIfNeeded(uid)
-      const taskList = await timeBlockingService.fetchTasks(uid)
-      setDoc(doc)
-      setTasks(taskList)
+      // const doc = await timeBlockingService.initDocIfNeeded(uid)
+      // const taskList = await timeBlockingService.fetchTasks(uid)
+      // setDoc(doc)
+      // setTasks(taskList)
     } catch (e) {
       console.error('Failed to reload tasks:', e)
     } finally {
@@ -36,28 +35,28 @@ const useTimeBlockingTask = () => {
   }, [uid])
 
   const createTask = useCallback(
-    async (data: TimeBlockingTaskWrite) => {
+    async (_data: TimeBlockingTaskWrite) => {
       if (!uid) return
-      await timeBlockingService.createTask(uid, data)
+      // await timeBlockingService.createTask(uid, data)
       await reloadTasks()
     },
     [uid, reloadTasks]
   )
 
   const setTaskCompleted = useCallback(
-    async (taskId: string, state: boolean) => {
+    async (_taskId: string, _state: boolean) => {
       if (!uid) return
-      await timeBlockingService.updateTaskCompleted(uid, taskId, state)
+      // await timeBlockingService.updateTaskCompleted(uid, taskId, state)
       await reloadTasks()
     },
     [uid, reloadTasks]
   )
 
   const createTag = useCallback(
-    async (tag: TimeBlockingTag) => {
-      if (!uid) return
-      await timeBlockingService.createTag(uid, tag)
-      await reloadTasks()
+    async (_tag: TimeBlockingTag) => {
+      // if (!uid) return
+      // await timeBlockingService.createTag(uid, tag)
+      // await reloadTasks()
     },
     [uid, reloadTasks]
   )

@@ -1,6 +1,6 @@
 // stores/useUserStore.ts
 import { create } from 'zustand'
-import type { UserRead } from '../../types/firebase/firestore/documents/users/user-document'
+interface UserRead {}
 
 interface CurrentUserStore {
   uid: string | null
@@ -23,3 +23,5 @@ export const useCurrentUserStore = create<CurrentUserStore>((set) => ({
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
 }))
+
+// |DEL|

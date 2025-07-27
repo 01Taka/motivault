@@ -1,7 +1,7 @@
 import type { TechniqueId } from '../../types/data/technique-id-types'
 import type {
   TechniqueExpGainEventRepository,
-  TechniqueMetadataBaseRepository,
+  TechniqueMetadataRepository,
   TechniqueSessionRepository,
   TechniqueUnlockAchievementsEventRepository,
 } from '../repositories/repositories'
@@ -22,7 +22,7 @@ const ERROR_MESSAGES = {
 }
 
 const fetchMetadataAndSession = async (
-  metadataRepo: TechniqueMetadataBaseRepository,
+  metadataRepo: TechniqueMetadataRepository,
   sessionRepo: TechniqueSessionRepository,
   techniqueId: TechniqueId,
   sessionId: string
@@ -42,7 +42,7 @@ const fetchMetadataAndSession = async (
 }
 
 export const gainTechniqueExp = async (
-  metadataRepo: TechniqueMetadataBaseRepository,
+  metadataRepo: TechniqueMetadataRepository,
   sessionRepo: TechniqueSessionRepository,
   expEventRepo: TechniqueExpGainEventRepository,
   techniqueId: TechniqueId,
@@ -90,7 +90,7 @@ export const gainTechniqueExp = async (
 }
 
 export const unlockTechniqueAchievement = async (
-  metadataRepo: TechniqueMetadataBaseRepository,
+  metadataRepo: TechniqueMetadataRepository,
   sessionRepo: TechniqueSessionRepository,
   achievementEventRepo: TechniqueUnlockAchievementsEventRepository,
   techniqueId: TechniqueId,
