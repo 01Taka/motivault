@@ -2,11 +2,13 @@ import z from 'zod'
 import {
   DocumentReadSchema,
   DocumentWriteSchema,
-} from '../../../../types/db/db-service-document-schema'
-import { VersionSchema } from '../../../../types/utils/services/version-schema'
+} from '../../../../../types/db/db-service-document-schema'
+import { VersionSchema } from '../../../../../types/utils/services/version-schema'
+import { TechniqueIdSchema } from '../../../types/data/technique-id-schema'
 
 export const TechniqueMetadataBaseSchema = z.object({
-  techniqueVersion: VersionSchema,
+  techniqueId: TechniqueIdSchema,
+  staticInfoVersionInInstalled: VersionSchema,
   installedAt: z.number(),
   lastUsedAt: z.number(),
   totalGainedExp: z.number(),

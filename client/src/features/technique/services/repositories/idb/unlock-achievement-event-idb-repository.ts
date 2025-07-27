@@ -16,7 +16,7 @@ export class UnlockAchievementEventIDBRepository extends IndexedDBService<
   private uid: string
 
   constructor(uid: string) {
-    super(['users', 'techniquesMetadata', 'unlockAchievementEvents'], {
+    super(['users', 'techniques', 'unlockAchievementEvents'], {
       users: uid,
     })
     this.uid = uid

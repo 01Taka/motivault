@@ -4,7 +4,7 @@ import {
   TechniqueMetadataBaseSchema,
   type TechniqueMetadataBaseRead,
   type TechniqueMetadataBaseWrite,
-} from '../../documents/technique-metadata-base-document'
+} from '../../documents/metadata/technique-metadata-base-document'
 
 export class TechniqueMetadataBaseIDBRepository extends IndexedDBService<
   TechniqueMetadataBaseRead,

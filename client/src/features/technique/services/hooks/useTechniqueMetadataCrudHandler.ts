@@ -1,32 +1,51 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import useMultipleAsyncHandler from '../../../../hooks/async-processing/useMultipleAsyncHandler'
 import { initializeMetadataRepositoryIfNeed } from '../functions/technique-metadata-crud'
 import type { TechniqueId } from '../../types/data/technique-id-types'
-import type { TechniqueMetadataBaseWrite } from '../documents/technique-metadata-base-document'
 import type { Version } from '../../../../types/utils/services/version-types'
+import type { TechniqueMetadataWrite } from '../documents/metadata/technique-metadata-schema'
 import { useTechniqueMetadataDataStore } from '../stores/useTechniqueMetadataDataStore'
-import { techniquesStaticInfoById } from '../../functions/constantsHelper/technique-data-helper'
-import type { FullTechniqueData } from '../../types/technique-types'
-import { calculateLevelInfo } from '../../../level/functions/level-utils'
+import type { TechniqueMetadataBaseWrite } from '../documents/metadata/technique-metadata-base-document'
 
 const useTechniqueMetadataCrudHandler = () => {
-  const { metadata, idbMetadata } = useTechniqueMetadataDataStore()
+  const { idbMetadata } = useTechniqueMetadataDataStore()
+
   const asyncKeys = ['initializeMetadata'] as const
-  const { callAsyncFunction, logError } = useMultipleAsyncHandler(asyncKeys)
+  const { asyncStates, callAsyncFunction, logError } =
+    useMultipleAsyncHandler(asyncKeys)
+
   const initializeMetadata = useCallback(
-    (techniqueId: TechniqueId, techniqueVersion: Version) => {
+    (techniqueId: TechniqueId, staticInfoVersion: Version) => {
       if (!idbMetadata) {
         logError('initializeMetadata', '初期化されていません')
         return
       }
-      const metadata: TechniqueMetadataBaseWrite = {
-        techniqueVersion,
+
+      const metadataBase: TechniqueMetadataBaseWrite = {
+        techniqueId: techniqueId,
+        staticInfoVersionInInstalled: staticInfoVersion,
         installedAt: Date.now(),
         lastUsedAt: Date.now(),
         totalGainedExp: 0,
         unlockedAchievementIds: [],
         isVisible: true,
       }
+
+      let metadata: TechniqueMetadataWrite
+
+      switch (techniqueId) {
+        case 'habitMate':
+          metadata = {
+            ...metadataBase,
+            currentHabitLevel: 1,
+            activeHabitIds: [],
+          }
+          break
+        default:
+          metadata = { ...metadataBase, techniqueId }
+          break
+      }
+
       callAsyncFunction(
         'initializeMetadata',
         initializeMetadataRepositoryIfNeed,
@@ -35,27 +54,8 @@ const useTechniqueMetadataCrudHandler = () => {
     },
     [idbMetadata, callAsyncFunction]
   )
-  // Type predicate to assert that a value is not undefined
-  function isDefined<T>(value: T | undefined): value is T {
-    return value !== undefined
-  }
 
-  const fullTechniquesData: FullTechniqueData[] = useMemo(() => {
-    return metadata
-      .map((data) => {
-        if (data.docId in techniquesStaticInfoById) {
-          return {
-            ...data,
-            ...techniquesStaticInfoById[data.docId],
-            ...calculateLevelInfo(data.totalGainedExp),
-          }
-        }
-        return undefined
-      })
-      .filter(isDefined)
-  }, [metadata])
-
-  return { fullTechniquesData, initializeMetadata }
+  return { asyncStates, initializeMetadata }
 }
 
 export default useTechniqueMetadataCrudHandler

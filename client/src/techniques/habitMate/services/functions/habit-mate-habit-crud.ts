@@ -1,35 +1,36 @@
+import type { TechniqueMetadataRepository } from '../../../../features/technique/services/repositories/repositories'
 import { manageUniqueElements } from '../../../../functions/array-object-utils/array-utils'
 import { toISODate } from '../../../../functions/dateTime-utils/time-conversion'
 import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
 import type { ISODate } from '../../../../types/utils/datetime-types'
+import { concurrentHabitLevels } from '../../constants/data/habit-level-data'
 import { getLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
 import type { HabitMateHabitWrite } from '../documents/habit-mate-habit-document'
-import type {
-  HabitMateHabitRepository,
-  HabitMateMetadataRepository,
-} from '../repositories/habit-mate-repositories'
+import type { HabitMateHabitRepository } from '../repositories/habit-mate-repositories'
 
 const readLevelInfo = (level: HabitMateHabitLevel) => {
   return getLevelInfo(level)
 }
 
 export const createHabitMateHabit = async (
-  metadataRepo: HabitMateMetadataRepository,
+  metadataRepo: TechniqueMetadataRepository,
   habitRepo: HabitMateHabitRepository,
   data: HabitMateHabitWrite
 ): Promise<DBWriteTarget> => {
-  let metadata = await metadataRepo.read([])
-  if (!metadata) {
+  let metadata = await metadataRepo.read(['habitMate'])
+  if (!metadata || metadata.techniqueId !== 'habitMate') {
     throw new Error('メタデータを初期化してください')
   }
 
+  const maxConcurrentHabits = concurrentHabitLevels[metadata.currentHabitLevel]
+
   if (
     data.status === 'active' &&
-    metadata.maxConcurrentHabits <= metadata.activeHabitIds.length
+    maxConcurrentHabits <= metadata.activeHabitIds.length
   ) {
     throw new Error(
-      `アクティブな習慣が上限(${metadata.maxConcurrentHabits}つ)なので、これ以上作成できません`
+      `アクティブな習慣が上限(${maxConcurrentHabits}つ)なので、これ以上作成できません`
     )
   }
 

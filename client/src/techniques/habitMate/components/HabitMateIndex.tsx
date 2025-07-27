@@ -15,7 +15,7 @@ const HabitMateIndex: React.FC = () => {
   const [tryOpenContinueForm, setTryOpenContinueForm] =
     useQueuedDelayedState(true)
 
-  const { metadata, activeHabit, progressDataProps, isCompletedToday } =
+  const { listenerStatus, activeHabit, progressDataProps, isCompletedToday } =
     useActiveHabitData()
   const { width, height } = useWindowSize()
   const { progressActionProps, updateNextTargetCount } =
@@ -40,7 +40,7 @@ const HabitMateIndex: React.FC = () => {
 
   return (
     <Stack alignItems="center" justifyContent="center" spacing={2}>
-      {metadata ? (
+      {listenerStatus.habits === 'listening' ? (
         <HabitMateHabitProgress
           componentId="circularWithMilestoneChips"
           hasProgressHabit={!!activeHabit}

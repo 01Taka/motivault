@@ -3,6 +3,7 @@ import type { TechniqueStaticInfo } from '../../types/data/technique-static-info
 export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   {
     docId: 'habitMate',
+    version: 'v0.1.0',
     title: '習慣身に着け',
     officialName: 'HabitMate',
     tags: ['学習タスク管理'],
@@ -51,6 +52,7 @@ export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   },
   {
     docId: 'taskPress',
+    version: 'v0.1.0',
     title: '課題、圧してこ。',
     officialName: 'TaskPress',
     tags: ['学習タスク管理'],
@@ -107,6 +109,7 @@ export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   },
   {
     docId: 'tinySteps',
+    version: 'v0.1.0',
     title: 'ちょこっと行動',
     officialName: 'TinySteps',
     tags: ['無気力サポート'],
@@ -165,6 +168,7 @@ export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   },
   {
     docId: 'pomodoro',
+    version: 'v0.1.0',
     title: '25分で全集中！',
     officialName: 'ポモドーロ・テクニック',
     tags: ['集中力アップ'],
@@ -222,6 +226,7 @@ export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   },
   {
     docId: 'feynman',
+    version: 'v0.1.0',
     title: '説明できる＝本当の理解！',
     officialName: 'Feynmanテクニック',
     tags: ['理解力アップ'],
@@ -278,6 +283,7 @@ export const techniquesStaticInfo: TechniqueStaticInfo[] = [
   },
   {
     docId: 'timeBlocking',
+    version: 'v0.1.0',
     title: '一日をブロックに分けて計画簡単！',
     officialName: 'タイムブロッキング',
     tags: ['習慣化・計画力'],

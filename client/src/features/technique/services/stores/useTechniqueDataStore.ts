@@ -4,23 +4,15 @@ import {
   type GeneratedStore,
   type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
-import { TechniqueMetadataBaseIDBRepository } from '../repositories/idb/technique-metadata-base-idb-repository'
 import { TechniqueSessionIDBRepository } from '../repositories/idb/technique-session-idb-repository'
 import { ExpGainEventIDBRepository } from '../repositories/idb/exp-gain-event-idb-repository'
 import { type TechniqueUnlockAchievementEventRead } from '../documents/session/unlock-achievement-event-document'
 import { UnlockAchievementEventIDBRepository } from '../repositories/idb/unlock-achievement-event-idb-repository'
-import type { TechniqueMetadataBaseRead } from '../documents/technique-metadata-base-document'
 import type { TechniqueSessionRead } from '../documents/session/technique-session-document'
 import type { TechniqueExpGainEventRead } from '../documents/session/exp-gain-event-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
 const storeConfig = {
-  idbMetadata: {
-    repo: TechniqueMetadataBaseIDBRepository,
-    dataKey: 'metadata' as const,
-    subscriptionType: 'collection',
-    repositoryType: 'indexedDB',
-  },
   idbSessions: {
     repo: TechniqueSessionIDBRepository,
     dataKey: 'sessions' as const,
@@ -43,7 +35,6 @@ const storeConfig = {
 
 // 2. 具体的なデータ要素型を定義
 type AppDataTypes = {
-  metadata: TechniqueMetadataBaseRead
   sessions: TechniqueSessionRead
   expEvent: TechniqueExpGainEventRead
   achievementEvent: TechniqueUnlockAchievementEventRead

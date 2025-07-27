@@ -5,7 +5,7 @@ import { toISODate } from '../../../functions/dateTime-utils/time-conversion'
 import type { HabitMateProgressDataProps } from '../types/components/progress-types'
 
 export const useActiveHabitData = () => {
-  const { metadata, habits } = useHabitMateDataStore()
+  const { listenerStatus, habits } = useHabitMateDataStore()
   const activeHabit = habits.find((habit) => habit.status === 'active') ?? null
 
   const testHabit = activeHabit
@@ -48,7 +48,7 @@ export const useActiveHabitData = () => {
   }
 
   return {
-    metadata,
+    listenerStatus,
     activeHabit,
     progressDataProps,
     isCompletedToday,

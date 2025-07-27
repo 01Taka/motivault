@@ -4,13 +4,13 @@ import {
   type GeneratedStore,
   type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
-import { TechniqueMetadataBaseIDBRepository } from '../repositories/idb/technique-metadata-base-idb-repository'
-import type { TechniqueMetadataBaseRead } from '../documents/technique-metadata-base-document'
+import { TechniqueMetadataIDBRepository } from '../repositories/idb/technique-metadata-idb-repository'
+import type { TechniqueMetadataRead } from '../documents/metadata/technique-metadata-schema'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
 const storeConfig = {
   idbMetadata: {
-    repo: TechniqueMetadataBaseIDBRepository,
+    repo: TechniqueMetadataIDBRepository,
     dataKey: 'metadata' as const,
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
@@ -19,7 +19,7 @@ const storeConfig = {
 
 // 2. 具体的なデータ要素型を定義
 type AppDataTypes = {
-  metadata: TechniqueMetadataBaseRead
+  metadata: TechniqueMetadataRead
 }
 
 // 3. createIDBRepoStore を使ってストア定義を取得

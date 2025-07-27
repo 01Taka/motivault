@@ -1,7 +1,9 @@
+import type { Version } from '../../../../types/utils/services/version-types'
 import type { TechniqueId } from './technique-id-types'
 
 export interface TechniqueStaticInfo {
   docId: TechniqueId
+  version: Version
   title: string
   officialName: string
   tags: string[]

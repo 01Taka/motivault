@@ -7,8 +7,6 @@ import {
 } from '../../../../functions/stores/create-repository-store'
 import { HabitMateHabitIDBRepository } from '../repositories/habit-mate-habit-idb-repository'
 import type { HabitMateHabitRead } from '../documents/habit-mate-habit-document'
-import { HabitMateMetadataIDBRepository } from '../repositories/habit-mate-metadata-idb-repository'
-import type { HabitMateMetadataRead } from '../documents/habit-mate-metadata-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
 const storeConfig = {
@@ -18,18 +16,11 @@ const storeConfig = {
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
   },
-  idbMetadata: {
-    repo: HabitMateMetadataIDBRepository,
-    dataKey: 'metadata' as const,
-    subscriptionType: 'singleton',
-    repositoryType: 'indexedDB',
-  },
 } as const
 
 // 2. 具体的なデータ要素型を定義
 type AppDataTypes = {
   habits: HabitMateHabitRead
-  metadata: HabitMateMetadataRead
 }
 
 // 3. createIDBRepoStore を使ってストア定義を取得

@@ -7,7 +7,7 @@ import type {
 } from '../../types/data/technique-static-info-types'
 import { interpolateString } from '../interpolate-helper'
 
-export const techniquesStaticInfoById = techniquesStaticInfo.reduce(
+export const techniquesStaticInfoMap = techniquesStaticInfo.reduce(
   (acc, technique) => {
     acc[technique.docId] = convertHeaderIdsToStrings(technique)
     return acc
@@ -16,7 +16,7 @@ export const techniquesStaticInfoById = techniquesStaticInfo.reduce(
 )
 
 export function getTechniquesStaticInfoById(id: TechniqueId) {
-  return techniquesStaticInfoById[id]
+  return techniquesStaticInfoMap[id]
 }
 
 /**

@@ -12,15 +12,14 @@ import {
   updateHabitMateHabitBaseData,
   updateHabitMateHabitNextTargetCount,
 } from '../functions/habit-mate-habit-crud'
-import { createMetadataIfNeed } from '../functions/habit-mate-metadata-crud'
-import type { HabitMateMetadataWrite } from '../documents/habit-mate-metadata-document'
 import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
 import { useHabitMateDataStore } from '../stores/useHabitMateDataStore'
+import { useTechniqueMetadataDataStore } from '../../../../features/technique/services/stores/useTechniqueMetadataDataStore'
 
 const useHabitMateCrudHandler = () => {
-  const { idbMetadata, idbHabit } = useHabitMateDataStore()
+  const { idbMetadata } = useTechniqueMetadataDataStore()
+  const { idbHabit } = useHabitMateDataStore()
   const asyncKeys = [
-    'createMetadata',
     'createSubmit',
     'updateHabit',
     'pushWorkedDate',
@@ -42,29 +41,6 @@ const useHabitMateCrudHandler = () => {
     },
     [] // 依存配列は空でOK、外のスコープの変数を参照しないため
   )
-
-  const createMetadata = useCallback(async () => {
-    await callAsyncFunction(
-      'createMetadata',
-      async () => {
-        isIndexedDBReady(idbMetadata, 'idbMetadata')
-        const metadata: HabitMateMetadataWrite = {
-          techniqueVersion: 'v0.1.0',
-          installedAt: Date.now(),
-          lastUsedAt: Date.now(),
-          currentHabitLevel: 1,
-          totalGainedExp: 0,
-          unlockedAchievementIds: [],
-          maxConcurrentHabits: 1,
-          activeHabitIds: [],
-          isVisible: true,
-        }
-        return await createMetadataIfNeed(idbMetadata!, metadata)
-      },
-      [],
-      'メタデータの作成に失敗しました。'
-    )
-  }, [callAsyncFunction, idbMetadata, isIndexedDBReady]) // 依存配列に含める
 
   const submitCreateHabit = useCallback(
     async (
@@ -179,7 +155,6 @@ const useHabitMateCrudHandler = () => {
 
   return {
     asyncStates,
-    createMetadata,
     submitCreateHabit,
     pushWorkedDate,
     removeWorkedDate,

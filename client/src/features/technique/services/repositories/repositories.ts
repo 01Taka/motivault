@@ -12,13 +12,13 @@ import type {
   TechniqueUnlockAchievementEventWrite,
 } from '../documents/session/unlock-achievement-event-document'
 import type {
-  TechniqueMetadataBaseRead,
-  TechniqueMetadataBaseWrite,
-} from '../documents/technique-metadata-base-document'
+  TechniqueMetadataRead,
+  TechniqueMetadataWrite,
+} from '../documents/metadata/technique-metadata-schema'
 
-export type TechniqueMetadataBaseRepository = IDBService<
-  TechniqueMetadataBaseRead,
-  TechniqueMetadataBaseWrite
+export type TechniqueMetadataRepository = IDBService<
+  TechniqueMetadataRead,
+  TechniqueMetadataWrite
 >
 
 export type TechniqueSessionRepository = IDBService<
