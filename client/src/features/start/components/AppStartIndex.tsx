@@ -14,9 +14,9 @@ const AppStartIndex: React.FC = () => {
     borderRadius: '50%',
     fontSize: '24px',
     marginTop: '30px',
-    background: `linear-gradient(45deg, ${theme.palette.customGradient?.start}, ${theme.palette.customGradient?.end})`,
+    background: `linear-gradient(45deg, ${theme.palette.actionButtonGradient?.start}, ${theme.palette.actionButtonGradient?.end})`,
     '&:hover': {
-      background: `linear-gradient(45deg, ${theme.palette.customGradientHover?.start}, ${theme.palette.customGradientHover?.end})`,
+      background: `linear-gradient(45deg, ${theme.palette.actionButtonGradientHover?.start}, ${theme.palette.actionButtonGradientHover?.end})`,
       transform: 'scale(1.05)',
     },
     transition: 'all 0.3s ease-in-out',

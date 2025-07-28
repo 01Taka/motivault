@@ -1,7 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import MainAppBar from '../../navigation/components/appBar/MainAppBar'
-import MainBottomNavigation from '../../navigation/components/bottomNavigation/MainBottomNavigation'
 import { Box } from '@mui/material'
 import {
   MAIN_APP_BAR_HEIGHT,
@@ -36,8 +35,6 @@ const TechniquesLayout: React.FC<TechniquesLayoutProps> = () => {
       >
         <Outlet />
       </Box>
-
-      <MainBottomNavigation />
     </Box>
   )
 }
