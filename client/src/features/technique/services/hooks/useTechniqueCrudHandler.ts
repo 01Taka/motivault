@@ -16,10 +16,22 @@ import type { TechniqueSessionEndReason } from '../documents/session/technique-s
 import { useTechniqueMetadataDataStore } from '../stores/useTechniqueMetadataDataStore'
 
 const useTechniqueCrudHandler = () => {
-  const { user, idbUser } = useUserDataStore()
-  const { idbMetadata } = useTechniqueMetadataDataStore()
-  const { idbSessions, idbExpEvent, idbAchievementEvent } =
-    useTechniqueDataStore()
+  const {
+    listenerStatus: userListenerStatus,
+    user,
+    idbUser,
+  } = useUserDataStore()
+  const {
+    listenerStatus: metadataListenerStatus,
+    idbMetadata,
+    metadata,
+  } = useTechniqueMetadataDataStore()
+  const {
+    listenerStatus: techniqueListenerStatus,
+    idbSessions,
+    idbExpEvent,
+    idbAchievementEvent,
+  } = useTechniqueDataStore()
   const asyncKeys = [
     'changeSession',
     'startSession',
@@ -229,6 +241,13 @@ const useTechniqueCrudHandler = () => {
   return {
     asyncStates,
     globalError, // Expose globalError
+    listenerStatus: {
+      ...userListenerStatus,
+      ...techniqueListenerStatus,
+      ...metadataListenerStatus,
+    },
+    user,
+    metadata,
     resetGlobalError, // Expose resetGlobalError
     changeSession,
     startSession,

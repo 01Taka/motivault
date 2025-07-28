@@ -6,7 +6,7 @@ import type {
   HabitMateLevelInfo,
 } from '../../types/data/habit-level-types'
 import { getHabitRewards } from '../../functions/constantHelpers/habit-level-data-helper'
-import { getLevelColor } from '../../functions/components/level-color-utils'
+import { getLevelColor } from '../../../../functions/theme/level-color-utils'
 
 interface StartHabitButtonCardProps {
   levelInfo: HabitMateLevelInfo

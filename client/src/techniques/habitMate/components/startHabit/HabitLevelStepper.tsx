@@ -1,6 +1,6 @@
 import React from 'react'
 import { Stepper, Step, StepLabel, Box, useTheme } from '@mui/material'
-import { getLevelColor } from '../../functions/components/level-color-utils'
+import { getLevelColor } from '../../../../functions/theme/level-color-utils'
 
 interface HabitLevelStepperProps {
   activeStep: number

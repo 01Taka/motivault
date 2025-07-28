@@ -1,23 +1,10 @@
 // src/components/InfoModal.tsx
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import { useInfoModal } from '../hooks/useInfoModal'
 import Popup from '../../../components/utils/Popup' // Popup コンポーネントのパス
 import { LevelUpModalContent } from './LevelUpModalContent'
 import { UnlockedAchievementModalContent } from './UnlockedAchievementModalContent'
-
-const style = {
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  textAlign: 'center',
-}
 
 const InfoModal: React.FC = () => {
   const { isOpen, info, onClose } = useInfoModal()
@@ -49,13 +36,8 @@ const InfoModal: React.FC = () => {
   }
 
   return (
-    <Popup
-      open={isOpen}
-      onClose={onClose}
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-    >
-      <Box sx={style}>{renderModalContent()}</Box>
+    <Popup open={isOpen} onClose={onClose} aria-labelledby="modal-title">
+      {renderModalContent()}
     </Popup>
   )
 }

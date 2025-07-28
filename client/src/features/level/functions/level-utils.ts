@@ -1,8 +1,8 @@
 import {
   INITIAL_XP,
+  RANK_LEVEL_THRESHOLDS,
+  RANK_ORDER,
   RANK_XP_INCREMENT,
-  rankLevelThresholds,
-  rankOrder,
 } from '../constants/level-constants'
 import type { TechniqueRank } from '../types/data/level-rank-types'
 import type {
@@ -11,12 +11,12 @@ import type {
 } from '../types/level-types'
 
 function getRankByLevel(level: number): TechniqueRank {
-  for (let i = rankLevelThresholds.length - 1; i >= 0; i--) {
-    if (level >= rankLevelThresholds[i]) {
-      return rankOrder[i]
+  for (let i = RANK_LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (level >= RANK_LEVEL_THRESHOLDS[i]) {
+      return RANK_ORDER[i]
     }
   }
-  return rankOrder[0]
+  return RANK_ORDER[0]
 }
 
 export function calculateLevelInfo(totalXp: number): TechniqueLevelInfo {

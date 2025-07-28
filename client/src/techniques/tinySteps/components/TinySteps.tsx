@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Stack } from '@mui/material'
 import GoalCard from './GoalCard'
 import { tags, goals as tinyStepGoals } from '../constants/goals-constants'
@@ -12,12 +12,23 @@ import FeedbackForm from './feedback/FeedbackForm'
 import DrawButton from './buttons/DrawButton'
 import EndButton from './buttons/EndButton'
 import StartButton from './buttons/StartButton'
+import { useKeyPress } from '../../../hooks/test/useKeyPress'
+import useGamificationSystem from '../../../features/gamification/hooks/useGamificationSystem'
 
 interface TinyStepsProps {}
 
 const MAX_REMAINING_REDRAW_COUNT = 3
 
 const TinySteps: React.FC<TinyStepsProps> = ({}) => {
+  const pressed = useKeyPress('p')
+  const { handleGainExp } = useGamificationSystem()
+
+  useEffect(() => {
+    if (pressed) {
+      handleGainExp(10, 'test')
+    }
+  }, [pressed])
+
   const [goal, setGoal] = useState<TinyStepsGoal | null>(null)
 
   const [confirmedGoal, setConfirmedGoal] =

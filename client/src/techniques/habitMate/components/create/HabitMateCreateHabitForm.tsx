@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Box, Stack, useTheme } from '@mui/material'
 import {
   getHabitRewards,
-  getLevelInfo,
+  getHabitLevelInfo,
 } from '../../functions/constantHelpers/habit-level-data-helper'
 import useFormState from '../../../../hooks/forms/base/useFormState'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
@@ -15,7 +15,7 @@ import type { HabitMateCreateHabitFormState } from '../../types/form/habit-creat
 import type { CreateInputProps } from '../../../../types/form/formState-types'
 import useHabitMateCrudHandler from '../../services/hooks/useHabitMateCrudHandler'
 import { habitMateBasePath } from '../../constants/path-constants'
-import { getLevelColor } from '../../functions/components/level-color-utils'
+import { getLevelColor } from '../../../../functions/theme/level-color-utils'
 
 const HabitMateCreateHabitForm: React.FC = () => {
   const navigate = useNavigate()
@@ -28,7 +28,7 @@ const HabitMateCreateHabitForm: React.FC = () => {
   const isValidLevel = !isNaN(level) && 0 < level && level < 6
   const validLevel = (isValidLevel ? level : 1) as HabitMateHabitLevel
 
-  const levelInfo = getLevelInfo(validLevel)
+  const levelInfo = getHabitLevelInfo(validLevel)
   const reward = getHabitRewards(validLevel)
 
   const { formState, createInputProps } =

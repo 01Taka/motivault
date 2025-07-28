@@ -1,19 +1,23 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import useTechniqueCrudHandler from './useTechniqueCrudHandler'
 import useIdleTimeout from '../../../../hooks/system/useIdleTimeout'
 import type { TechniqueId } from '../../types/data/technique-id-types'
 import { getCurrentTechniqueIdFromPathname } from '../../functions/path-helper'
+import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
 
-const SESSION_STORAGE_KEY = 'lastActiveTechniqueId'
-const TIMEOUT_LIMIT = 10000
+const TIMEOUT_LIMIT = 15 * MINUTES_IN_MS
 
 const useTechniqueSessionManager = () => {
   const location = useLocation()
-  const { asyncStates, startSession, endSession, changeSession } =
-    useTechniqueCrudHandler()
-
-  const prevTechniqueIdRef = useRef<string | null>(null)
+  const {
+    asyncStates,
+    listenerStatus,
+    user,
+    startSession,
+    endSession,
+    changeSession,
+  } = useTechniqueCrudHandler()
 
   // Wrapper function for startSession to allow for logging/debugging
   const callStartSession = useCallback(
@@ -54,71 +58,50 @@ const useTechniqueSessionManager = () => {
 
   // セッション開始/終了/変更判定のための関数
   const handleSessionChange = (
-    currentTechniqueId: TechniqueId | null,
-    lastActiveIdFromStorage: string | null
+    currentPathTechniqueId: TechniqueId | null,
+    currentActiveTechniqueId: TechniqueId | null
   ) => {
     let shouldEndPreviousSession = false
     let shouldStartNewSession = false
     let shouldChangeSession = false
 
-    if (
-      prevTechniqueIdRef.current === null &&
-      lastActiveIdFromStorage !== null
-    ) {
+    if (currentPathTechniqueId === null && currentActiveTechniqueId !== null) {
       shouldEndPreviousSession = true
       console.log(
-        'DEBUG: Scenario 1 - prevTechniqueIdRef is null and lastActiveIdFromStorage exists. Should end previous session.'
+        'DEBUG: Scenario 1 - Path has no technique ID, but an active session exists. Ending current session.'
       )
     } else if (
-      prevTechniqueIdRef.current !== null &&
-      currentTechniqueId &&
-      currentTechniqueId !== prevTechniqueIdRef.current
+      currentPathTechniqueId &&
+      currentActiveTechniqueId &&
+      currentPathTechniqueId !== currentActiveTechniqueId
     ) {
       shouldChangeSession = true
       console.log(
-        'DEBUG: Scenario 2 - prevTechniqueIdRef exists, currentTechniqueId exists and is different. Should change session.'
+        'DEBUG: Scenario 2 - Path has a different technique ID than the active session. Changing session.'
       )
     } else if (
-      prevTechniqueIdRef.current !== null &&
-      currentTechniqueId === null
-    ) {
-      shouldEndPreviousSession = true
-      console.log(
-        'DEBUG: Scenario 3 - prevTechniqueIdRef exists and currentTechniqueId is null. Should end previous session.'
-      )
-    } else if (
-      currentTechniqueId !== null &&
-      (prevTechniqueIdRef.current === null ||
-        currentTechniqueId !== prevTechniqueIdRef.current)
+      currentPathTechniqueId !== null &&
+      currentActiveTechniqueId === null
     ) {
       shouldStartNewSession = true
       console.log(
-        'DEBUG: Scenario 4 - currentTechniqueId exists and (prevTechniqueIdRef is null or different). Should start new session.'
+        'DEBUG: Scenario 3 - Path has a technique ID, but no active session. Starting new session.'
       )
     }
 
     // 実際にセッションを変更・終了・開始する
-    if (shouldChangeSession && currentTechniqueId) {
-      callChangeSession(currentTechniqueId, 'linkMoved')
+    if (shouldChangeSession && currentPathTechniqueId) {
+      callChangeSession(currentPathTechniqueId, 'linkMoved')
     } else if (shouldEndPreviousSession) {
       callEndSession('linkMoved')
     }
 
-    if (shouldStartNewSession && currentTechniqueId && !shouldChangeSession) {
-      callStartSession(currentTechniqueId)
-    }
-
-    prevTechniqueIdRef.current = currentTechniqueId
-  }
-
-  // IDをsessionStorageに保存または削除
-  const updateSessionStorage = (currentTechniqueId: string | null) => {
-    if (currentTechniqueId !== null) {
-      sessionStorage.setItem(SESSION_STORAGE_KEY, currentTechniqueId)
-      console.log('DEBUG: sessionStorage updated with ID:', currentTechniqueId)
-    } else {
-      sessionStorage.removeItem(SESSION_STORAGE_KEY)
-      console.log('DEBUG: sessionStorage cleared.')
+    if (
+      shouldStartNewSession &&
+      !shouldChangeSession &&
+      currentPathTechniqueId
+    ) {
+      callStartSession(currentPathTechniqueId)
     }
   }
 
@@ -139,42 +122,27 @@ const useTechniqueSessionManager = () => {
   })
 
   useEffect(() => {
+    if (listenerStatus.user !== 'listening' || !user) {
+      return
+    }
     const currentTechniqueId = getCurrentTechniqueIdFromPathname(
       location.pathname
     )
-    const lastActiveIdFromStorage = sessionStorage.getItem(SESSION_STORAGE_KEY)
+    const currentActiveTechniqueId = user.activeSessionInfo?.techniqueId ?? null
 
-    // セッション変更判定の実行
-    handleSessionChange(currentTechniqueId, lastActiveIdFromStorage)
-
-    // sessionStorageの更新
-    updateSessionStorage(currentTechniqueId)
-  }, [location, callEndSession, callStartSession, callChangeSession]) // Dependencies updated to use wrapped functions
-
-  // --- テスト用ナビゲーション機能 ---
-  const navigate = useNavigate()
-
-  const handleSpacePress = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.code === 'Space') {
-        const currentPath = location.pathname
-        if (currentPath.includes('/techniques/task-press')) {
-          navigate('/techniques/tiny-steps')
-        } else {
-          navigate('/techniques/task-press')
-        }
-      }
-    },
-    [location.pathname, navigate]
-  )
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleSpacePress)
-    return () => {
-      window.removeEventListener('keydown', handleSpacePress)
+    if (currentTechniqueId === currentActiveTechniqueId) {
+      return
     }
-  }, [handleSpacePress])
-  // --- テスト用ナビゲーション機能 終わり ---
+    // セッション変更判定の実行
+    handleSessionChange(currentTechniqueId, currentActiveTechniqueId)
+  }, [
+    location,
+    listenerStatus.user,
+    user,
+    callEndSession,
+    callStartSession,
+    callChangeSession,
+  ]) // Dependencies updated to use wrapped functions
 
   const {
     startSession: startSessionAsyncStates,

@@ -4,13 +4,13 @@ import { toISODate } from '../../../../functions/dateTime-utils/time-conversion'
 import type { DBWriteTarget } from '../../../../types/db/db-service-interface'
 import type { ISODate } from '../../../../types/utils/datetime-types'
 import { concurrentHabitLevels } from '../../constants/data/habit-level-data'
-import { getLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
+import { getHabitLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
 import type { HabitMateHabitWrite } from '../documents/habit-mate-habit-document'
 import type { HabitMateHabitRepository } from '../repositories/habit-mate-repositories'
 
 const readLevelInfo = (level: HabitMateHabitLevel) => {
-  return getLevelInfo(level)
+  return getHabitLevelInfo(level)
 }
 
 export const createHabitMateHabit = async (

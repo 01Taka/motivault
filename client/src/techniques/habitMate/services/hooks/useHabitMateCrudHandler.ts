@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import useMultipleAsyncHandler from '../../../../hooks/async-processing/useMultipleAsyncHandler'
-import { getLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
+import { getHabitLevelInfo } from '../../functions/constantHelpers/habit-level-data-helper'
 import type { HabitMateCreateHabitFormState } from '../../types/form/habit-create-form'
 import type { HabitMateHabitLevel } from '../../types/data/habit-level-types'
 import type { HabitMateHabitWrite } from '../documents/habit-mate-habit-document'
@@ -54,7 +54,7 @@ const useHabitMateCrudHandler = () => {
           isIndexedDBReady(idbMetadata, 'idbMetadata')
           isIndexedDBReady(idbHabit, 'idbHabit')
 
-          const levelData = getLevelInfo(level)
+          const levelData = getHabitLevelInfo(level)
 
           const data: HabitMateHabitWrite = {
             level,

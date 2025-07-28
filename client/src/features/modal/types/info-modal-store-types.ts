@@ -1,21 +1,20 @@
-import type { TechniqueId } from '../../technique/types/data/technique-id-types'
+import type { FullTechniqueData } from '../../technique/types/technique-types'
 
-export interface LevelUpInfo {
+export interface LevelUpModalInfo {
   type: 'levelUp'
-  techniqueId: TechniqueId
-  levelUpAt: number // これはレベルアップが発生した時間
+  techniqueData: FullTechniqueData
   prevExp: number
   newExp: number
 }
 
-export interface UnlockedAchievementInfo {
+export interface UnlockedAchievementModalInfo {
   type: 'unlockedAchievement'
-  techniqueId: TechniqueId
+  techniqueData: FullTechniqueData
   inPossessionAchievementIds: string[]
   unlockedAchievementIds: string[]
 }
 
-export type ModalInfo = LevelUpInfo | UnlockedAchievementInfo
+export type ModalInfo = LevelUpModalInfo | UnlockedAchievementModalInfo
 
 export type FullModalInfo = ModalInfo & { timestamp: number }
 

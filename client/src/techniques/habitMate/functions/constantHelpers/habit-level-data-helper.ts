@@ -7,7 +7,7 @@ import type {
   HabitMateLevelInfo,
 } from '../../types/data/habit-level-types'
 
-export const getLevelInfo = (
+export const getHabitLevelInfo = (
   level: HabitMateHabitLevel
 ): HabitMateLevelInfo => {
   const levelInfo = habitMateLevels.find(

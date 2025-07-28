@@ -1,5 +1,5 @@
 import { useHabitMateDataStore } from '../services/stores/useHabitMateDataStore'
-import { getLevelInfo } from '../functions/constantHelpers/habit-level-data-helper'
+import { getHabitLevelInfo } from '../functions/constantHelpers/habit-level-data-helper'
 import { calculateMilestoneProgress } from '../functions/helper/milestone-helper'
 import { toISODate } from '../../../functions/dateTime-utils/time-conversion'
 import type { HabitMateProgressDataProps } from '../types/components/progress-types'
@@ -16,7 +16,7 @@ export const useActiveHabitData = () => {
       //   } as HabitMateHabitRead)
       null
 
-  const levelInfo = testHabit ? getLevelInfo(testHabit.level) : null
+  const levelInfo = testHabit ? getHabitLevelInfo(testHabit.level) : null
 
   const milestoneProgress =
     testHabit && levelInfo

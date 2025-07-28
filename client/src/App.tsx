@@ -21,6 +21,7 @@ import TechniquesLayout from './features/technique/components/TechniquesLayout'
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import baseTheme from './theme'
 import InfoModal from './features/modal/components/InfoModal'
+import { useTechniqueDataStore } from './features/technique/services/stores/useTechniqueDataStore'
 
 // Lazy imports for all pages and technique-related components
 const SearchTechnique = lazy(
@@ -71,6 +72,7 @@ const CreateTaskPress = lazy(
 function App() {
   useAbstractDataSync(useUserDataStore())
   useAbstractDataSync(useTechniqueMetadataDataStore())
+  useAbstractDataSync({ ...useTechniqueDataStore(), dataKeysToListen: [] })
   useTechniqueSessionManager()
   // useTechniqueXPSetup()
 
