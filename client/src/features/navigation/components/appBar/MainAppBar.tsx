@@ -9,8 +9,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { getCurrentTechniqueIdFromPathname } from '../../../technique/functions/path-helper'
 import useFullTechniqueData from '../../../technique/hooks/useFullTechniqueData'
 import { MAIN_APP_BAR_HEIGHT } from '../../constants/components/navigation-size'
-import { MainAppBarColors } from '../../theme/main-app-bar-colors'
-import { createFadeInFromBottomAnimation } from '../../../../theme/animations'
+import { createFadeInFromBottomAnimation } from '../../../../animations/animations'
+import { useTheme } from '@mui/material'
 
 interface MobileAppBarProps {
   // 必要であれば、ここに汎用的なプロパティを追加
@@ -37,6 +37,9 @@ const MainAppBar: React.FC<MobileAppBarProps> = () => {
     navigate(-1)
   }
 
+  const { palette } = useTheme()
+  palette.primary.contrastText
+
   const appBarTitle = currentTechnique
     ? `${currentTechnique.officialName} (Lv.${currentTechnique.currentLevel})`
     : 'MOTIVALT'
@@ -50,7 +53,7 @@ const MainAppBar: React.FC<MobileAppBarProps> = () => {
         right: 0,
         height: MAIN_APP_BAR_HEIGHT,
         // カラーパレットからグラデーションカラーを適用
-        background: `linear-gradient(to right, ${MainAppBarColors.appBarGradientLightRed}, ${MainAppBarColors.appBarGradientLightBlue})`,
+        background: `linear-gradient(to right, ${palette.appBarGradient?.start}, ${palette.appBarGradient?.end})`,
         zIndex: (theme) => theme.zIndex.appBar,
       }}
     >
@@ -64,7 +67,7 @@ const MainAppBar: React.FC<MobileAppBarProps> = () => {
             aria-label="back"
             onClick={handleBack}
             sx={{
-              color: MainAppBarColors.appBarTitle, // 文字色に合わせるか、個別に調整
+              color: palette.text.secondary, // 文字色に合わせるか、個別に調整
             }}
           >
             <ArrowBackIcon />
@@ -79,7 +82,7 @@ const MainAppBar: React.FC<MobileAppBarProps> = () => {
             flexGrow: 1,
             textAlign: 'center',
             animation: `${createFadeInFromBottomAnimation({ duration: '0.5s' })}`,
-            color: MainAppBarColors.appBarTitle,
+            color: palette.text.secondary,
           }}
         >
           {appBarTitle}
@@ -93,7 +96,7 @@ const MainAppBar: React.FC<MobileAppBarProps> = () => {
           aria-label="options"
           onClick={handleOpenOption}
           sx={{
-            color: MainAppBarColors.appBarTitle, // 文字色に合わせるか、個別に調整
+            color: palette.text.secondary, // 文字色に合わせるか、個別に調整
           }}
         >
           <MoreVertIcon />

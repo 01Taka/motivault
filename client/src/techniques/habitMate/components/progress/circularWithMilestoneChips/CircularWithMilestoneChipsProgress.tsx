@@ -1,7 +1,6 @@
 import React from 'react'
 import { CircularProgressWithLabelCard } from './CircularProgressWithLabelCard'
-import { Box, Stack, Typography } from '@mui/material'
-import { circularWithMilestoneChipsPalette as palette } from '../../../constants/color/progressColor/circular-with-milestone-chips-color'
+import { Box, Stack, Typography, useTheme } from '@mui/material'
 import type { HabitMateProgressProps } from '../../../types/components/progress-types'
 import { motion } from 'framer-motion'
 
@@ -20,6 +19,7 @@ const CircularWithMilestoneChipsProgress: React.FC<
   milestonesTotal,
   onToggleCompletion,
 }) => {
+  const { palette } = useTheme()
   const percentage =
     nextMilestoneAbsoluteCount > 0
       ? (currentCount * 100) / nextMilestoneAbsoluteCount
@@ -55,8 +55,8 @@ const CircularWithMilestoneChipsProgress: React.FC<
               sx={{
                 bgcolor:
                   index < milestonesAchieved
-                    ? palette.milestoneActive
-                    : palette.milestoneInactive,
+                    ? palette.energy?.main
+                    : palette.grey[300],
                 width: 24,
                 height: 24,
                 borderRadius: 999,
@@ -64,7 +64,7 @@ const CircularWithMilestoneChipsProgress: React.FC<
             />
           ))}
         </Stack>
-        <Typography sx={{ color: palette.textPrimary }}>
+        <Typography sx={{ color: palette.text.secondary }}>
           {milestonesAchieved}/{milestonesTotal}
         </Typography>
       </Stack>

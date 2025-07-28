@@ -44,7 +44,7 @@ const HabitLevelNavigator: React.FC<HabitLevelNavigatorProps> = ({
   }))
 
   return (
-    <Box>
+    <Box mt={1}>
       <HabitLevelStepper
         activeStep={activeStep}
         levels={stepperLevels}

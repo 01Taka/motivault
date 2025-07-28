@@ -1,16 +1,11 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 import type { HabitMateHabitRead } from '../../services/documents/habit-mate-habit-document'
 import HabitMateContinueFormHabitInfoCard from './HabitMateContinueFormHabitInfoCard'
 import HabitMateContinueFormActionButtons from './HabitMateContinueFormActionButtons'
 import useFormState from '../../../../hooks/forms/base/useFormState'
 import type { CreateInputProps } from '../../../../types/form/formState-types'
 import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
-
-const palette = {
-  neutralColor: '#F5F7F8',
-  mainColor: '#8A96F2',
-}
 
 interface Props {
   habitData: HabitMateHabitRead
@@ -25,6 +20,7 @@ export const DecisionModalContent: React.FC<Props> = ({
   onStartNewHabit,
   onContinue,
 }) => {
+  const { palette } = useTheme()
   const { formState, createInputProps, resetFormState, hasFormDiff } =
     useFormState<HabitMateContinueHabitFormState>({
       habit: habitData.habit,
@@ -41,14 +37,18 @@ export const DecisionModalContent: React.FC<Props> = ({
       sx={{
         p: 3,
         textAlign: 'center',
-        bgcolor: palette.neutralColor,
+        bgcolor: palette.background.paper,
         borderRadius: 4,
       }}
     >
       <Typography
         variant="h6"
         component="h3"
-        sx={{ color: palette.mainColor, mb: 1, fontWeight: 'bold' }}
+        sx={{
+          color: palette.emotionStatus?.positive.main,
+          mb: 1,
+          fontWeight: 'bold',
+        }}
       >
         すごい！*{continuedCount}日*も続いてるの？🎉
       </Typography>

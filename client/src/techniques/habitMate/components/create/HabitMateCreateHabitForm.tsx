@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Box, Stack } from '@mui/material'
-import { levelThemes } from '../../constants/color/start-habit-theme'
+import { Box, Stack, useTheme } from '@mui/material'
 import {
   getHabitRewards,
   getLevelInfo,
@@ -16,13 +15,15 @@ import type { HabitMateCreateHabitFormState } from '../../types/form/habit-creat
 import type { CreateInputProps } from '../../../../types/form/formState-types'
 import useHabitMateCrudHandler from '../../services/hooks/useHabitMateCrudHandler'
 import { habitMateBasePath } from '../../constants/path-constants'
+import { getLevelColor } from '../../functions/components/level-color-utils'
 
 const HabitMateCreateHabitForm: React.FC = () => {
   const navigate = useNavigate()
+  const { palette } = useTheme()
   const params = useParams()
   const level = Number(params.level)
-  const levelTheme = levelThemes[level] || levelThemes[1]
-  const backgroundGradient = `linear-gradient(to bottom, ${levelTheme.primary}20, ${levelTheme.primary}05)`
+  const levelTheme = getLevelColor(level, palette)
+  const backgroundGradient = `linear-gradient(to bottom, ${levelTheme?.primary}20, ${levelTheme?.primary}05)`
 
   const isValidLevel = !isNaN(level) && 0 < level && level < 6
   const validLevel = (isValidLevel ? level : 1) as HabitMateHabitLevel
@@ -50,29 +51,25 @@ const HabitMateCreateHabitForm: React.FC = () => {
   return (
     <Box
       sx={{
-        position: 'fixed',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+        widows: '100%',
+        height: '100%',
         background: backgroundGradient,
         overflowY: 'auto',
-        py: 4,
       }}
     >
       <Stack spacing={3} sx={{ padding: 3, mx: 'auto', maxWidth: '500px' }}>
         <LevelInfoCard
           level={validLevel}
-          levelTheme={levelTheme}
+          levelColor={levelTheme?.primary ?? ''}
           levelInfo={levelInfo}
           rewardMessage={reward.message}
         />
         <HabitInputForm
-          checkboxColor={levelTheme.primary}
+          checkboxColor={levelTheme?.primary ?? ''}
           createInputProps={createInputProps as CreateInputProps}
         />
         <SubmitButton
-          levelTheme={levelTheme}
+          backgroundColor={levelTheme?.primary ?? ''}
           onClick={() => submitCreateHabit(validLevel, formState)}
           disabled={
             !formState.habit || asyncStates.createSubmit?.status === 'loading'

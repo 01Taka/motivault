@@ -7,14 +7,14 @@ import type {
 
 interface Props {
   level: HabitMateHabitLevel
-  levelTheme: { primary: string }
+  levelColor: string
   levelInfo: HabitMateLevelInfo
   rewardMessage: string | null
 }
 
 const LevelInfoCard: React.FC<Props> = ({
   level,
-  levelTheme,
+  levelColor,
   levelInfo,
   rewardMessage,
 }) => {
@@ -32,13 +32,10 @@ const LevelInfoCard: React.FC<Props> = ({
       }}
     >
       <Stack justifyContent="center" alignItems="center" spacing={1} mb={1}>
-        <Typography
-          variant="h5"
-          sx={{ color: levelTheme.primary, fontWeight: 'bold' }}
-        >
+        <Typography variant="h5" sx={{ color: levelColor, fontWeight: 'bold' }}>
           レベル {level}
         </Typography>
-        <Typography sx={{ color: levelTheme.primary, fontWeight: 'bold' }}>
+        <Typography sx={{ color: levelColor, fontWeight: 'bold' }}>
           {levelInfo.name} ✨
         </Typography>
       </Stack>

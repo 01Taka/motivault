@@ -10,7 +10,7 @@ const HabitMateLayout: React.FC<HabitMateLayoutProps> = ({}) => {
   useAbstractDataSync(useHabitMateDataStore())
 
   return (
-    <Box>
+    <Box pt={4}>
       <Outlet />
     </Box>
   )

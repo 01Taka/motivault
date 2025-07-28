@@ -1,7 +1,6 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography, useTheme } from '@mui/material'
 import React from 'react'
 import CircularProgressWithLabel from '../../shared/CircularProgressWithLabel'
-import { circularWithMilestoneChipsPalette as palette } from '../../../constants/color/progressColor/circular-with-milestone-chips-color'
 
 interface CircularProgressWithLabelCardProps {
   value: number
@@ -24,14 +23,15 @@ export const CircularProgressWithLabelCard: React.FC<
   bottomLabel,
   onClick,
 }) => {
+  const { palette } = useTheme()
   return (
     <CircularProgressWithLabel
       value={value}
       size="90vw"
       strokeLinecap="round"
       thickness={2.5}
-      variantColor={palette.progressVariant}
-      trackColor={palette.progressTrack}
+      variantColor={palette.emotionStatus?.positive.main}
+      trackColor={palette.grey[300]}
       onClick={onClick}
     >
       <Stack
@@ -39,17 +39,17 @@ export const CircularProgressWithLabelCard: React.FC<
         alignItems="center"
         sx={{ width: '100%', height: '100%' }}
       >
-        <Typography variant="h5" mt={1} sx={{ color: palette.textPrimary }}>
+        <Typography variant="h5" mt={1} sx={{ color: palette.text.primary }}>
           {taskName}
         </Typography>
         <Box sx={{ position: 'relative', width: 'fit-content', mt: 2 }}>
-          <Typography variant="h6" sx={{ color: palette.textPrimary }}>
+          <Typography variant="h6" sx={{ color: palette.text.primary }}>
             {currentCount}/{maxCount}
           </Typography>
           <Typography
             variant="caption"
             sx={{
-              color: palette.textHighlight,
+              color: palette.primary.main,
               position: 'absolute',
               top: 0,
               right: -25,
@@ -63,7 +63,7 @@ export const CircularProgressWithLabelCard: React.FC<
         </Box>
         <Typography
           variant="caption"
-          sx={{ color: palette.textSecondary, width: 'fit-content' }}
+          sx={{ color: palette.text.secondary, width: 'fit-content' }}
         >
           {bottomLabel}
         </Typography>

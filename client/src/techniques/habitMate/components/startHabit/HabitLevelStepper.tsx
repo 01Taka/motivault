@@ -1,9 +1,6 @@
 import React from 'react'
-import { Stepper, Step, StepLabel, Box } from '@mui/material'
-import {
-  defaultLevelTheme,
-  levelThemes,
-} from '../../constants/color/start-habit-theme'
+import { Stepper, Step, StepLabel, Box, useTheme } from '@mui/material'
+import { getLevelColor } from '../../functions/components/level-color-utils'
 
 interface HabitLevelStepperProps {
   activeStep: number
@@ -16,13 +13,13 @@ const HabitLevelStepper: React.FC<HabitLevelStepperProps> = ({
   levels,
   onStepClick,
 }) => {
+  const { palette } = useTheme()
   return (
     <Box
       sx={{
         width: '100%',
-        mb: 4,
         overflowX: 'auto', // ステッパー項目が多い場合に横スクロールを可能にする
-        py: 2, // 上下のパディング
+        pt: 2, // 上下のパディング
       }}
     >
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -31,10 +28,10 @@ const HabitLevelStepper: React.FC<HabitLevelStepperProps> = ({
           const isActive = index === activeStep // 現在のステップかどうか
 
           // レベルのテーマカラーを取得 (levelThemesは0-indexedではなく1-indexedなので index + 1 を使用)
-          const currentTheme = levelThemes[index + 1] || defaultLevelTheme
+          const currentTheme = getLevelColor(index + 1, palette)
 
           const currentColor = isCompleted
-            ? currentTheme.primary // 達成済みまたは現在地はテーマカラー
+            ? currentTheme?.primary // 達成済みまたは現在地はテーマカラー
             : 'text.disabled'
 
           return (

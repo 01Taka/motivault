@@ -5,7 +5,7 @@ import {
   createFadeInFromBottomAnimation,
   createFloatAnimation,
   gradientAnimation,
-} from '../../../../theme/animations'
+} from '../../../../animations/animations'
 
 /**
  * @interface GradientTextProps

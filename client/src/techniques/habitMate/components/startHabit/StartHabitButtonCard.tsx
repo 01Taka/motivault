@@ -1,15 +1,12 @@
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography, useTheme } from '@mui/material'
 import React from 'react'
 import { GrayscaleImage } from '../../../../components/image/GrayscaleImage'
-import {
-  levelThemes,
-  defaultLevelTheme,
-} from '../../constants/color/start-habit-theme'
 import type {
   HabitMateHabitLevel,
   HabitMateLevelInfo,
 } from '../../types/data/habit-level-types'
 import { getHabitRewards } from '../../functions/constantHelpers/habit-level-data-helper'
+import { getLevelColor } from '../../functions/components/level-color-utils'
 
 interface StartHabitButtonCardProps {
   levelInfo: HabitMateLevelInfo
@@ -30,8 +27,9 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
   const reward = getHabitRewards(levelInfo.level)
 
   // 現在のレベルのテーマカラーを取得
-  const currentTheme = levelThemes[levelInfo.level] || defaultLevelTheme
-  const textColor = currentTheme.primary
+  const { palette } = useTheme()
+  const currentTheme = getLevelColor(levelInfo.level, palette)
+  const textColor = currentTheme?.primary
 
   return (
     <Box
@@ -41,7 +39,7 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
         maxWidth: 300,
         borderRadius: 3,
         height: '135vw',
-        maxHeight: 500,
+        maxHeight: '70vh',
         overflow: 'hidden',
         bgcolor: 'gray',
         flexShrink: 0,
@@ -122,9 +120,9 @@ const StartHabitButtonCard: React.FC<StartHabitButtonCardProps> = ({
             mt: 3,
             borderRadius: '50px',
             // プライマリカラーをボタンの背景色に適用
-            bgcolor: currentTheme.primary,
+            bgcolor: currentTheme?.primary,
             '&:hover': {
-              bgcolor: currentTheme.secondary, // ホバー時にはセカンダリカラー（またはより暗い色）
+              bgcolor: currentTheme?.secondary, // ホバー時にはセカンダリカラー（またはより暗い色）
             },
             color: '#fff',
             px: 4,

@@ -6,18 +6,13 @@ import {
   FormControlLabel,
   TextField,
   IconButton,
+  useTheme,
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import UndoIcon from '@mui/icons-material/Undo'
 import { Check } from '@mui/icons-material'
 import type { HabitMateContinueHabitFormState } from '../../types/form/habit-continue-form'
 import type { CreateInputProps } from '../../../../types/form/formState-types'
-
-const palette = {
-  mainColor: '#8A96F2',
-  borderColor: '#E0E4E8',
-  highlightColor: '#E0F7FA',
-}
 
 interface HabitMateContinueFormHabitInfoCardProps {
   formState: HabitMateContinueHabitFormState
@@ -30,6 +25,7 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
   HabitMateContinueFormHabitInfoCardProps
 > = ({ formState, hasFormDiff, createInputProps, onCancelEdit }) => {
   const [isEditing, setIsEditing] = useState(false)
+  const { palette } = useTheme()
 
   return (
     <Stack
@@ -41,17 +37,17 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
         mb: 1,
         textAlign: 'left',
         borderRadius: 3,
-        border: `1px solid ${palette.borderColor}`,
+        border: `1px solid ${palette.border?.main}`,
         boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
         position: 'relative',
-        bgcolor: palette.highlightColor,
+        bgcolor: palette.highlightColor?.main,
       }}
     >
       <Typography
         variant="body1"
         sx={{
           fontWeight: 'bold',
-          color: 'text.secondary',
+          color: palette.text.secondary,
           textAlign: 'center',
           mb: 1,
         }}
@@ -81,7 +77,6 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
               <Switch
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: palette.mainColor,
                     '&:hover': {
                       bgcolor: 'rgba(138, 150, 242, 0.08)',
                     },
@@ -103,24 +98,33 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
       ) : (
         <>
           <Typography variant="body1">
-            <Typography component="span" sx={{ color: 'text.primary' }}>
+            <Typography
+              component="span"
+              sx={{ color: palette.highlightColor?.contrastText }}
+            >
               {formState.habit}
             </Typography>
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body1" sx={{ color: palette.text.secondary }}>
             タイミング:{' '}
             <Typography
               component="span"
-              sx={{ fontWeight: 'bold', color: 'text.primary' }}
+              sx={{
+                fontWeight: 'bold',
+                color: palette.highlightColor?.contrastText,
+              }}
             >
               {formState.timing}
             </Typography>
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body1" sx={{ color: palette.text.secondary }}>
             5分でできるか:{' '}
             <Typography
               component="span"
-              sx={{ fontWeight: 'bold', color: 'text.primary' }}
+              sx={{
+                fontWeight: 'bold',
+                color: palette.highlightColor?.contrastText,
+              }}
             >
               {formState.isExecutable ? 'はい' : 'いいえ'}
             </Typography>
@@ -138,7 +142,9 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
           sx={{ position: 'absolute', top: 0, left: 4 }}
           disabled={!hasFormDiff}
         >
-          <UndoIcon sx={{ color: hasFormDiff ? 'error.main' : 'grey' }} />
+          <UndoIcon
+            sx={{ color: hasFormDiff ? palette.error.light : 'grey' }}
+          />
         </IconButton>
       )}
       <IconButton
@@ -147,9 +153,9 @@ const HabitMateContinueFormHabitInfoCard: React.FC<
         sx={{ position: 'absolute', top: 0, right: 4 }}
       >
         {isEditing ? (
-          <Check sx={{ color: palette.mainColor }} />
+          <Check sx={{ color: palette.success.main }} />
         ) : (
-          <EditIcon sx={{ color: palette.mainColor }} />
+          <EditIcon sx={{ color: palette.emotionStatus?.positive.main }} />
         )}
       </IconButton>
     </Stack>

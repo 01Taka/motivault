@@ -51,10 +51,7 @@ const HabitMateIndex: React.FC = () => {
           newHabitButtonProps={newHabitButtonProps}
         />
       ) : (
-        <Skeleton
-          variant="circular"
-          sx={{ width: '90vw', height: '90vw', bgcolor: '#c3cacd' }}
-        />
+        <Skeleton variant="circular" sx={{ width: '90vw', height: '90vw' }} />
       )}
       <Popup
         open={

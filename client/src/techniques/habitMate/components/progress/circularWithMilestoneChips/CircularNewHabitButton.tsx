@@ -1,7 +1,6 @@
-import { Stack, Typography } from '@mui/material'
+import { Stack, Typography, useTheme } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import React from 'react'
-import { circularWithMilestoneChipsPalette as palette } from '../../../constants/color/progressColor/circular-with-milestone-chips-color'
 import type { HabitMateNewHabitProps } from '../../../types/components/progress-types'
 
 interface CircularNewHabitButtonProps extends HabitMateNewHabitProps {
@@ -11,10 +10,11 @@ interface CircularNewHabitButtonProps extends HabitMateNewHabitProps {
 
 const CircularNewHabitButton: React.FC<CircularNewHabitButtonProps> = ({
   text,
-  backgroundColor = palette.createNewBackground,
-  hoverBackgroundColor = palette.createNewBackgroundHover,
+  backgroundColor,
+  hoverBackgroundColor,
   onCreate,
 }) => {
+  const { palette } = useTheme()
   return (
     <Stack
       justifyContent="center"
@@ -23,14 +23,14 @@ const CircularNewHabitButton: React.FC<CircularNewHabitButtonProps> = ({
         width: '90vw',
         height: '90vw',
         borderRadius: '50%',
-        bgcolor: backgroundColor,
+        bgcolor: backgroundColor ?? palette.primary.main,
         color: '#fff',
         WebkitTapHighlightColor: 'transparent',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: 4,
         '&:hover': {
-          bgcolor: hoverBackgroundColor,
+          bgcolor: hoverBackgroundColor ?? palette.primary.dark,
           transform: 'scale(1.03)',
           boxShadow: 6,
         },
