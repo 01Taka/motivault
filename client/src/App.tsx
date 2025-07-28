@@ -20,6 +20,7 @@ import HomeLayout from './features/home/components/HomeLayout'
 import TechniquesLayout from './features/technique/components/TechniquesLayout'
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import baseTheme from './theme'
+import InfoModal from './features/modal/components/InfoModal'
 
 // Lazy imports for all pages and technique-related components
 const SearchTechnique = lazy(
@@ -80,6 +81,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Suspense fallback={<div>Loading...</div>}>
+        <InfoModal />
         <Routes>
           {/* Home */}
           <Route path="/" element={<HomeLayout />}>
