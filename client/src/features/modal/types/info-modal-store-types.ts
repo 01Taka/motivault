@@ -1,3 +1,4 @@
+import type { AchievementStaticInfo } from '../../achievement/types/data/achievement-data-types'
 import type { FullTechniqueData } from '../../technique/types/technique-types'
 
 export interface LevelUpModalInfo {
@@ -10,8 +11,8 @@ export interface LevelUpModalInfo {
 export interface UnlockedAchievementModalInfo {
   type: 'unlockedAchievement'
   techniqueData: FullTechniqueData
-  inPossessionAchievementIds: string[]
-  unlockedAchievementIds: string[]
+  inPossessionAchievements: AchievementStaticInfo[]
+  unlockedNewAchievements: AchievementStaticInfo[]
 }
 
 export type ModalInfo = LevelUpModalInfo | UnlockedAchievementModalInfo

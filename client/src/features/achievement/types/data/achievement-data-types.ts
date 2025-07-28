@@ -21,6 +21,7 @@ export interface AchievementStaticInfo {
   rarity: AchievementRarity // アチーブメントのレアリティ
   iconId: string // アチーブメント表示に使用するアイコンのID
   name: string // アチーブメントの名称
+  badgeImageUrl?: string
   unlockConditions: AchievementUnlockConditions // アチーブメントの解放条件を定義する構造
   unlockConditionsExplanation: string // ユーザーに表示される解放条件の説明文（例: 'ポモドーロを10回完了する'）
   description: string // アチーブメントの詳細な説明

@@ -7,6 +7,7 @@ import type {
 } from '../../modal/types/info-modal-store-types'
 import { useUserDataStore } from '../../user/services/stores/useUserDataStore'
 import useFullTechniqueData from '../../technique/hooks/useFullTechniqueData'
+import { getAchievementsStaticInfoByIds } from '../../achievement/functions/constantsHelper/data/achievement-static-info-helper'
 
 const useGamificationSystem = () => {
   const { user } = useUserDataStore()
@@ -58,18 +59,18 @@ const useGamificationSystem = () => {
 
     unlockAchievement(unlockedAchievementIds)
 
-    const updatedAchievementIds = Array.from(
-      new Set([
-        ...currentTechniqueData.unlockedAchievementIds,
-        ...unlockedAchievementIds,
-      ])
+    const unlockedNewAchievements = getAchievementsStaticInfoByIds(
+      unlockedAchievementIds.filter(
+        (id) => !currentTechniqueData.unlockedAchievementIds.includes(id)
+      )
     )
 
     const modalInfo: UnlockedAchievementModalInfo = {
       type: 'unlockedAchievement',
       techniqueData: currentTechniqueData,
-      inPossessionAchievementIds: currentTechniqueData.unlockedAchievementIds,
-      unlockedAchievementIds: updatedAchievementIds,
+      inPossessionAchievements:
+        currentTechniqueData.unlockedAchievementsStaticInfo,
+      unlockedNewAchievements,
     }
     setPendingModalInfo(modalInfo)
   }

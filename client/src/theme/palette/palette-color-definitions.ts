@@ -6,6 +6,7 @@ import { navigationColors } from './navigation-colors'
 import { emotionStatusColors } from './emotion-colors'
 import { utilColors } from './util-colors'
 import { rankColors } from './rank-colors'
+import { rarityColors } from './rarity-colors'
 
 const paletteColorDefinitions = {
   ...baseColors,
@@ -13,6 +14,7 @@ const paletteColorDefinitions = {
   ...navigationColors,
   ...levelColors,
   ...rankColors,
+  ...rarityColors,
   ...emotionStatusColors,
 }
 

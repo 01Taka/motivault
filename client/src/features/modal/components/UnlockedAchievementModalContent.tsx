@@ -1,7 +1,8 @@
 // src/components/modals/UnlockedAchievementModalContent.tsx
 import React from 'react'
-import { Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import type { UnlockedAchievementModalInfo } from '../types/info-modal-store-types'
+import UnlockAchievementAnimations from '../../achievement/components/UnlockAchievementAnimations'
 
 interface UnlockedAchievementModalContentProps {
   info: UnlockedAchievementModalInfo
@@ -12,15 +13,12 @@ export const UnlockedAchievementModalContent: React.FC<
   UnlockedAchievementModalContentProps
 > = ({ info }) => {
   return (
-    <>
-      <Typography id="modal-title" variant="h5" component="h2" gutterBottom>
-        実績解除！
-      </Typography>
-      <Typography id="modal-description" sx={{ mt: 2 }}>
-        **{info.techniqueData.officialName}** に関する新しい実績を解除しました！
-        <br />
-        解除した実績: **{info.unlockedAchievementIds.join(', ')}**
-      </Typography>
-    </>
+    <Box>
+      <UnlockAchievementAnimations
+        title={info.techniqueData.officialName}
+        inPossessionAchievements={info.inPossessionAchievements}
+        unlockedNewAchievements={info.unlockedNewAchievements}
+      />
+    </Box>
   )
 }
