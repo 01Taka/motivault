@@ -27,10 +27,10 @@ const TinySteps: React.FC<TinyStepsProps> = ({}) => {
       onReady: (value) => setGoal(value),
     })
 
-  const { remainingTime, start, stop, reset } = usePersistentTimer(
-    'tinyStepsGoalTimer',
-    15 * MINUTES_IN_MS
-  )
+  const { remainingTime, start, stop, reset } = usePersistentTimer({
+    saveStateHandlerOrKey: 'tinyStepsGoalTimer',
+    expectedDuration: 15 * MINUTES_IN_MS,
+  })
 
   const [remainingRedrawCount, setRemainingRedrawCount] = useState(
     MAX_REMAINING_REDRAW_COUNT

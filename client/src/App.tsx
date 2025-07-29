@@ -27,8 +27,8 @@ import { useTechniqueDataStore } from './features/technique/services/stores/useT
 const SearchTechnique = lazy(
   () => import('./features/home/components/searchTechnique/SearchTechnique')
 )
-const PomodoroTimer = lazy(
-  () => import('./techniques/pomodoro/components/PomodoroTimer')
+const PomodoroTimerLayout = lazy(
+  () => import('./techniques/pomodoro/components/PomodoroTimerLayout')
 )
 const TimeBlocking = lazy(
   () => import('./techniques/timeBlocking/components/TimeBlocking')
@@ -99,7 +99,7 @@ function App() {
 
           {/* Techniques */}
           <Route path="/techniques" element={<TechniquesLayout />}>
-            <Route path="pomodoro" element={<PomodoroTimer />} />
+            <Route path="pomodoro" element={<PomodoroTimerLayout />} />
             <Route path="time-blocking" element={<TimeBlocking />} />
 
             {/* Feynman Technique Layout */}

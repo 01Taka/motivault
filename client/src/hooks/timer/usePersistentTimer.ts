@@ -1,88 +1,93 @@
-import { useCallback, useEffect, useState } from 'react'
-import useRemainingTime from './useRemainingTime'
+// hooks/usePersistentTimer.ts
+import { useCallback } from 'react'
+import useTimer from './useTimer' // useTimer フックをインポート
+import type { UnixTimestamp } from '../../types/utils/datetime-types' // 既存の型定義をインポート
+import useLocalStorage from '../utils/useLocalStorage'
 
-type TimerStorage = {
+/**
+ * @typedef {object} TimerState
+ * @property {number} startTime - タイマーが開始または再開されたUnixタイムスタンプ (ミリ秒)。
+ * @property {number} stoppedAt - タイマーが最後に停止されたUnixタイムスタンプ (ミリ秒)。タイマーが実行中の場合は0。
+ * @property {boolean} isRunning - タイマーが現在実行中であるかどうかのフラグ。
+ */
+type TimerState = {
   startTime: number
   stoppedAt: number
   isRunning: boolean
 }
 
-const getNow = () => Date.now()
+/**
+ * @interface UsePersistentTimerArgs
+ * @property {(() => UnixTimestamp)} [getNow] - 現在のUnixタイムスタンプ (ミリ秒) を返す関数。デフォルトは `Date.now()`。
+ * @property {((state: TimerState) => void) | string} saveStateHandlerOrKey - タイマーの状態を永続化するためのハンドラ関数、
+ * またはローカルストレージのキー文字列。文字列の場合、`useLocalStorage` を使用して状態が自動的に保存されます。
+ * @property {number} expectedDuration - タイマーの期待される合計持続時間 (ミリ秒)。
+ */
+interface UsePersistentTimerArgs {
+  getNow?: () => UnixTimestamp
+  saveStateHandlerOrKey: ((state: TimerState) => void) | string
+  expectedDuration: number
+}
 
-const usePersistentTimer = (key: string, expectedDuration: number) => {
-  const [startTime, setStartTime] = useState<number>(0)
-  const [stoppedAt, setStoppedAt] = useState<number>(0)
-  const [isRunning, setIsRunning] = useState<boolean>(false)
+/**
+ * タイマーの状態をローカルストレージまたはカスタムハンドラを通じて永続化するカスタムフック。
+ * `useTimer` と `useLocalStorage` を組み合わせて機能を提供します。
+ *
+ * @param {UsePersistentTimerArgs} args - タイマーの初期設定、永続化方法、期間を含む引数オブジェクト。
+ * @returns {object} タイマーの残り時間、経過時間、実行状態、およびタイマー操作（開始、停止、リセット）のための関数を含むオブジェクト。
+ * @property {number} remainingTime - タイマーの残り時間 (ミリ秒)。
+ * @property {number} elapsedTime - タイマーの経過時間 (ミリ秒)。
+ * @property {boolean} isRunning - タイマーが現在実行中であるかどうかのフラグ。
+ * @property {() => void} start - タイマーを開始または再開する関数。
+ * @property {() => void} stop - タイマーを停止する関数。
+ * @property {() => void} reset - タイマーを初期状態にリセットする関数。
+ * @property {React.MutableRefObject<number>} remainingTimeRef - 残り時間を参照するためのrefオブジェクト。
+ */
+const usePersistentTimer = (args: UsePersistentTimerArgs) => {
+  const { saveStateHandlerOrKey, expectedDuration } = args
+  const getNow = args.getNow ?? (() => Date.now())
 
-  const expectedEndAt = startTime + expectedDuration
+  const localStorageKey =
+    typeof saveStateHandlerOrKey === 'string' ? saveStateHandlerOrKey : null
 
-  const { remainingTime, elapsedTime, remainingTimeRef } = useRemainingTime({
-    isRunning,
-    stoppedAt,
-    expectedEndAt,
-    expectedDuration,
-    getNow,
-  })
-
-  // 状態の保存（引数で受け取る形式に変更）
-  const saveState = useCallback(
-    (state: TimerStorage) => {
-      setStartTime(state.startTime)
-      setStoppedAt(state.stoppedAt)
-      setIsRunning(state.isRunning)
-      localStorage.setItem(key, JSON.stringify(state))
-    },
-    [key]
+  // useLocalStorageから現在のタイマー状態と更新関数を取得
+  // localStorageKeyがnullの場合は、永続化しないためuseLocalStorageのダミーキーを使用
+  const [timerState, setTimerState] = useLocalStorage<TimerState>(
+    localStorageKey || 'non-existent-timer',
+    { startTime: 0, stoppedAt: 0, isRunning: false } // ローカルストレージに値がない場合のデフォルト状態
   )
 
-  // 状態の復元
-  useEffect(() => {
-    const saved = localStorage.getItem(key)
-    if (saved) {
-      try {
-        const { startTime, stoppedAt, isRunning } = JSON.parse(
-          saved
-        ) as TimerStorage
-        setStartTime(startTime)
-        setStoppedAt(stoppedAt)
-        setIsRunning(isRunning)
-      } catch (e) {
-        console.error('Failed to parse timer state', e)
+  // useTimerに渡すコールバック。useTimerからの状態変更をここで受け取り永続化する。
+  const handleTimerStateChange = useCallback(
+    (newState: TimerState) => {
+      if (typeof saveStateHandlerOrKey === 'function') {
+        // カスタムハンドラが提供されている場合
+        saveStateHandlerOrKey(newState)
+      } else if (localStorageKey) {
+        // ローカルストレージキーが提供されている場合、useLocalStorageのsetValueを呼び出す
+        setTimerState(newState)
       }
-    }
-  }, [key])
+    },
+    [saveStateHandlerOrKey, localStorageKey, setTimerState]
+  )
 
-  const start = useCallback(() => {
-    const now = getNow()
-    const newStartTime = isRunning
-      ? startTime
-      : stoppedAt > 0
-        ? now - (stoppedAt - startTime)
-        : now
-
-    saveState({
-      startTime: newStartTime,
-      stoppedAt: 0,
-      isRunning: true,
-    })
-  }, [isRunning, startTime, stoppedAt, saveState])
-
-  const stop = useCallback(() => {
-    const now = getNow()
-    saveState({
-      startTime,
-      stoppedAt: now,
-      isRunning: false,
-    })
-  }, [startTime, saveState])
-
-  const reset = useCallback(() => {
-    saveState({
-      startTime: 0,
-      stoppedAt: 0,
-      isRunning: false,
-    })
-  }, [saveState])
+  // useTimerフックを呼び出し、現在の状態と状態変更ハンドラを渡す
+  const {
+    remainingTime,
+    elapsedTime,
+    isRunning,
+    start,
+    stop,
+    reset,
+    remainingTimeRef,
+  } = useTimer({
+    startTime: timerState.startTime,
+    stoppedAt: timerState.stoppedAt,
+    isRunning: timerState.isRunning,
+    expectedDuration,
+    getNow,
+    onStateChange: handleTimerStateChange, // useTimerのonStateChangeにこのハンドラを渡す
+  })
 
   return {
     remainingTime,

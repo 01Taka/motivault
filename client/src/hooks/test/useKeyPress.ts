@@ -1,21 +1,58 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
-export const useKeyPress = (targetKey: string): boolean => {
-  const [keyPressed, setKeyPressed] = useState(false)
+type KeyHandler = (key: string, isPressed: boolean) => void
+
+export const useKeyPress = (
+  targetKeys: string | string[],
+  callback?: KeyHandler
+): Record<string, boolean> => {
+  const [keyStates, setKeyStates] = useState<Record<string, boolean>>(() => {
+    const initialStates: Record<string, boolean> = {}
+    const keysArray = Array.isArray(targetKeys) ? targetKeys : [targetKeys]
+    keysArray.forEach((key) => {
+      initialStates[key] = false
+    })
+    return initialStates
+  })
+
+  const keysToWatch = Array.isArray(targetKeys) ? targetKeys : [targetKeys]
+
+  // Memoize the handlers to prevent unnecessary re-creations
+  const downHandler = useCallback(
+    ({ key }: KeyboardEvent) => {
+      if (keysToWatch.includes(key)) {
+        setKeyStates((prevStates) => {
+          if (!prevStates[key]) {
+            // Only update if state actually changes
+            const newStates = { ...prevStates, [key]: true }
+            callback?.(key, true) // Call the callback if provided
+            return newStates
+          }
+          return prevStates
+        })
+      }
+    },
+    [keysToWatch, callback]
+  )
+
+  const upHandler = useCallback(
+    ({ key }: KeyboardEvent) => {
+      if (keysToWatch.includes(key)) {
+        setKeyStates((prevStates) => {
+          if (prevStates[key]) {
+            // Only update if state actually changes
+            const newStates = { ...prevStates, [key]: false }
+            callback?.(key, false) // Call the callback if provided
+            return newStates
+          }
+          return prevStates
+        })
+      }
+    },
+    [keysToWatch, callback]
+  )
 
   useEffect(() => {
-    const downHandler = ({ key }: KeyboardEvent) => {
-      if (key === targetKey) {
-        setKeyPressed(true)
-      }
-    }
-
-    const upHandler = ({ key }: KeyboardEvent) => {
-      if (key === targetKey) {
-        setKeyPressed(false)
-      }
-    }
-
     window.addEventListener('keydown', downHandler)
     window.addEventListener('keyup', upHandler)
 
@@ -23,7 +60,7 @@ export const useKeyPress = (targetKey: string): boolean => {
       window.removeEventListener('keydown', downHandler)
       window.removeEventListener('keyup', upHandler)
     }
-  }, [targetKey])
+  }, [downHandler, upHandler])
 
-  return keyPressed
+  return keyStates
 }

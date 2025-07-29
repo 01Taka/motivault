@@ -21,3 +21,5 @@ export const ISODateTimeSchema = z
     ISODateTimeRegex,
     '有効なISOタイムスタンプ形式ではありません (例: 2023-01-23T12:34:56.789Z)'
   )
+
+export const UnixTimestampSchema = z.number().int()
