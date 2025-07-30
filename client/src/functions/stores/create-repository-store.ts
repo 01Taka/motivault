@@ -270,13 +270,33 @@ export const createIDBRepoStore = <
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
           ).addCollectionSnapshotListener((data: SpecificReadType[]) => {
-            set({ [dataKey]: data } as Partial<Store>)
+            // Set status to listening for this specific dataKey
+            set(
+              (state) =>
+                ({
+                  listenerStatus: {
+                    ...state.listenerStatus,
+                    [dataKey]: 'listening',
+                  },
+                  [dataKey]: data,
+                }) as Partial<Store>
+            )
           }, pathSegments))
         } else if (subscriptionType === 'singleton') {
           ;({ unsubscribe } = (
             repo as IDBService<SpecificReadType, any>
           ).addDocumentSnapshotListener((data: SpecificReadType | null) => {
-            set({ [dataKey]: data } as Partial<Store>)
+            // Set status to listening for this specific dataKey
+            set(
+              (state) =>
+                ({
+                  listenerStatus: {
+                    ...state.listenerStatus,
+                    [dataKey]: 'listening',
+                  },
+                  [dataKey]: data,
+                }) as Partial<Store>
+            )
           }, pathSegments))
         } else {
           console.warn(`${key}の不明な購読タイプ: ${subscriptionType}`)
@@ -291,16 +311,6 @@ export const createIDBRepoStore = <
 
         if (unsubscribe) {
           unsubscribeFunctions.push(unsubscribe)
-          // Set status to listening for this specific dataKey
-          set(
-            (state) =>
-              ({
-                listenerStatus: {
-                  ...state.listenerStatus,
-                  [dataKey]: 'listening',
-                },
-              }) as Partial<Store>
-          )
         } else {
           // Fallback for cases where unsubscribe might be undefined (though it shouldn't be with current logic)
           set(

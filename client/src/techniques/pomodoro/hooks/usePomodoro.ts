@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import useTimer from '../../../hooks/timer/useTimer'
 import type { PomodoroCycleType } from '../services/documents/pomodoro-session-shared-data'
 import usePomodoroTimerStateCrudHandler from '../services/hooks/usePomodoroTimerStateCrudHandler'
@@ -18,16 +18,16 @@ interface TimerSettings {
 }
 
 const usePomodoro = (
-  settings: TimerSettings = {
+  defaultDuration: TimerSettings = {
     studyDuration: 25 * 60 * 1000,
     breakDuration: 5 * 60 * 1000,
   }
 ) => {
-  const { timerState, progressSession } = usePomodoroDataStore()
-  const { updateTimer } = usePomodoroTimerStateCrudHandler()
+  const { timerState, progressSession, listenerStatus } = usePomodoroDataStore()
+  const { asyncStates: timerStateAsyncStates, updateTimer } =
+    usePomodoroTimerStateCrudHandler()
   const {
-    asyncStates,
-    listenerStatus,
+    asyncStates: sessionAsyncStates,
     initializeSession,
     toggleCycle,
     saveSession,
@@ -35,31 +35,42 @@ const usePomodoro = (
 
   const { handleGainExp } = useGamificationSystem()
 
-  const { studyDuration, breakDuration } = settings
-
   const currentType =
     progressSession?.progressCycle && progressSession?.state === 'progress'
       ? progressSession.progressCycle.type
       : 'study'
 
   const isProgressSession = progressSession?.state === 'progress'
-  const isListenedSession = asyncStates.initializeSession?.status === 'success'
-  const needInitialize = !isProgressSession && isListenedSession
+  const isListenedSession =
+    sessionAsyncStates.initializeSession?.status === 'success'
+  const needInitialize =
+    listenerStatus.progressSession === 'listening' &&
+    (!progressSession || progressSession.state !== 'progress')
 
-  useEffect(() => {
-    if (
-      !isListenedSession &&
-      !isProgressSession &&
-      listenerStatus.progressSession === 'listening'
-    ) {
-      initializeSession('testSubject In init', currentType)
-    }
-  }, [
-    currentType,
-    isProgressSession,
-    isListenedSession,
-    listenerStatus.progressSession,
-  ])
+  const initializeTimer = useCallback(
+    async (
+      duration: number,
+      subjectId: string | null,
+      type?: PomodoroCycleType
+    ) => {
+      if (needInitialize) {
+        const result = await initializeSession(subjectId, type)
+
+        if (result?.success) {
+          await updateTimer(
+            {
+              duration,
+              status: 'running',
+              startTime: Date.now(),
+              stoppedAt: null,
+            },
+            defaultState
+          )
+        }
+      }
+    },
+    [needInitialize, initializeSession, updateTimer]
+  )
 
   // defaultStateは、timerStateが初期ロード時に存在しない場合のフォールバックとして使用
   const defaultState: PomodoroTimerStateWrite = useMemo(
@@ -67,9 +78,9 @@ const usePomodoro = (
       status: 'idle',
       startTime: 0,
       stoppedAt: 0,
-      duration: studyDuration,
+      duration: defaultDuration.studyDuration,
     }),
-    [studyDuration]
+    [defaultDuration.studyDuration]
   )
 
   // タイマーの現在の状態を決定
@@ -87,15 +98,15 @@ const usePomodoro = (
       baseState.duration
         ? baseState.duration // 実行中または一時停止中は現在のdurationを維持
         : currentType === 'study'
-          ? studyDuration
-          : breakDuration
+          ? defaultDuration.studyDuration
+          : defaultDuration.breakDuration
 
     return {
       ...baseState,
       stoppedAt: safeStoppedAt,
       duration: adjustedDuration,
     }
-  }, [timerState, defaultState, currentType, studyDuration, breakDuration])
+  }, [timerState, defaultState, currentType, defaultDuration])
 
   const handleTimerStateChange = useCallback(
     (stateFromUseTimer: {
@@ -127,17 +138,15 @@ const usePomodoro = (
   })
 
   const switchMode = useCallback(
-    async (nextType?: PomodoroCycleType) => {
-      const result = await toggleCycle('testSubject')
+    async (
+      nextDuration: number,
+      subjectId: string | null,
+      nextType?: PomodoroCycleType
+    ) => {
+      const result = await toggleCycle(subjectId, nextType)
       if (!result?.success) {
         return
       }
-
-      const actualNextType =
-        nextType || (currentType === 'study' ? 'break' : 'study')
-
-      const nextDuration =
-        actualNextType === 'study' ? studyDuration : breakDuration
 
       const newTimerStateForSwitch: PomodoroTimerStateWrite = {
         status: 'running',
@@ -148,14 +157,7 @@ const usePomodoro = (
 
       updateTimer(newTimerStateForSwitch, defaultState)
     },
-    [
-      studyDuration,
-      breakDuration,
-      updateTimer,
-      defaultState,
-      currentType,
-      toggleCycle,
-    ]
+    [updateTimer, defaultState, currentType, toggleCycle]
   )
 
   const sessionSummary: PomodoroSessionSummary = useMemo(() => {
@@ -186,17 +188,26 @@ const usePomodoro = (
     const result = await saveSession()
     if (result?.success) {
       timer.reset()
-      handleGainExp(expAmount, 'completeSession')
+      if (expAmount > 0) {
+        handleGainExp(expAmount, 'completeSession')
+      }
     }
   }, [sessionSummary.totalStudyDuration, handleGainExp, saveSession])
 
+  const remainingTimeByCycleStart = progressSession?.progressCycle?.startAt
+    ? progressSession.progressCycle.startAt + currentState.duration - Date.now()
+    : null
+
   return {
     ...timer, // useTimerからのプロパティ
+    remainingTimeByCycleStart,
+    asyncStates: { ...sessionAsyncStates, ...timerStateAsyncStates },
     isProgressSession,
     isListenedSession,
     needInitialize,
     currentType, // 現在のポモドーロサイクルタイプ
     switchMode, // モード切り替え関数
+    initializeTimer,
     status: currentState.status,
     sessionSummary,
     handleCompleteSession,

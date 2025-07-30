@@ -23,7 +23,10 @@ const usePomodoroSessionCrudHandler = () => {
     ])
   }
 
-  const toggleCycle = async (subjectId: string) => {
+  const toggleCycle = async (
+    subjectId: string | null,
+    targetType?: PomodoroCycleType
+  ) => {
     if (!idbProgressSession) {
       return
     }
@@ -31,6 +34,7 @@ const usePomodoroSessionCrudHandler = () => {
     return await callAsyncFunction('toggleCycle', togglePomodoroCycleInLocal, [
       idbProgressSession,
       subjectId,
+      targetType,
     ])
   }
 

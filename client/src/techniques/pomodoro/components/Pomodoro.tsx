@@ -1,108 +1,229 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import usePomodoro from '../hooks/usePomodoro'
-import { Settings } from '@mui/icons-material'
-import { Box, Paper, Stack, IconButton } from '@mui/material'
+import { Container, Typography } from '@mui/material'
+import PomodoroControlButtons from './timerControls/PomodoroControlButtons'
+import PomodoroTimerCountDisplay from './PomodoroTimerCountDisplay'
+import type { PomodoroTimerMode } from '../types/pomodoro-types'
+import { TIMER_MODE_SETTINGS } from '../constants/timer-mode-constants'
 import Popup from '../../../components/utils/Popup'
-import TimerControls from './timer/TimerControls'
-import TimerDisplay from './timer/TimerDisplay'
-import TimerSettings from './timer/TimerSettings'
-import { useKeyPress } from '../../../hooks/test/useKeyPress'
+import PomodoroMenuContents from './menu/PomodoroMenuContents'
+import MenuOpenButton from './menu/MenuOpenButton'
+import ToggleTypeContents from './menu/ToggleTypeContents'
+import InitializeTimerContents from './menu/InitializeTimerContents'
 
 interface PomodoroProps {}
 
-const defaultSettings = {
-  studyDuration: 25 * 60 * 1000,
-  breakDuration: 5 * 60 * 1000,
-}
+const Pomodoro: React.FC<PomodoroProps> = () => {
+  const [openInitialize, setOpenInitialize] = useState(false)
+  const [openMenu, setOpenMenu] = useState(false)
+  const [openToggleType, setOpenToggleType] = useState(false)
 
-const Pomodoro: React.FC<PomodoroProps> = ({}) => {
-  const [settings, setSettings] = useState(defaultSettings)
+  const [currentTimerMode, setCurrentTimerMode] =
+    useState<PomodoroTimerMode>('focus')
+  const [nextTimerMode, setNextTimerMode] = useState<PomodoroTimerMode>('focus')
 
   const {
+    isRunning,
+    start,
+    stop,
     currentType,
     status,
     remainingTime,
-    start,
-    stop,
-    reset,
+    elapsedTime,
     switchMode,
+    remainingTimeByCycleStart,
     needInitialize,
     handleCompleteSession,
-  } = usePomodoro(settings)
+    initializeTimer,
+    sessionSummary,
+  } = usePomodoro()
 
-  const state = useKeyPress('p')
+  const isOverTime = useMemo(
+    () => !!remainingTimeByCycleStart && remainingTimeByCycleStart < 0,
+    [remainingTimeByCycleStart]
+  )
 
-  // console.log(needInitialize)
+  const isTimeExceeded = useMemo(
+    () =>
+      currentType === 'study' &&
+      !!remainingTimeByCycleStart &&
+      remainingTimeByCycleStart <= 0,
+    [currentType, remainingTimeByCycleStart]
+  )
 
+  const formatRemainingTime = useMemo(
+    () => Math.max(remainingTime, 0),
+    [remainingTime]
+  )
+
+  const isScrollToActionButton = useMemo(
+    () => isOverTime && currentType === 'study',
+    [isOverTime, currentType]
+  )
+
+  // Effect to handle automatic mode switching when break time is over
   useEffect(() => {
-    if (state['p']) {
-      handleCompleteSession()
+    if (isOverTime && currentType === 'break') {
+      // Assuming 'testSubId' and 'study' are placeholders that might need clarification
+      switchMode(TIMER_MODE_SETTINGS[nextTimerMode].study, 'testSubId', 'study')
+      setCurrentTimerMode(nextTimerMode)
     }
-  }, [state])
+  }, [isOverTime, currentType, nextTimerMode, switchMode])
 
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  // Effect to open initialization popup when needed
+  useEffect(() => {
+    setOpenInitialize(needInitialize)
+  }, [needInitialize])
+
+  // Callbacks for handling timer mode selection
+  const handleSelectBreakTime = useCallback(
+    (timeMs: number) => {
+      setCurrentTimerMode(nextTimerMode)
+      switchMode(timeMs, null, 'break')
+    },
+    [nextTimerMode, switchMode]
+  )
+
+  const handleSelectNextStudyMode = useCallback(
+    (mode: PomodoroTimerMode) => {
+      const duration = TIMER_MODE_SETTINGS[mode].study
+      setCurrentTimerMode(mode) // Update current mode immediately for UI consistency
+      switchMode(duration, 'tesSubId', 'study')
+    },
+    [switchMode]
+  )
+
+  // Callbacks for popup interactions
+  const handleCloseToggleType = useCallback(() => setOpenToggleType(false), [])
+  const handleCloseInitialize = useCallback(() => setOpenInitialize(false), [])
+  const handleCloseMenu = useCallback(() => setOpenMenu(false), [])
+
+  const handleToggleTimerRunning = useCallback(() => {
+    isRunning ? stop() : start()
+    setOpenMenu(false)
+  }, [isRunning, start, stop])
+
+  const handleToggleTypeInMenu = useCallback(() => {
+    setOpenToggleType(true)
+  }, [])
+
+  const handleClickHandleSession = useCallback(() => {
+    if (isRunning) {
+      handleCompleteSession()
+      setOpenMenu(false)
+    } else {
+      setOpenMenu(false)
+      setOpenInitialize(true)
+    }
+  }, [isRunning, handleCompleteSession])
+
+  const handleInitializeTimerFromMenu = useCallback(
+    (mode: PomodoroTimerMode) => {
+      const duration = TIMER_MODE_SETTINGS[mode].study
+      setCurrentTimerMode(mode)
+      initializeTimer(duration, 'tesSubId', 'study')
+      setOpenInitialize(false) // Close initialize popup after selection
+    },
+    [initializeTimer]
+  )
 
   return (
-    <Box
+    <Container
+      maxWidth="sm"
       sx={{
-        height: '100vh',
+        mt: 4,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        // backgroundColor,
-        transition: 'background-color 1s ease',
+        gap: 3,
+        width: '90vw',
       }}
     >
-      <Paper
-        elevation={3}
+      <MenuOpenButton
+        isScrollToMenuOpenButton={isScrollToActionButton}
+        setOpenMenu={() => setOpenMenu(true)}
+      />
+
+      <Typography
+        variant="h3"
+        component="h1"
+        color="#F54927"
         sx={{
-          position: 'relative',
-          padding: 4,
-          borderRadius: 4,
-          minWidth: 320,
+          fontFamily: '"Roboto Mono", "Monaco", "Consolas", monospace',
+          fontWeight: 800,
+          fontSize: { xs: '3.0rem', sm: '3.5rem' },
         }}
       >
-        <Stack spacing={3} alignItems="center">
-          <TimerDisplay
-            status={status}
-            type={currentType}
-            remainingTime={remainingTime}
-          />
-          <TimerControls
-            status={status}
-            nextTypeName={currentType === 'study' ? '休憩' : '勉強'}
-            onStart={start}
-            onPause={stop}
-            onResume={start}
-            onSwitchMode={switchMode}
-          />
-        </Stack>
-        <IconButton sx={{ position: 'absolute', top: 12, right: 12 }}>
-          <Settings onClick={() => setSettingsOpen(true)} />
-        </IconButton>
-      </Paper>
+        <span role="img" aria-label="tomato">
+          🍅
+        </span>
+        POMO
+      </Typography>
 
-      <Popup open={settingsOpen} onClose={() => setSettingsOpen(false)}>
-        <TimerSettings
-          onSelectSetting={(newSettings) => {
-            console.log('refresh', newSettings.studyDuration)
+      {/* Timer display component */}
+      <PomodoroTimerCountDisplay
+        remainingTime={formatRemainingTime}
+        elapsedTime={elapsedTime}
+        type={currentType}
+        isRunning={status === 'running'}
+        isTimeExceeded={isTimeExceeded}
+      />
 
-            reset()
-            setSettings(newSettings)
-            setSettingsOpen(false)
+      {/* Control buttons and selection components */}
+      <PomodoroControlButtons
+        isTimeExceeded={isTimeExceeded}
+        type={currentType}
+        currentMode={currentTimerMode}
+        selectedNextMode={nextTimerMode}
+        onSelectBreakTime={handleSelectBreakTime}
+        onSelectNextMode={setNextTimerMode} // This directly sets the next mode for the main control buttons
+      />
+
+      {/* Toggle Type Popup */}
+      <Popup open={openToggleType} onClose={handleCloseToggleType}>
+        <ToggleTypeContents
+          currentType={currentType}
+          currentTimerMode={currentTimerMode}
+          onSelectBreakTime={(timeMs) => {
+            handleSelectBreakTime(timeMs)
+            setOpenToggleType(false)
+            setOpenMenu(false)
           }}
-          stats={{
-            totalStudyTime: 0,
-            totalBreakTime: 0,
-            cycleCount: 1,
-          }}
-          onResetStats={() => {
-            reset()
-            console.log('refresh settings.studyDuration')
+          onSelectNextMode={(mode) => {
+            handleSelectNextStudyMode(mode)
+            setOpenToggleType(false)
+            setOpenMenu(false)
           }}
         />
       </Popup>
-    </Box>
+
+      {/* Initialize Timer Popup */}
+      <Popup
+        open={openInitialize}
+        onClose={handleCloseInitialize}
+        hideCloseButton
+      >
+        <InitializeTimerContents
+          onSelectNextMode={handleInitializeTimerFromMenu}
+        />
+      </Popup>
+
+      {/* Main Menu Popup */}
+      <Popup open={openMenu} onClose={handleCloseMenu}>
+        <PomodoroMenuContents
+          totalStudyTime={sessionSummary.totalStudyDuration}
+          totalBreakTime={sessionSummary.totalBreakDuration}
+          totalCycles={sessionSummary.totalCycles}
+          currentType={currentType}
+          isScrollToActionButton={isScrollToActionButton}
+          isRunning={isRunning}
+          isNeedInitialize={needInitialize}
+          onToggleTimerRunning={handleToggleTimerRunning}
+          onToggleType={handleToggleTypeInMenu}
+          onClickHandleSession={handleClickHandleSession}
+        />
+      </Popup>
+    </Container>
   )
 }
 

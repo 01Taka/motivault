@@ -20,3 +20,5 @@
 //   getStats(): any | null
 //   setStats(stats: any): void
 // }
+
+export type PomodoroTimerMode = 'quick' | 'focus' | 'deep'

@@ -476,6 +476,7 @@ export const finishPomodoroProgressSessionInLocal = async (
  *
  * @param sessionRepo 進行中セッションのローカルリポジトリ (IndexedDB)。
  * @param subjectId 勉強サイクルを開始する場合の教科ID。休憩サイクルへ切り替える場合は不要 (null可)。
+ * @param targetType 切り替え先のターゲット。設定しなかった場合今と反対のタイプに切り替える
  * @param timestamp 操作時のUnixタイムスタンプ (ミリ秒)。デフォルトは `Date.now()`。
  * @returns {Promise<DBWriteTarget | void>} DB書き込みターゲット、またはvoid。
  * @throws {PomodoroServiceError} セッションや進行中のサイクルが見つからない場合、または無効な状態遷移の場合。
@@ -483,6 +484,7 @@ export const finishPomodoroProgressSessionInLocal = async (
 export const togglePomodoroCycleInLocal = async (
   sessionRepo: PomodoroProgressSessionIDBRepository,
   subjectId: string | null,
+  targetType?: PomodoroCycleType,
   timestamp: UnixTimestamp = Date.now()
 ): Promise<DBWriteTarget | void> => {
   try {
@@ -500,6 +502,11 @@ export const togglePomodoroCycleInLocal = async (
       throw new PomodoroServiceError(
         'サイクルを切り替えできません: 現在、進行中のサイクルがありません。新しいサイクルを開始してください。'
       )
+    }
+
+    if (currentSession.progressCycle.type === targetType) {
+      console.warn('既に目標のタイプなので、切り替えを中断しました')
+      return
     }
 
     // 進行中のサイクルが存在し、状態を切り替える

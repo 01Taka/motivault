@@ -7,23 +7,23 @@ const usePomodoroTimerStateCrudHandler = () => {
   const { idbTimerState } = usePomodoroDataStore()
 
   const asyncKeys = ['updateTimer'] as const
-  const { callAsyncFunction } = useMultipleAsyncHandler(asyncKeys)
+  const { asyncStates, callAsyncFunction } = useMultipleAsyncHandler(asyncKeys)
 
-  const updateTimer = (
+  const updateTimer = async (
     timerState: Partial<PomodoroTimerStateWrite>,
     defaultState: PomodoroTimerStateWrite
   ) => {
     if (!idbTimerState) {
       return
     }
-    callAsyncFunction('updateTimer', updateOrCreateTimerState, [
+    return await callAsyncFunction('updateTimer', updateOrCreateTimerState, [
       idbTimerState,
       timerState,
       defaultState,
     ])
   }
 
-  return { updateTimer }
+  return { asyncStates, updateTimer }
 }
 
 export default usePomodoroTimerStateCrudHandler
