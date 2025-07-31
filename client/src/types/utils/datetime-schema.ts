@@ -23,3 +23,15 @@ export const ISODateTimeSchema = z
   )
 
 export const UnixTimestampSchema = z.number().int()
+
+export const WeekdaySchema = z.number().int().min(0).max(6)
+
+export const StringWeekdaySchema = z.enum([
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+])

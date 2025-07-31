@@ -5,6 +5,8 @@ import type {
   ISODateSchema,
   ISODateTimeSchema,
   UnixTimestampSchema,
+  WeekdaySchema,
+  StringWeekdaySchema,
 } from './datetime-schema'
 
 export type ISODate = z.infer<typeof ISODateSchema>
@@ -26,14 +28,8 @@ export type Hours24 =
   | '22'
   | '23'
 
-export type Week =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday'
+export type Weekday = z.infer<typeof WeekdaySchema>
+export type StringWeekday = z.infer<typeof StringWeekdaySchema>
 
 export type TimeType = number | Timestamp | Date | ISODate | ISODateTime
 

@@ -1,24 +1,26 @@
 import { z } from 'zod'
+import { FirestoreDocIdSchema } from '../firebase/firestore/firestore-id-schema'
+import { UnixTimestampSchema } from '../utils/datetime-schema'
 
 // メタデータ（作成日時など）の共通スキーマ
 export const BaseMetadataSchema = z.object({
-  createdById: z.string(),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-  deletedAt: z.number().optional(),
+  createdById: FirestoreDocIdSchema,
+  createdAt: UnixTimestampSchema,
+  updatedAt: UnixTimestampSchema,
+  deletedAt: UnixTimestampSchema.optional(),
   isActive: z.boolean(),
 })
 
 // ドキュメント読み取り時の共通スキーマ（メタデータを含む）
 export const DocumentReadSchema = BaseMetadataSchema.extend({
-  docId: z.string(),
+  docId: FirestoreDocIdSchema,
   path: z.string(),
-  parentId: z.string().nullable(),
+  parentId: FirestoreDocIdSchema.nullable(),
 })
 
 export const DocumentWriteSchema = z.object({
-  createdById: z.string().optional(),
-  createdAt: z.number().optional(),
-  updatedAt: z.number().optional(),
-  deletedAt: z.number().optional(),
+  createdById: FirestoreDocIdSchema.optional(),
+  createdAt: UnixTimestampSchema.optional(),
+  updatedAt: UnixTimestampSchema.optional(),
+  deletedAt: UnixTimestampSchema.optional(),
 })
