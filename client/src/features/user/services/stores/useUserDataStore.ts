@@ -7,6 +7,7 @@ import {
 } from '../../../../functions/stores/create-repository-store'
 import { UserIDBRepository } from '../repositories/user-idb-repository'
 import type { UserRead } from '../documents/user-document'
+import type { UserAuthState } from '../../types/auth/user-auth-state'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
 const storeConfig = {
@@ -34,6 +35,15 @@ type StoreState = GeneratedStore<
   typeof storeConfig,
   ValueFromConfig<typeof storeConfig>,
   AppDataTypes
->
+> & {
+  userAuthState: UserAuthState | null
+  setUserAuthState: (state: UserAuthState) => void
+}
 
-export const useUserDataStore = create<StoreState>(storeDefinition)
+export const useUserDataStore = create<StoreState>((set, get, store) => {
+  return {
+    ...storeDefinition(set, get, store),
+    userAuthState: null,
+    setUserAuthState: (state: UserAuthState) => set({ userAuthState: state }),
+  } as StoreState
+})

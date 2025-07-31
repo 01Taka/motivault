@@ -3,8 +3,8 @@ import type { PomodoroTimerMode } from '../types/pomodoro-types'
 
 export const TIMER_MODE_SETTINGS = {
   quick: {
-    study: 0.25 * MINUTES_IN_MS,
-    breakChoices: [0.25 * MINUTES_IN_MS, 2 * MINUTES_IN_MS, 5 * MINUTES_IN_MS],
+    study: 10 * MINUTES_IN_MS,
+    breakChoices: [0.5 * MINUTES_IN_MS, 2 * MINUTES_IN_MS, 5 * MINUTES_IN_MS],
   },
   focus: {
     study: 25 * MINUTES_IN_MS,

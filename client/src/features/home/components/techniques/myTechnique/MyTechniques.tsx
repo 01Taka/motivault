@@ -1,6 +1,6 @@
 import React from 'react'
 import MyTechniqueList from './MyTechniqueList'
-import { useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import useFullTechniqueData from '../../../../technique/hooks/useFullTechniqueData'
 import { getTechniquePathById } from '../../../../technique/functions/path-helper'
 
@@ -12,6 +12,7 @@ const MyTechniques: React.FC<MyTechniquesProps> = ({}) => {
 
   return (
     <div>
+      <Outlet />
       <MyTechniqueList
         techniques={fullTechniquesData}
         onClickMyTechnique={(technique) =>

@@ -6,22 +6,18 @@ import HabitMateLayout from './techniques/habitMate/components/HabitMateLayout'
 import HabitMateIndex from './techniques/habitMate/components/HabitMateIndex'
 import HabitMateStartHabit from './techniques/habitMate/components/HabitMateStartHabit'
 import HabitMateCreateHabit from './techniques/habitMate/components/HabitMateCreateHabit'
-import useAbstractDataSync from './hooks/services/useAbstractDataSync'
-import { useUserDataStore } from './features/user/services/stores/useUserDataStore'
-import useTechniqueSessionManager from './features/technique/services/hooks/useTechniqueSessionManager'
 import AppStartLayout from './features/start/components/AppStartLayout'
 import AppStartIndex from './features/start/components/AppStartIndex'
 import SelectAuthMethod from './features/start/components/auth/SelectAuthMethod'
 import UserSetup from './features/start/components/userSetup/UserSetup'
 import AppTutorial from './features/start/components/tutorial/AppTutorial'
-import { useTechniqueMetadataDataStore } from './features/technique/services/stores/useTechniqueMetadataDataStore'
 import MyTechniques from './features/home/components/techniques/myTechnique/MyTechniques'
 import HomeLayout from './features/home/components/HomeLayout'
 import TechniquesLayout from './features/technique/components/TechniquesLayout'
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import baseTheme from './theme'
 import InfoModal from './features/modal/components/InfoModal'
-import { useTechniqueDataStore } from './features/technique/services/stores/useTechniqueDataStore'
+import useInitializeApp from './hooks/useInitializeApp'
 
 // Lazy imports for all pages and technique-related components
 const SearchTechnique = lazy(
@@ -70,12 +66,7 @@ const CreateTaskPress = lazy(
 )
 
 function App() {
-  useAbstractDataSync(useUserDataStore())
-  useAbstractDataSync(useTechniqueMetadataDataStore())
-  useAbstractDataSync({ ...useTechniqueDataStore(), dataKeysToListen: [] })
-  useTechniqueSessionManager()
-  // useTechniqueXPSetup()
-
+  useInitializeApp()
   const currentMode = 'light'
   const theme = baseTheme(currentMode)
 
@@ -85,16 +76,17 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <InfoModal />
         <Routes>
+          <Route path="start" element={<AppStartLayout />}>
+            <Route index element={<AppStartIndex />} />
+            <Route path="select-auth-method" element={<SelectAuthMethod />} />
+            <Route path="user-setup" element={<UserSetup />} />
+            <Route path="tutorial" element={<AppTutorial />} />
+          </Route>
+          <Route path="search" element={<SearchTechnique />} />
+
           {/* Home */}
           <Route path="/" element={<HomeLayout />}>
             <Route index element={<MyTechniques />} />
-            <Route path="start" element={<AppStartLayout />}>
-              <Route index element={<AppStartIndex />} />
-              <Route path="select-auth-method" element={<SelectAuthMethod />} />
-              <Route path="user-setup" element={<UserSetup />} />
-              <Route path="tutorial" element={<AppTutorial />} />
-            </Route>
-            <Route path="search" element={<SearchTechnique />} />
           </Route>
 
           {/* Techniques */}

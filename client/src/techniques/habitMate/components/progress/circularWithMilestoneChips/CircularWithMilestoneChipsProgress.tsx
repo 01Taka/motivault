@@ -31,7 +31,12 @@ const CircularWithMilestoneChipsProgress: React.FC<
   }
 
   return (
-    <Stack justifyContent="center" alignItems="center" spacing={3}>
+    <Stack
+      justifyContent="center"
+      alignItems="center"
+      spacing={3}
+      sx={{ width: '100vw' }}
+    >
       <motion.div animate={isCompletedToday ? completionAnimation : {}}>
         <CircularProgressWithLabelCard
           taskName={taskName}

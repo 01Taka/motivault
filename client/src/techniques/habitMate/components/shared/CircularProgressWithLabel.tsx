@@ -21,6 +21,7 @@ interface CircularProgressWithLabelProps extends CircularProgressProps {
    * 円形プログレスのサイズ。
    */
   size?: number | string
+  sizeBySx?: number | string | Record<string, number | string>
   /**
    * 円形プログレスの線の太さ。
    */
@@ -41,7 +42,8 @@ const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps> = ({
   value,
   trackColor = '#e0e0e0', // デフォルトの進行していない部分の色
   variantColor, // デフォルトではMUIのプライマリカラー
-  size = 40,
+  size,
+  sizeBySx,
   thickness = 3.6,
   strokeLinecap,
   children,
@@ -58,6 +60,8 @@ const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps> = ({
         variant="determinate"
         sx={{
           color: trackColor, // 進行していない部分の色
+          minWidth: !size ? sizeBySx : undefined,
+          minHeight: !size ? sizeBySx : undefined,
         }}
         size={size}
         thickness={thickness}
@@ -69,6 +73,8 @@ const CircularProgressWithLabel: React.FC<CircularProgressWithLabelProps> = ({
         sx={{
           color: variantColor, // 進行している部分の色
           position: 'absolute',
+          minWidth: !size ? sizeBySx : undefined,
+          minHeight: !size ? sizeBySx : undefined,
           left: 0,
           '& circle': {
             strokeLinecap,

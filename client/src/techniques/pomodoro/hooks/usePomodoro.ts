@@ -10,7 +10,7 @@ import {
   type PomodoroSessionSummary,
 } from '../functions/pomodoro-session-utils'
 import useGamificationSystem from '../../../features/gamification/hooks/useGamificationSystem'
-import { MINUTES_IN_MS } from '../../../constants/datetime-constants'
+import { STUDY_TIME_MS_PER_EXP_RATIO } from '../constants/pomodoro-constants'
 
 interface TimerSettings {
   studyDuration: number
@@ -182,7 +182,7 @@ const usePomodoro = (
 
   const handleCompleteSession = useCallback(async () => {
     const expAmount = Math.floor(
-      sessionSummary.totalStudyDuration / MINUTES_IN_MS
+      sessionSummary.totalStudyDuration * STUDY_TIME_MS_PER_EXP_RATIO
     )
 
     const result = await saveSession()

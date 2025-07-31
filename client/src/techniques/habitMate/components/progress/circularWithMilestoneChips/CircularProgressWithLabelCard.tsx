@@ -27,7 +27,7 @@ export const CircularProgressWithLabelCard: React.FC<
   return (
     <CircularProgressWithLabel
       value={value}
-      size="90vw"
+      sizeBySx={{ xs: '90vw', sm: 500 }}
       strokeLinecap="round"
       thickness={2.5}
       variantColor={palette.emotionStatus?.positive.main}

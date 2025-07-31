@@ -47,7 +47,7 @@ const ToggleTypeContents: React.FC<ToggleTypeContentsProps> = ({
           : 'どれぐらい休憩する？'}
       </Typography>
 
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
         <PomodoroControlButtons
           isTimeExceeded={true}
           type={currentType}

@@ -13,6 +13,7 @@ const InitializeTimerContents: React.FC<InitializeTimerContentsProps> = ({
   return (
     <Stack
       alignItems="center"
+      justifyContent="center"
       spacing={1}
       sx={{
         bgcolor: 'background.paper',
@@ -38,7 +39,7 @@ const InitializeTimerContents: React.FC<InitializeTimerContentsProps> = ({
         どのモードで開始する？
       </Typography>
 
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
         <NextSessionSelector
           selectedNextMode={null}
           onSelectNextMode={onSelectNextMode}
