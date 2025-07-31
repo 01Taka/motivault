@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import {
   createIDBRepoStore,
   type GeneratedStore,
-  type ValueFromConfig, // ValueFromMap から ValueFromConfig に変更
+  type ValueFromConfig,
 } from '../../../../functions/stores/create-repository-store'
 import { HabitMateHabitIDBRepository } from '../repositories/habit-mate-habit-idb-repository'
 import type { HabitMateHabitRead } from '../documents/habit-mate-habit-document'

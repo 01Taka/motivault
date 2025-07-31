@@ -1,7 +1,7 @@
 import type {
   TimeBlockingTaskRead,
   TimeBlockingTaskWrite,
-} from '../../../../techniques/timeBlocking/services/documents/task-documents'
+} from '../../../../techniques/timeBlocking/services/documents/prev/task-documents'
 import { IndexedDBService } from '../../../indexed-db-service'
 
 export class TimeBlockingTaskIDBRepository extends IndexedDBService<

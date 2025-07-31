@@ -17,7 +17,7 @@ import type {
   KeyMirrorObject,
 } from '../../../../types/form/formState-types'
 import type { TimeBlockingTaskFormState } from './TimeBlockingTaskForm'
-import type { TimeBlockingTags } from '../../services/documents/time-blocking-document'
+import type { TimeBlockingTags } from '../../services/documents/prev/time-blocking-document'
 import {
   DateTimePicker,
   type DateTimeValidationError,
