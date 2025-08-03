@@ -7,10 +7,10 @@ import {
 } from '../../../../functions/stores/create-repository-store'
 import { TimeBlockingBlockSettingIDBRepository } from '../repositories/indexedDB/time-blocking-block-setting-idb-repository'
 import { TimeBlockingPlanIDBRepository } from '../repositories/indexedDB/time-blocking-plan-idb-repository'
-import { TimeBlockingRepeatLayerIDBRepository } from '../repositories/indexedDB/time-blocking-repeat-layer-idb-repository'
 import type { TimeBlockingPlanRead } from '../documents/time-blocking-plan-document'
 import type { TimeBlockingBlockSettingRead } from '../documents/time-blocking-block-setting-document'
-import type { TimeBlockingRepeatLayerRead } from '../documents/time-blocking-repeat-layer-document'
+import { TimeBlockingTemplateLayerIDBRepository } from '../repositories/indexedDB/time-blocking-template-layer-idb-repository'
+import type { TimeBlockingTemplateLayerRead } from '../documents/time-blocking-template-layer-document'
 
 // 1. リポジトリクラスとデータマップを統合した単一のConfigオブジェクトを定義
 const storeConfig = {
@@ -26,9 +26,9 @@ const storeConfig = {
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
   },
-  idbRepeatLayers: {
-    repo: TimeBlockingRepeatLayerIDBRepository,
-    dataKey: 'repeatLayers' as const,
+  idbTemplateLayers: {
+    repo: TimeBlockingTemplateLayerIDBRepository,
+    dataKey: 'templateLayers' as const,
     subscriptionType: 'collection',
     repositoryType: 'indexedDB',
   },
@@ -38,7 +38,7 @@ const storeConfig = {
 type AppDataTypes = {
   plans: TimeBlockingPlanRead
   settings: TimeBlockingBlockSettingRead
-  repeatLayers: TimeBlockingRepeatLayerRead
+  templateLayers: TimeBlockingTemplateLayerRead
 }
 
 // 3. createIDBRepoStore を使ってストア定義を取得

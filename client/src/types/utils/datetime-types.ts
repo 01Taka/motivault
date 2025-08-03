@@ -7,11 +7,16 @@ import type {
   UnixTimestampSchema,
   WeekdaySchema,
   StringWeekdaySchema,
+  HHMMTimeSchema,
+  MinuteSecondNumberSchema,
+  HHMMTimeNumberSchema,
 } from './datetime-schema'
 
 export type ISODate = z.infer<typeof ISODateSchema>
 export type ISODateTime = z.infer<typeof ISODateTimeSchema>
 export type UnixTimestamp = z.infer<typeof UnixTimestampSchema>
+export type HHMMTime = z.infer<typeof HHMMTimeSchema>
+export type HHMMTimeNumber = z.infer<typeof HHMMTimeNumberSchema>
 
 export type Month = `0${DecimalDight}` | '10' | '11' | '12'
 export type Days =
@@ -27,6 +32,8 @@ export type Hours24 =
   | '21'
   | '22'
   | '23'
+
+export type MinuteSecondNumber = z.infer<typeof MinuteSecondNumberSchema>
 
 export type Weekday = z.infer<typeof WeekdaySchema>
 export type StringWeekday = z.infer<typeof StringWeekdaySchema>

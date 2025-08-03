@@ -26,6 +26,29 @@ export const UnixTimestampSchema = z.number().int()
 
 export const WeekdaySchema = z.number().int().min(0).max(6)
 
+const HHMMTimeRegex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/
+
+export const HHMMTimeSchema = z.string().regex(HHMMTimeRegex, {
+  message: 'Invalid time format. Expected format: hh:mm',
+})
+
+export const HHMMTimeNumberSchema = z
+  .number()
+  .int()
+  .min(0)
+  .max(2359)
+  .refine(
+    (val) => {
+      const minutes = val % 100
+      return minutes >= 0 && minutes <= 59
+    },
+    {
+      message: 'Invalid minutes. Must be between 00 and 59.',
+    }
+  )
+
+export const MinuteSecondNumberSchema = z.number().int().min(0).max(59)
+
 export const StringWeekdaySchema = z.enum([
   'monday',
   'tuesday',

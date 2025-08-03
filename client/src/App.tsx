@@ -27,7 +27,7 @@ const PomodoroTimerLayout = lazy(
   () => import('./techniques/pomodoro/components/PomodoroTimerLayout')
 )
 const TimeBlocking = lazy(
-  () => import('./techniques/timeBlocking/components/TimeBlocking')
+  () => import('./techniques/timeBlocking/components/TimeBlockingLayout')
 )
 
 // Feynman Technique related components

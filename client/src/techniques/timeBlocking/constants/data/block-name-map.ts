@@ -1,6 +1,6 @@
 // IDを日本語に変換するためのマップ
 export const BLOCK_NAME_MAP_JA = {
-  // timezoneLayer
+  // locationLayer
   home: '家',
   workSchool: '仕事・学校',
   out: '外出',
