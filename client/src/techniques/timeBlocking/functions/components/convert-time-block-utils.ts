@@ -16,21 +16,26 @@ const getIntervalFromBlocks = (blocks: SeparateTimeBlockingBlock[]): number => {
 // Helper to determine if a block is connected at the start
 const isConnectedStart = (
   currentEmptyMs: number,
-  prevEndMs: number
+  prevEndMs: number,
+  emptySpritIntervalMinutes: number | undefined
 ): boolean => {
-  return (currentEmptyMs / 60000) % 60 !== 0 && currentEmptyMs !== prevEndMs
+  return emptySpritIntervalMinutes
+    ? (currentEmptyMs / 60000) % emptySpritIntervalMinutes !== 0 &&
+        currentEmptyMs !== prevEndMs
+    : true
 }
 
 // Helper to determine if a block is connected at the end
 const isConnectedEnd = (
   currentEmptyMs: number,
   borderMs: number,
-  intervalMinutes: number
+  intervalMinutes: number,
+  emptySpritIntervalMinutes: number | undefined
 ): boolean => {
-  return (
-    (currentEmptyMs / 60000 + intervalMinutes) % 60 !== 0 &&
-    currentEmptyMs + intervalMinutes * 60000 < borderMs
-  )
+  return emptySpritIntervalMinutes
+    ? (currentEmptyMs / 60000 + intervalMinutes) % emptySpritIntervalMinutes !==
+        0 && currentEmptyMs + intervalMinutes * 60000 < borderMs
+    : true
 }
 
 // Helper to create empty blocks
@@ -68,7 +73,8 @@ const createSubstantialBlock = (
 
 export const convertToTimeBlockingComponentBlocks = (
   blocks: SeparateTimeBlockingBlock[],
-  intervalMinutes?: number
+  intervalMinutes?: number,
+  emptySpritIntervalMinutes?: number
 ): TimeBlockingTimeBlockComponentBlock[] => {
   if (intervalMinutes === undefined) {
     intervalMinutes = getIntervalFromBlocks(blocks)
@@ -86,11 +92,16 @@ export const convertToTimeBlockingComponentBlocks = (
     if (startMs > prevEndMs) {
       let currentEmptyMs = prevEndMs
       while (currentEmptyMs < startMs) {
-        const connectedStart = isConnectedStart(currentEmptyMs, prevEndMs)
+        const connectedStart = isConnectedStart(
+          currentEmptyMs,
+          prevEndMs,
+          emptySpritIntervalMinutes
+        )
         const connectedEnd = isConnectedEnd(
           currentEmptyMs,
           startMs,
-          intervalMinutes
+          intervalMinutes,
+          emptySpritIntervalMinutes
         )
 
         result.push(
@@ -110,11 +121,16 @@ export const convertToTimeBlockingComponentBlocks = (
   let currentEmptyMs = prevEndMs
   const endOfDayMs = 24 * 60 * 60 * 1000
   while (currentEmptyMs < endOfDayMs) {
-    const connectedStart = isConnectedStart(currentEmptyMs, prevEndMs)
+    const connectedStart = isConnectedStart(
+      currentEmptyMs,
+      prevEndMs,
+      emptySpritIntervalMinutes
+    )
     const connectedEnd = isConnectedEnd(
       currentEmptyMs,
       endOfDayMs,
-      intervalMinutes
+      intervalMinutes,
+      emptySpritIntervalMinutes
     )
 
     result.push(createEmptyBlock(currentEmptyMs, connectedStart, connectedEnd))

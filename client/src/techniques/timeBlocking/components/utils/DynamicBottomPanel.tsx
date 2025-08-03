@@ -10,7 +10,7 @@ interface DynamicBottomPanelProps {
   onOpen?: () => void
   onClose?: () => void
   hideToggleButton?: boolean
-  closedHeight?: string // 閉じた状態の高さ (例: '80px')
+  closedHeight?: string // 閉じた状態の高さ (例: '85px')
   openHeight?: string // 開いた状態の高さ (例: '300px')
   transitionDuration?: number // アニメーションの速度 ms (例: 300)
   barElevation?: number // バーの影の強さ
@@ -80,7 +80,7 @@ const DynamicBottomPanel: React.FC<DynamicBottomPanelProps> = ({
   onOpen,
   onClose,
   hideToggleButton = false,
-  closedHeight = '80px',
+  closedHeight = '85px',
   openHeight = '300px',
   transitionDuration = 300,
   barElevation = 4,
@@ -120,7 +120,7 @@ const DynamicBottomPanel: React.FC<DynamicBottomPanelProps> = ({
             justifyContent="center"
             alignItems="center"
             sx={{
-              height: 30,
+              height: isOpen ? 60 : 35,
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
             }}
           >

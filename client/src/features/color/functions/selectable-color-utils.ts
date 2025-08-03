@@ -84,7 +84,7 @@ export const complementSelectableColor = (
 ): FullSelectableColor[] => {
   return colors.map((color) => ({
     ...color,
-    text: getTextColor(color.main)[theme],
+    text: theme === 'light' ? '#000000' : '#ffffff',
     background: getBackgroundColor(color.main)[theme],
   }))
 }
@@ -98,7 +98,7 @@ export const getSelectableColorById = (
     selectableColorTemplate[id] ?? selectableColorTemplate[defaultColorId]
   return {
     ...template,
-    text: getTextColor(template.main)[theme],
+    text: theme === 'light' ? '#000000' : '#ffffff',
     background: getBackgroundColor(template.main)[theme],
   }
 }

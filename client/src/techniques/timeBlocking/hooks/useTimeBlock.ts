@@ -1,11 +1,12 @@
 import { convertToTimeBlockingComponentBlocks } from '../functions/components/convert-time-block-utils'
 import { separateTimeBlockingBlocks } from '../functions/components/separate-time-block-utils'
+import type { TimeBlockingTimeBlockComponentBlock } from '../types/components/block-types'
 import type { TimeBlockingBlock } from '../types/data/time-blocking-block-data'
 
 interface UseTimeBlockResult {
   success: boolean
   message: string
-  data?: any
+  data?: TimeBlockingTimeBlockComponentBlock[]
 }
 
 const useTimeBlock = (
@@ -17,15 +18,6 @@ const useTimeBlock = (
     return {
       success: false,
       message: 'Invalid argument: timeBlockingBlocks should be an array',
-    }
-  }
-
-  // timeBlockingBlocksが空の配列の場合
-  if (timeBlockingBlocks.length === 0) {
-    return {
-      success: true,
-      message: 'Warning: timeBlockingBlocks is an empty array',
-      data: [], // 空のデータを返す
     }
   }
 
@@ -68,7 +60,10 @@ const useTimeBlock = (
   let componentBlocks
   // convertToTimeBlockingComponentBlocksの呼び出しとエラーハンドリング
   try {
-    componentBlocks = convertToTimeBlockingComponentBlocks(blocks)
+    componentBlocks = convertToTimeBlockingComponentBlocks(
+      blocks,
+      intervalMinutes
+    )
   } catch (error) {
     return {
       success: false,

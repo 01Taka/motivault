@@ -6,20 +6,15 @@ import type {
 
 // Helper function to convert HH:mm string to minutes
 const timeToMinutes = (hhmm: HHMMTimeNumber): number => {
-  // HHMM形式から時間と分を抽出
   const hours = Math.floor(hhmm / 100)
   const minutes = hhmm % 100
-
-  // 抽出した時間と分からミリ秒を計算
   return hours * 60 + minutes
 }
 
 // Helper function to convert minutes back to HH:mm string
 const minutesToTime = (totalMinutes: number): HHMMTimeNumber => {
-  // ミリ秒を時間と分に変換
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-
   return hours * 100 + minutes
 }
 
@@ -43,13 +38,21 @@ const createSeparatedBlock = (
   currentEndTime: number,
   roundedStart: number,
   roundedEnd: number,
-  prevEndTime: number | null
+  prevEndTime: number | null,
+  prevBlock: TimeBlockingBlockInfo | null, // previous block for checking
+  nextBlock: TimeBlockingBlockInfo | null // next block for checking
 ): SeparateTimeBlockingBlock => {
   const isConnectedStart =
-    currentStartTime !== roundedStart &&
-    prevEndTime !== null &&
-    prevEndTime === currentStartTime
-  const isConnectedEnd = currentEndTime !== roundedEnd
+    (currentStartTime !== roundedStart &&
+      prevEndTime !== null &&
+      prevEndTime === currentStartTime) ||
+    (prevBlock?.settingId === block.settingId &&
+      prevBlock.endAt === block.startAt) // Check if previous block has the same settingId
+
+  const isConnectedEnd =
+    currentEndTime !== roundedEnd ||
+    (nextBlock?.settingId === block.settingId &&
+      nextBlock.startAt === block.endAt) // Check if next block has the same settingId
 
   return {
     ...block,
@@ -63,7 +66,9 @@ const createSeparatedBlock = (
 // Helper function to split a single block into multiple based on interval
 const splitBlockByInterval = (
   block: TimeBlockingBlockInfo,
-  intervalMinutes: number
+  intervalMinutes: number,
+  prevBlock: TimeBlockingBlockInfo | null, // pass the previous block
+  nextBlock: TimeBlockingBlockInfo | null // pass the next block
 ): SeparateTimeBlockingBlock[] => {
   const startAtMinutes = timeToMinutes(block.startAt)
   const endAtMinutes = timeToMinutes(block.endAt)
@@ -90,7 +95,9 @@ const splitBlockByInterval = (
         currentEndTime,
         roundedStart,
         roundedEnd,
-        prevEndTime
+        prevEndTime,
+        prevBlock,
+        nextBlock
       )
     )
 
@@ -103,17 +110,29 @@ const splitBlockByInterval = (
 
 // Main function to separate TimeBlockingBlocks based on intervals
 export const separateTimeBlockingBlocks = (
-  blocks: TimeBlockingBlockInfo[],
+  blocks: readonly TimeBlockingBlockInfo[],
   intervalMinutes: number
 ): SeparateTimeBlockingBlock[] => {
   if (60 % intervalMinutes !== 0) {
     throw new Error('intervalMinutes must divide evenly into 60.')
   }
 
+  const sortedBlocks = [...blocks].sort(
+    (a, b) => timeToMinutes(a.startAt) - timeToMinutes(b.startAt)
+  )
+
   const allSeparatedBlocks: SeparateTimeBlockingBlock[] = []
 
-  blocks.forEach((block) => {
-    const separatedBlocks = splitBlockByInterval(block, intervalMinutes)
+  sortedBlocks.forEach((block, index) => {
+    const prevBlock = sortedBlocks[index - 1] || null
+    const nextBlock = sortedBlocks[index + 1] || null
+
+    const separatedBlocks = splitBlockByInterval(
+      block,
+      intervalMinutes,
+      prevBlock,
+      nextBlock
+    )
     allSeparatedBlocks.push(...separatedBlocks)
   })
 
