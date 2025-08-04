@@ -17,7 +17,7 @@ interface TimerSettings {
   breakDuration: number
 }
 
-const usePomodoro = (
+const usePomodoroTimerSystem = (
   defaultDuration: TimerSettings = {
     studyDuration: 25 * 60 * 1000,
     breakDuration: 5 * 60 * 1000,
@@ -214,4 +214,4 @@ const usePomodoro = (
   }
 }
 
-export default usePomodoro
+export default usePomodoroTimerSystem

@@ -18,6 +18,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material'
 import baseTheme from './theme'
 import InfoModal from './features/modal/components/InfoModal'
 import useInitializeApp from './hooks/useInitializeApp'
+import { SoundPermissionModal } from './features/sound/components/SoundPermissionModal'
 
 // Lazy imports for all pages and technique-related components
 const SearchTechnique = lazy(
@@ -75,6 +76,7 @@ function App() {
       <CssBaseline />
       <Suspense fallback={<div>Loading...</div>}>
         <InfoModal />
+        <SoundPermissionModal />
         <Routes>
           <Route path="start" element={<AppStartLayout />}>
             <Route index element={<AppStartIndex />} />

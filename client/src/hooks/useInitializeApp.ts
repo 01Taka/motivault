@@ -8,6 +8,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth'
 import { auth } from '../firebase/firebase'
 import { useNavigate } from 'react-router-dom'
 import { UserIDBRepository } from '../features/user/services/repositories/user-idb-repository'
+import { useAppSounds } from '../features/sound/hooks/useAppSounds'
 
 const useInitializeApp = () => {
   const navigate = useNavigate()
@@ -16,6 +17,8 @@ const useInitializeApp = () => {
   useAbstractDataSync(useTechniqueMetadataDataStore())
   useAbstractDataSync({ ...useTechniqueDataStore(), dataKeysToListen: [] })
   useTechniqueSessionManager()
+
+  useAppSounds()
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(
