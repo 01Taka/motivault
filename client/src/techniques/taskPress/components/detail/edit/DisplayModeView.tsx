@@ -1,8 +1,8 @@
 import React from 'react'
 import { Typography, Stack } from '@mui/material'
 import { format } from 'date-fns'
-import type { TaskPressUpdateFormState } from '../../types/formState/task-press-create-form-state'
-import type { TaskPressTaskType } from '../../services/documents/task-press-shared-types'
+import type { TaskPressUpdateFormState } from '../../../types/formState/task-press-create-form-state'
+import type { TaskPressTaskType } from '../../../services/documents/task-press-shared-types'
 
 interface DisplayModeViewProps {
   type: TaskPressTaskType
@@ -36,7 +36,7 @@ export const DisplayModeView: React.FC<DisplayModeViewProps> = ({
   return (
     <>
       <InfoRow label="タイトル:" value={formState.title || '未設定'} />
-      <InfoRow label="教科:" value={formState.subject || '未設定'} />
+      {/* <InfoRow label="教科:" value={formState.subject || '未設定'} /> */}
       <InfoRow label="締切:" value={formatDeadline(formState.deadline)} />
 
       {isProblemSet && (

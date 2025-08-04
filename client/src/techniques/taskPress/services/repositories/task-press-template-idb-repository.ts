@@ -1,7 +1,9 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
-import type {
-  TaskPressTemplateRead,
-  TaskPressTemplateWrite,
+import {
+  PartialTaskPressTemplateWriteSchema,
+  TaskPressTemplateWriteSchema,
+  type TaskPressTemplateRead,
+  type TaskPressTemplateWrite,
 } from '../documents/task-press-template-document'
 
 /**
@@ -24,58 +26,29 @@ export class TaskPressTemplateIDBRepository extends IndexedDBService<
   protected getCreatorUid(): string {
     return this.uid
   }
-
-  private filterData<
-    T extends TaskPressTemplateWrite | Partial<TaskPressTemplateWrite>,
-  >(
-    data: T
-  ): T extends TaskPressTemplateWrite
-    ? TaskPressTemplateWrite
-    : Partial<TaskPressTemplateWrite> {
-    const { title, subject, type } = data
-
-    const timePerPage = type === 'problemSet' ? data.timePerPage : undefined
-    const steps = type === 'report' ? data.steps : undefined
-
-    if (
-      type === 'problemSet' ||
-      (type === undefined && timePerPage !== undefined)
-    ) {
-      return {
-        type,
-        title,
-        subject,
-        timePerPage,
-      } as T extends TaskPressTemplateWrite
-        ? TaskPressTemplateWrite
-        : Partial<TaskPressTemplateWrite>
-    }
-
-    if (type === 'report' || (type === undefined && steps !== undefined)) {
-      return {
-        type,
-        title,
-        subject,
-        steps,
-      } as T extends TaskPressTemplateWrite
-        ? TaskPressTemplateWrite
-        : Partial<TaskPressTemplateWrite>
-    }
-
-    return { title, subject } as T extends TaskPressTemplateWrite
-      ? TaskPressTemplateWrite
-      : Partial<TaskPressTemplateWrite>
-  }
-
   protected filterWriteData(
     data: TaskPressTemplateWrite
   ): TaskPressTemplateWrite {
-    return this.filterData(data)
+    return TaskPressTemplateWriteSchema.parse(data)
   }
 
   protected filterPartialWriteData(
     data: Partial<TaskPressTemplateWrite>
   ): Partial<TaskPressTemplateWrite> {
-    return this.filterData(data)
+    console.log(data)
+
+    const type =
+      (data.type ?? ('pages' in data || 'completedPages' in data))
+        ? 'problemSet'
+        : 'completedStepOrders' in data
+          ? 'report'
+          : null
+
+    if (!type) {
+      throw new Error(`typeが推測できないデータが渡されました。data: ${data}`)
+    }
+
+    console.log({ ...data, type })
+    return PartialTaskPressTemplateWriteSchema.parse(data)
   }
 }

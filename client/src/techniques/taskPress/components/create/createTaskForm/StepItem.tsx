@@ -26,7 +26,7 @@ const StepItem: React.FC<StepItemProps> = ({
   createInputPropsInArray,
   isUsingTemplate,
 }) => {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
 
   return (
     <Box

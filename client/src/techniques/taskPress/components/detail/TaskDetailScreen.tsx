@@ -6,22 +6,22 @@ import ReportDetail from './ReportDetail'
 import useFormState from '../../../../hooks/forms/base/useFormState'
 import type { TaskPressUpdateFormState } from '../../types/formState/task-press-create-form-state'
 import type { CreateInputProps } from '../../../../types/form/formState-types'
-import EditMetadata from './EditMetadata'
 import { useCompletion } from '../../hooks/detail/useCompletion'
 import { MINUTES_IN_MS } from '../../../../constants/datetime-constants'
+import EditMetadata from './edit/EditMetadata'
 
 interface TaskDetailScreenProps {
   task: TaskPressMergedTask
-  subjects: string[]
   onUpdateTask: (updatedTask: Partial<TaskPressUpdateFormState>) => void
   onCompletionDifferencesChange: (diffs: Record<string, boolean>) => void
+  onDeleteTask: () => void
 }
 
 const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({
   task,
-  subjects,
   onUpdateTask,
   onCompletionDifferencesChange,
+  onDeleteTask,
 }) => {
   const {
     formState,
@@ -32,7 +32,6 @@ const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({
     updateInitialState,
   } = useFormState<TaskPressUpdateFormState>({
     title: task.title,
-    subject: task.subject,
     deadline: task.deadline,
     // ProblemSet
     timePerPage:
@@ -47,7 +46,6 @@ const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({
   useEffect(() => {
     updateInitialState({
       title: task.title,
-      subject: task.subject,
       deadline: task.deadline,
       // ProblemSet
       timePerPage:
@@ -109,9 +107,9 @@ const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({
           type={task.type}
           formState={formState}
           hasUnsavedChanges={hasFormDiff()}
-          subjects={subjects}
           onSave={() => onUpdateTask(getFormDiff())}
           onCancel={() => resetFormState()}
+          onDelete={() => onDeleteTask()}
           createInputProps={createInputProps as CreateInputProps}
         />
         <Divider sx={{ padding: 1 }} />

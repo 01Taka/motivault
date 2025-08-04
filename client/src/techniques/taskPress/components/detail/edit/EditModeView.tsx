@@ -1,20 +1,18 @@
 import React from 'react'
-import { MenuItem, TextField, Button, Stack } from '@mui/material'
-import DeadlineInput from '../create/createTaskForm/DeadlineInput' // Adjust path if needed
-import type { CreateInputProps } from '../../../../types/form/formState-types'
-import type { TaskPressTaskType } from '../../services/documents/task-press-shared-types'
+import { TextField, Button, Stack } from '@mui/material'
+import DeadlineInput from '../../create/createTaskForm/DeadlineInput' // Adjust path if needed
+import type { CreateInputProps } from '../../../../../types/form/formState-types'
+import type { TaskPressTaskType } from '../../../services/documents/task-press-shared-types'
 import { Delete } from '@mui/icons-material'
 
 interface EditModeViewProps {
   type: TaskPressTaskType
-  subjects: string[]
   createInputProps: CreateInputProps
-  onDelete?: () => void
+  onDelete: () => void
 }
 
 export const EditModeView: React.FC<EditModeViewProps> = ({
   type,
-  subjects,
   createInputProps,
   onDelete,
 }) => {
@@ -32,7 +30,7 @@ export const EditModeView: React.FC<EditModeViewProps> = ({
         {...createInputProps('title')}
         {...commonTextFieldProps}
       />
-      <TextField
+      {/* <TextField
         label="教科"
         select
         {...createInputProps('subject')}
@@ -43,7 +41,7 @@ export const EditModeView: React.FC<EditModeViewProps> = ({
             {s}
           </MenuItem>
         ))}
-      </TextField>
+      </TextField> */}
       <DeadlineInput
         createInputProps={createInputProps}
         props={{ size: 'small', variant: 'standard' }}

@@ -13,7 +13,8 @@ export const formatTaskFromFormState = (
 })
 
 export const formatTemplateFromFormState = (
-  formState: TaskPressCreateFormState
+  formState: TaskPressCreateFormState,
+  taskId: string
 ): TaskPressTemplateWrite => {
   if (formState.type === 'report') {
     return {
@@ -24,12 +25,14 @@ export const formatTemplateFromFormState = (
         order: index,
         estimatedTime: step.estimatedTime * MINUTES_IN_MS,
       })),
+      dependsTaskIds: [taskId],
     }
   } else {
     return {
       ...formState,
       type: 'problemSet',
       timePerPage: formState.timePerPage * MINUTES_IN_MS,
+      dependsTaskIds: [taskId],
     }
   }
 }

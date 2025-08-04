@@ -55,8 +55,12 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
     return null
   }, [showingDetailTaskId, mergedTasks])
 
-  const { updateCompletedPages, updateCompletedStepOrders, handleUpdate } =
-    useTaskPressCrudHandler()
+  const {
+    updateCompletedPages,
+    updateCompletedStepOrders,
+    handleUpdate,
+    deleteTask,
+  } = useTaskPressCrudHandler()
 
   const callBatchDebounce = useBatchedDebouncedCallback<[number]>(
     ({ debounceKey, debounceType, mergedArgs }) => {
@@ -71,8 +75,6 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
     },
     { delays: { problemSet: 1500, report: 2000 } }
   )
-
-  const subjects = ['数学', '英語', '物理', '化学']
 
   const handleCloseDetail = () => {
     if (!showingDetailTask) return
@@ -91,13 +93,18 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
         uncompletedNumber
       )
     } else {
-      console.log(completedNumber, uncompletedNumber)
-
       updateCompletedStepOrders(
         showingDetailTask.taskDocId,
         completedNumber,
         uncompletedNumber
       )
+    }
+  }
+
+  const handleDeleteTask = () => {
+    if (showingDetailTask) {
+      deleteTask(showingDetailTask.taskDocId)
+      setIsShowingDetail(false)
     }
   }
 
@@ -129,7 +136,6 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
         {showingDetailTask && (
           <TaskDetailScreen
             task={showingDetailTask}
-            subjects={subjects}
             onUpdateTask={(update) => {
               handleUpdate(
                 showingDetailTask.taskDocId,
@@ -143,6 +149,7 @@ const TaskPress: React.FC<TaskPressProps> = ({}) => {
               )
             }}
             onCompletionDifferencesChange={(diff) => setCompletionDiffs(diff)}
+            onDeleteTask={handleDeleteTask}
           />
         )}
       </Popup>

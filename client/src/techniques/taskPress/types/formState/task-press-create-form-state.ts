@@ -8,7 +8,6 @@ interface FormStateCreate {
 interface FormStateBase {
   deadline: string
   title: string
-  subject: string
 }
 
 interface ProblemSetFormState extends FormStateBase {

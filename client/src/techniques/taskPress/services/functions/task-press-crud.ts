@@ -8,55 +8,63 @@ import type { TaskPressTemplateWrite } from '../documents/task-press-template-do
 export const createNewTaskPressTask = async (
   taskRepo: TaskPressTaskRepository,
   templateRepo: TaskPressTemplateRepository,
+  taskId: string,
   task: TaskPressTaskWrite,
   template: TaskPressTemplateWrite
 ): Promise<void> => {
-  const templateExists =
-    task.templateId && (await isExistTemplate(templateRepo))
+  const existingTemplate = task.templateId
+    ? await templateRepo.read([task.templateId])
+    : null
 
-  if (templateExists) {
-    await taskRepo.create(task, [])
+  if (
+    existingTemplate &&
+    existingTemplate.dependsTaskIds &&
+    existingTemplate.dependsTaskIds.includes(taskId)
+  ) {
+    throw new Error(
+      `タスクのドキュメントIDがテンプレートの依存関係のIDと競合しています。taskId=${taskId}, templateId=${task.templateId}`
+    )
+  }
+
+  if (existingTemplate) {
+    await templateRepo.update(
+      { dependsTaskIds: [...(existingTemplate.dependsTaskIds ?? []), taskId] },
+      [existingTemplate.docId]
+    )
+    await taskRepo.createWithId(task, [taskId])
   } else {
     const createdTemplate = await templateRepo.create(template, [])
     if (!createdTemplate?.id) {
-      throw new Error('テンプレートの作成に失敗しました')
+      throw new Error(
+        'テンプレートの作成に失敗しました。templateIdが取得できませんでした'
+      )
     }
-    await taskRepo.create({ ...task, templateId: createdTemplate.id }, [])
+    await taskRepo.createWithId({ ...task, templateId: createdTemplate.id }, [
+      taskId,
+    ])
   }
-}
-
-const isExistTemplate = async (
-  templateRepo: TaskPressTemplateRepository
-): Promise<boolean> => {
-  const data = await templateRepo.read([])
-  return Boolean(data && data.isActive)
 }
 
 export const taskPressUpdateProblemSetPages = async (
   taskRepo: TaskPressTaskRepository,
   taskId: string,
   pagesToComplete: number[] = [],
-  pagesToUncomplete: number[] = [] // New parameter for pages to uncomplete
+  pagesToUncomplete: number[] = []
 ): Promise<boolean> => {
   const task = await taskRepo.read([taskId])
 
   if (!task) {
-    throw new Error(`タスクが見つかりません, taskId=${taskId}`)
+    throw new Error(`タスクが見つかりません。taskId=${taskId}`)
   }
 
   if (task.type !== 'problemSet') {
     throw new Error(
-      `不正なタスクタイプ: expected 'problemSet', got '${task.type}'`
+      `不正なタスクタイプです。expected 'problemSet', got '${task.type}', taskId=${taskId}`
     )
   }
 
-  // Start with current completed pages
   let currentCompletedPages = new Set(task.completedPages)
-
-  // Add pages to complete
   pagesToComplete.forEach((page) => currentCompletedPages.add(page))
-
-  // Remove pages to uncomplete
   pagesToUncomplete.forEach((page) => currentCompletedPages.delete(page))
 
   const newCompletedPages = Array.from(currentCompletedPages).sort(
@@ -72,25 +80,22 @@ export const taskPressUpdateReportStepOrders = async (
   taskRepo: TaskPressTaskRepository,
   taskId: string,
   stepOrdersToComplete: number[] = [],
-  stepOrdersToUncomplete: number[] = [] // New parameter for step orders to uncomplete
+  stepOrdersToUncomplete: number[] = []
 ): Promise<boolean> => {
   const task = await taskRepo.read([taskId])
 
   if (!task) {
-    throw new Error(`タスクが見つかりません: taskId=${taskId}`)
+    throw new Error(`タスクが見つかりません。taskId=${taskId}`)
   }
 
   if (task.type !== 'report') {
-    throw new Error(`不正なタスクタイプ: expected 'report', got '${task.type}'`)
+    throw new Error(
+      `不正なタスクタイプです。expected 'report', got '${task.type}', taskId=${taskId}`
+    )
   }
 
-  // Start with current completed step orders
   let currentCompletedStepOrders = new Set(task.completedStepOrders)
-
-  // Add step orders to complete
   stepOrdersToComplete.forEach((step) => currentCompletedStepOrders.add(step))
-
-  // Remove step orders to uncomplete
   stepOrdersToUncomplete.forEach((step) =>
     currentCompletedStepOrders.delete(step)
   )
@@ -111,7 +116,13 @@ export const updateTaskPressTask = async (
   taskId: string,
   data: Partial<TaskPressTaskWrite>
 ) => {
-  await taskRepo.update(data, [taskId])
+  try {
+    await taskRepo.update(data, [taskId])
+  } catch (error) {
+    throw new Error(
+      `タスク更新に失敗しました。taskId=${taskId}, error=${error}`
+    )
+  }
 }
 
 export const updateTaskPressTemplate = async (
@@ -119,5 +130,58 @@ export const updateTaskPressTemplate = async (
   taskId: string,
   data: Partial<TaskPressTemplateWrite>
 ) => {
-  await templateRepo.update(data, [taskId])
+  try {
+    await templateRepo.update(data, [taskId])
+  } catch (error) {
+    throw new Error(
+      `テンプレート更新に失敗しました。taskId=${taskId}, error=${error}`
+    )
+  }
+}
+
+export const deleteTaskPressTask = async (
+  taskRepo: TaskPressTaskRepository,
+  templateRepo: TaskPressTemplateRepository,
+  taskId: string,
+  isDeleteNoLongerDependentTemplate: boolean = true
+) => {
+  const task = await taskRepo.read([taskId])
+  if (!task) {
+    throw new Error(`削除対象のタスクが見つかりません。taskId=${taskId}`)
+  }
+  const dependsTemplateId = task.templateId
+
+  const template = await templateRepo.read([dependsTemplateId])
+  if (!template) {
+    throw new Error(
+      `依存関係のテンプレートが見つかりませんでした。dependsTemplateId=${dependsTemplateId}`
+    )
+  }
+  if (
+    'dependsTaskIds' in template &&
+    !template.dependsTaskIds.includes(taskId)
+  ) {
+    throw new Error(
+      `対象のタスクが依存関係に含まれていません。taskId=${taskId}, dependsTemplateId=${dependsTemplateId}`
+    )
+  }
+  await taskRepo.hardDelete([taskId])
+
+  const newTemplateDependsTaskIds = template.dependsTaskIds
+    ? template.dependsTaskIds.filter((id) => id !== taskId)
+    : []
+
+  if (
+    newTemplateDependsTaskIds.length === 0 &&
+    isDeleteNoLongerDependentTemplate
+  ) {
+    await templateRepo.hardDelete([dependsTemplateId])
+  } else {
+    await templateRepo.update(
+      {
+        dependsTaskIds: newTemplateDependsTaskIds,
+      },
+      [dependsTemplateId]
+    )
+  }
 }

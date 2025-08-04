@@ -1,12 +1,4 @@
-import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Stack,
-  Typography,
-  MenuItem,
-} from '@mui/material'
+import { Container, Paper, Button, Stack, Typography } from '@mui/material'
 
 import TaskTypeTabs from './TaskTypeTabs'
 import StepInputs from './StepInputs'
@@ -16,29 +8,35 @@ import type {
   CreateInputProps,
   CreateInputPropsInArray,
 } from '../../../../../types/form/formState-types'
+import type { TaskPressTemplateRead } from '../../../services/documents/task-press-template-document'
+import TaskTitleInput from './TaskTitleInput'
 
 interface CreateTaskFormProps {
-  subjects: string[]
   formState: Record<string, any>
+  templateChoicesMap: Record<string, TaskPressTemplateRead>
   createInputProps: CreateInputProps
   createInputPropsInArray: CreateInputPropsInArray
   onSubmit: () => void
   onAddStep: () => void
   onRemoveStep: (index: number) => void
   onSetPages: (pages: number[]) => void
+  onSelectTemplate: (templateId: string) => void
+  onClearSelectedTemplate: () => void
   hasEmptyInput: boolean
   isUsingTemplate: boolean
 }
 
 export default function CreateTaskForm({
-  subjects,
   formState,
+  templateChoicesMap,
   createInputProps,
   createInputPropsInArray,
   onSubmit,
   onAddStep,
   onRemoveStep,
   onSetPages,
+  onSelectTemplate,
+  onClearSelectedTemplate,
   hasEmptyInput,
   isUsingTemplate,
 }: CreateTaskFormProps) {
@@ -52,27 +50,17 @@ export default function CreateTaskForm({
         <TaskTypeTabs createInputProps={createInputProps} />
 
         <Stack spacing={2}>
-          <TextField
+          <TaskTitleInput
             label="タイトル"
             fullWidth
             required
             disabled={isUsingTemplate}
             {...createInputProps('title')}
+            choices={Object.keys(templateChoicesMap)}
+            getOptionLabel={(option) => templateChoicesMap[option]?.title ?? ''}
+            onClear={onClearSelectedTemplate}
+            onSelectChoices={onSelectTemplate}
           />
-
-          <TextField
-            label="教科"
-            select
-            fullWidth
-            disabled={isUsingTemplate}
-            {...createInputProps('subject')}
-          >
-            {subjects.map((s) => (
-              <MenuItem key={s} value={s}>
-                {s}
-              </MenuItem>
-            ))}
-          </TextField>
 
           {formState.type === 'report' && (
             <StepInputs

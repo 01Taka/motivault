@@ -16,7 +16,7 @@ const TaskPressTaskCardHeader: React.FC<TaskPressTaskCardHeaderProps> = ({
       <IconButton onClick={onEdit}>
         <Visibility />
       </IconButton>
-      <Box sx={{ overflow: 'auto', width: '100%', maxWidth: '100%' }}>
+      <Box sx={{ overflow: 'hidden', width: '100%', maxWidth: '100%' }}>
         <Typography variant="h5">{title}</Typography>
       </Box>
     </Stack>

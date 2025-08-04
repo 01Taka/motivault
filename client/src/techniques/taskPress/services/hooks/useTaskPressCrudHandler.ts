@@ -1,5 +1,6 @@
 import {
   createNewTaskPressTask,
+  deleteTaskPressTask,
   taskPressUpdateProblemSetPages,
   taskPressUpdateReportStepOrders,
   updateTaskPressTask,
@@ -15,6 +16,7 @@ import {
   formatTemplateFromFormState,
 } from '../../functions/task-press-format-form-state'
 import { useTaskPressDataStore } from '../stores/useTaskPressDataStore'
+import { createFirestoreId } from '../../../../functions/services/firestore-id-service'
 
 const useTaskPressCrudHandler = () => {
   const { idbTask, idbTemplate } = useTaskPressDataStore()
@@ -25,6 +27,7 @@ const useTaskPressCrudHandler = () => {
     'updateTemplate',
     'updateCompletedPages',
     'updateCompletedStepOrders',
+    'deleteTask',
   ] as const
 
   const {
@@ -67,12 +70,14 @@ const useTaskPressCrudHandler = () => {
       return
     }
 
+    const taskId = createFirestoreId()
     const task = formatTaskFromFormState(formState)
-    const template = formatTemplateFromFormState(formState)
+    const template = formatTemplateFromFormState(formState, taskId)
 
     callAsyncFunction('submit', createNewTaskPressTask, [
       idbTask!, // Assert non-null after validation
       idbTemplate!, // Assert non-null after validation
+      taskId,
       task,
       template,
     ])
@@ -133,6 +138,18 @@ const useTaskPressCrudHandler = () => {
     )
   }
 
+  const deleteTask = async (taskId: string) => {
+    if (!validateCrudPrerequisites('updateCompletedStepOrders', true)) {
+      return
+    }
+
+    return await callAsyncFunction('deleteTask', deleteTaskPressTask, [
+      idbTask!,
+      idbTemplate!,
+      taskId,
+    ])
+  }
+
   return {
     asyncStates,
     allMatchStates,
@@ -141,6 +158,7 @@ const useTaskPressCrudHandler = () => {
     handleUpdate, // Added handleUpdate to the return object
     updateCompletedPages,
     updateCompletedStepOrders,
+    deleteTask,
   }
 }
 

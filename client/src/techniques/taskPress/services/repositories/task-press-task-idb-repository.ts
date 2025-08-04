@@ -1,7 +1,9 @@
 import { IndexedDBService } from '../../../../indexedDB/indexed-db-service'
-import type {
-  TaskPressTaskRead,
-  TaskPressTaskWrite,
+import {
+  PartialTaskPressTaskWriteSchema,
+  TaskPressTaskWriteSchema,
+  type TaskPressTaskRead,
+  type TaskPressTaskWrite,
 } from '../documents/task-press-task-document'
 
 /**
@@ -25,63 +27,24 @@ export class TaskPressTaskIDBRepository extends IndexedDBService<
     return this.uid
   }
 
-  private filterData<
-    T extends TaskPressTaskWrite | Partial<TaskPressTaskWrite>,
-  >(
-    data: T
-  ): T extends TaskPressTaskWrite
-    ? TaskPressTaskWrite
-    : Partial<TaskPressTaskWrite> {
-    const { templateId, deadline, type } = data
-
-    const pages = type === 'problemSet' ? data.pages : undefined
-    const completedPages =
-      type === 'problemSet' ? data.completedPages : undefined
-    const completedStepOrders =
-      type === 'report' ? data.completedStepOrders : undefined
-
-    if (
-      type === 'problemSet' ||
-      (type === undefined &&
-        (pages !== undefined || completedPages !== undefined))
-    ) {
-      return {
-        type,
-        templateId,
-        deadline,
-        pages,
-        completedPages,
-      } as T extends TaskPressTaskWrite
-        ? TaskPressTaskWrite
-        : Partial<TaskPressTaskWrite>
-    }
-
-    if (
-      type === 'report' ||
-      (type === undefined && completedStepOrders !== undefined)
-    ) {
-      return {
-        type,
-        templateId,
-        deadline,
-        completedStepOrders,
-      } as T extends TaskPressTaskWrite
-        ? TaskPressTaskWrite
-        : Partial<TaskPressTaskWrite>
-    }
-
-    return { templateId, deadline } as T extends TaskPressTaskWrite
-      ? TaskPressTaskWrite
-      : Partial<TaskPressTaskWrite>
-  }
-
   protected filterWriteData(data: TaskPressTaskWrite): TaskPressTaskWrite {
-    return this.filterData(data)
+    return TaskPressTaskWriteSchema.parse(data)
   }
 
   protected filterPartialWriteData(
     data: Partial<TaskPressTaskWrite>
   ): Partial<TaskPressTaskWrite> {
-    return this.filterData(data)
+    const type =
+      (data.type ?? ('pages' in data || 'completedPages' in data))
+        ? 'problemSet'
+        : 'completedStepOrders' in data
+          ? 'report'
+          : null
+
+    if (!type) {
+      throw new Error(`typeが推測できないデータが渡されました。data: ${data}`)
+    }
+
+    return PartialTaskPressTaskWriteSchema.parse({ ...data, type })
   }
 }

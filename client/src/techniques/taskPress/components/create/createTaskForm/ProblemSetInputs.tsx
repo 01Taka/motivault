@@ -63,7 +63,6 @@ const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
               type="number"
               value={start}
               onChange={(e) => setStart(e.target.value)}
-              disabled={isUsingTemplate}
               size="small"
               sx={{ width: '48%' }}
             />
@@ -72,7 +71,6 @@ const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
               type="number"
               value={end}
               onChange={(e) => setEnd(e.target.value)}
-              disabled={isUsingTemplate}
               size="small"
               sx={{ width: '48%' }}
               placeholder="空欄で1ページ"
@@ -83,7 +81,7 @@ const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
             <Button
               variant="outlined"
               onClick={addRange}
-              disabled={isUsingTemplate || isAddDisabled}
+              disabled={isAddDisabled}
               size="small"
               startIcon={<Add />}
               sx={{
@@ -119,12 +117,7 @@ const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
             >
               {pages.map((page) => (
                 <Grid2 key={page}>
-                  <Chip
-                    label={`${page}`}
-                    onDelete={
-                      isUsingTemplate ? undefined : () => removePage(page)
-                    }
-                  />
+                  <Chip label={`${page}`} onDelete={() => removePage(page)} />
                 </Grid2>
               ))}
             </Grid2>
@@ -134,7 +127,6 @@ const ProblemSetInputs: React.FC<ProblemSetInputsProps> = ({
               size="small"
               color="error"
               onClick={clearPages}
-              disabled={isUsingTemplate}
               sx={{ mb: 1, mt: 1 }}
             >
               すべて削除
