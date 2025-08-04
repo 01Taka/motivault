@@ -1,41 +1,41 @@
-import React from 'react'
-import { TodoTaskCard } from './TodoTaskCard'
-import { Box, Stack } from '@mui/material'
-import type { TimeBlockingTaskRead } from '../../../services/documents/prev/task-documents'
-import type { TimeBlockingTags } from '../../../services/documents/prev/time-blocking-document'
+// import React from 'react'
+// import { TodoTaskCard } from './TodoTaskCard'
+// import { Box, Stack } from '@mui/material'
+// import type { TimeBlockingTaskRead } from '../../../services/documents/prev/task-documents'
+// import type { TimeBlockingTags } from '../../../services/documents/prev/time-blocking-document'
 
-interface TodoListProps {
-  tasks: TimeBlockingTaskRead[]
-  tags: TimeBlockingTags
-  onChangeCompleted: (id: string, state: boolean) => void
-}
+// interface TodoListProps {
+//   tasks: TimeBlockingTaskRead[]
+//   tags: TimeBlockingTags
+//   onChangeCompleted: (id: string, state: boolean) => void
+// }
 
-const TodoList: React.FC<TodoListProps> = ({
-  tasks,
-  tags,
-  onChangeCompleted,
-}) => {
-  return (
-    <Box
-      sx={{
-        width: '100%',
-        height: '100%',
-        maxHeight: '100vh',
-        overflowY: 'auto',
-      }}
-    >
-      <Stack padding={1} spacing={1}>
-        {tasks.map((task) => (
-          <TodoTaskCard
-            key={task.docId}
-            task={task}
-            tags={tags}
-            onChangeCompleted={(state) => onChangeCompleted(task.docId, state)}
-          />
-        ))}
-      </Stack>
-    </Box>
-  )
-}
+// const TodoList: React.FC<TodoListProps> = ({
+//   tasks,
+//   tags,
+//   onChangeCompleted,
+// }) => {
+//   return (
+//     <Box
+//       sx={{
+//         width: '100%',
+//         height: '100%',
+//         maxHeight: '100vh',
+//         overflowY: 'auto',
+//       }}
+//     >
+//       <Stack padding={1} spacing={1}>
+//         {tasks.map((task) => (
+//           <TodoTaskCard
+//             key={task.docId}
+//             task={task}
+//             tags={tags}
+//             onChangeCompleted={(state) => onChangeCompleted(task.docId, state)}
+//           />
+//         ))}
+//       </Stack>
+//     </Box>
+//   )
+// }
 
-export default TodoList
+// export default TodoList |DEL|

@@ -60,7 +60,8 @@ export function mergeTaskWithTemplate(
       mergedTask: {
         type: 'problemSet',
         title: template.title,
-        subject: template.subject,
+        isUserDefinedSubject: template.isUserDefinedSubject,
+        subjectId: template.subjectId,
         deadline: task.deadline,
         pages: task.pages,
         timePerPage: template.timePerPage,
@@ -79,7 +80,8 @@ export function mergeTaskWithTemplate(
       mergedTask: {
         type: 'report',
         title: template.title,
-        subject: template.subject,
+        isUserDefinedSubject: template.isUserDefinedSubject,
+        subjectId: template.subjectId,
         deadline: task.deadline,
         steps: template.steps.map((step) => ({
           ...step,

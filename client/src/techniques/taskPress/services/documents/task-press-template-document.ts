@@ -8,7 +8,8 @@ import {
 // 共通テンプレートのスキーマ
 const BaseTemplateSchema = z.object({
   title: z.string().min(1, 'タイトルは必須です。'),
-  // typeはdiscriminatorとして使用するため、ここでは定義しない
+  isUserDefinedSubject: z.boolean().optional(),
+  subjectId: z.string().optional(),
   dependsTaskIds: z.array(FirestoreDocIdSchema).default([]),
 })
 

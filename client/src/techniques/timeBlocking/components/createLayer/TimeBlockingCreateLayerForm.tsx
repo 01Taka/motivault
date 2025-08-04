@@ -15,33 +15,20 @@ import {
   HOURS_IN_MS,
   MINUTES_IN_MS,
 } from '../../../../constants/datetime-constants'
-import { useTimeBlockingDataStore } from '../../services/stores/useTimeBlockingDataStore'
 import type { TimeBlockingLayerType } from '../../types/data/time-blocking-layer-data'
-import {
-  TIME_BLOCKING_BLOCKS_MAP,
-  TIME_BLOCKING_LOCATION_BLOCKS_MAP,
-  TIME_BLOCKING_ROUTINE_BLOCKS_MAP,
-} from '../../constants/data/block-setting-template-data'
+import { TIME_BLOCKING_ROUTINE_BLOCKS_MAP } from '../../constants/data/block-setting-template-data'
 import { getSelectableColorById } from '../../../../features/color/functions/selectable-color-utils'
 import type { TimeBlockingBlockSetting } from '../../services/documents/time-blocking-block-setting-document'
 import { BLOCK_NAME_MAP_JA } from '../../constants/data/block-name-map'
-import type { TimeBlockingTimeBlockComponentBlock } from '../../types/components/block-types'
 
 interface TimeBlockingCreateLayerFormProps {
   layerType: TimeBlockingLayerType
 }
 
-interface TimeBlockingCreateLayerFormStateBlock {
-  name: string
-  color: string
-  startAt: number
-  endAt: number
-}
-
 const TimeBlockingCreateLayerForm: React.FC<
   TimeBlockingCreateLayerFormProps
 > = () => {
-  const { templateLayers } = useTimeBlockingDataStore()
+  // const { templateLayers } = useTimeBlockingDataStore()
   const [addedNewBlocks, setAddedNewBlocks] = useState<TimeBlockingBlock[]>([])
   const [newBlock, setNewBlock] = useState<TimeBlockingBlock | null>(null)
   const [openTemplateSelect, setOpenTemplateSelect] = useState(false)
@@ -64,14 +51,14 @@ const TimeBlockingCreateLayerForm: React.FC<
     [selectedTemplate]
   )
 
-  const setBlockTime = useCallback((type: 'start' | 'end', timeMs: number) => {
-    setNewBlock((prev) => {
-      if (!prev) return null
-      return type === 'start'
-        ? { ...prev, startAt: timeMs }
-        : { ...prev, endAt: timeMs }
-    })
-  }, [])
+  // const setBlockTime = useCallback((type: 'start' | 'end', timeMs: number) => {
+  //   setNewBlock((prev) => {
+  //     if (!prev) return null
+  //     return type === 'start'
+  //       ? { ...prev, startAt: timeMs }
+  //       : { ...prev, endAt: timeMs }
+  //   })
+  // }, [])
 
   const incrementBlockTime = useCallback(
     (type: 'start' | 'end', timeMs: number) => {

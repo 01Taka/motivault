@@ -5,7 +5,8 @@ export interface MergedProblemSetTask {
   templateDocId: string
   type: 'problemSet'
   title: string
-  subject: string
+  isUserDefinedSubject?: boolean
+  subjectId?: string
   deadline: string
   pages: number[]
   timePerPage: number
@@ -26,7 +27,8 @@ export interface MergedReportTask {
   templateDocId: string
   type: 'report'
   title: string
-  subject: string
+  isUserDefinedSubject?: boolean
+  subjectId?: string
   deadline: string
   steps: MergedReportStep[]
   completedStepOrders: number[]
