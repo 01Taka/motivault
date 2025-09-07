@@ -26,7 +26,7 @@ const Pomodoro: React.FC<PomodoroProps> = () => {
     handleCloseMenu,
     handleToggleTimerRunning,
     handleToggleTypeInMenu,
-    handleClickHandleSession,
+    handleClickEndSession,
     handleInitializeTimerFromMenu,
     handleSelectBreakTime,
     handleSelectNextStudyMode,
@@ -129,9 +129,16 @@ const Pomodoro: React.FC<PomodoroProps> = () => {
           isNeedInitialize={needInitialize}
           onToggleTimerRunning={handleToggleTimerRunning}
           onToggleType={handleToggleTypeInMenu}
-          onClickHandleSession={handleClickHandleSession}
+          onClickEndSession={handleClickEndSession}
         />
       </Popup>
+
+      {/* <Popup open={openAutoStopNotice} hideCloseButton>
+        <AutoStopNoticeContents
+          onContinue={handleRestartAfterAutoStop}
+          onExitSession={handleExitSessionAfterAutoStop}
+        />
+      </Popup> */}
     </Container>
   )
 }

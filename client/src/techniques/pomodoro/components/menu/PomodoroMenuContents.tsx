@@ -24,7 +24,7 @@ interface PomodoroMenuContentsProps {
   isNeedInitialize: boolean
   onToggleTimerRunning: () => void
   onToggleType: () => void
-  onClickHandleSession: () => void
+  onClickEndSession: () => void
 }
 
 // 時間をhh:mm:ss形式にフォーマット
@@ -70,7 +70,7 @@ const PomodoroMenuContents: React.FC<PomodoroMenuContentsProps> = ({
   isNeedInitialize,
   onToggleTimerRunning,
   onToggleType,
-  onClickHandleSession,
+  onClickEndSession,
 }) => {
   const typeConfig = useTypeConfig(currentType)
   const actionButtonRef = useRef<HTMLDivElement | null>(null)
@@ -243,7 +243,7 @@ const PomodoroMenuContents: React.FC<PomodoroMenuContentsProps> = ({
           variant="contained"
           size="large"
           fullWidth
-          onClick={onClickHandleSession}
+          onClick={onClickEndSession}
           startIcon={<ExitIcon />}
           sx={{
             py: 1.5,
